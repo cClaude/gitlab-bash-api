@@ -20,37 +20,24 @@ fi
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 if [[ $# -lt 2 ]] ; then
-  echo "Usage: $0 <GROUP_NAME> <PROJECT_NAME>" >&2
+  echo "Usage: $0 GROUP_NAME PROJECT_NAME" >&2
+  echo "Usage: $0 --id PROJECT_ID" >&2
   exit 1
 fi
 
 # Parameters
-GROUP_NAME=$1
-PROJECT_NAME=$2
+if [ "$1" = "--id" ]; then
+  PROJECT_ID=$2
 
-answer=$(gitlab_get "projects" ) || exit 1
-PROJECT_INFO=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${GROUP_NAME}/${PROJECT_NAME}\"))")
-PROJECT_ID=$(echo "${PROJECT_INFO}" | jq -c ".id")
-VALID_PROJECT_ID=$(echo "${PROJECT_ID}" | wc -l)
+  echo "# delete project: PROJECT_ID=[${PROJECT_ID}]"
+else
+  GROUP_NAME=$1
+  PROJECT_NAME=$2
 
-if [ ${VALID_PROJECT_ID} -ne 1 ] ; then
-  echo "*** More than one maching project: ${VALID_PROJECT_ID}"
-  exit 200
+  PROJECT_ID=$(get_project_id "${GROUP_NAME}" "${PROJECT_NAME}") || exit 1
+  echo "# delete project: PROJECT_ID=[${PROJECT_ID}] : GROUP_NAME=[${GROUP_NAME}] - PROJECT_NAME=[${PROJECT_NAME}]"
 fi
 
-if [ -z "${PROJECT_ID}" ] ; then
-  echo -e "** Project \"${GROUP_NAME}/${PROJECT_NAME}\" does not exist"
-  exit 250
-fi
+answer=$(delete_projects_by_id "${PROJECT_ID}") || exit 1
 
-echo "# delete project: PROJECT_ID=[${PROJECT_ID}] : GROUP_NAME=[${GROUP_NAME}] - PROJECT_NAME=[${PROJECT_NAME}]"
-
-answer=$(gitlab_delete "projects/${PROJECT_ID}") || exit 1
-if [ "${answer}" != "true" ] ; then
-  echo "Can not delete project..."
-  echo "CURL_URL=${CURL_URL}"
-  echo "${CURL_RESULT}"
-  exit 300
-fi
-
-echo "done"
+echo "${answer}"

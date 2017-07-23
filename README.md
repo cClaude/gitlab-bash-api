@@ -106,8 +106,11 @@ createGroup.sh my_test_group
 
 * How to create some repositories ?
 
+Syntax!
+> createProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
+
 ```bash
-createProject.sh my_test_group my_test_repository1
+createProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
 createProject.sh my_test_group my_test_repository2
 ```
 
@@ -141,6 +144,10 @@ statisticsProjects.sh 12
 ```
 
 * To delete a project
+
+Syntax:
+> deleteProject.sh GROUP_NAME PROJECT_NAME
+> deleteProject.sh --id PROJECT_ID
 
 ```bash
 deleteProject.sh GROUP_NAME PROJECT_NAME
