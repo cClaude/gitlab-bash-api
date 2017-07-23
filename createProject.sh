@@ -43,7 +43,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 2 ]] ; then
-  echo "*** createProject.sh <GROUP_NAME> <PROJECT_PATH> ['<PROJECT_NAME>' ['<PROJECT_DESCRIPTION']]"
+  echo "Usage: $0 GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]" >&2
   exit 1
 fi
 
@@ -54,6 +54,8 @@ PROJECT_NAME=$3
 
 if [ ! -z "$4" ] ; then
   PROJECT_DESCRIPTION="$4"
+else
+  PROJECT_DESCRIPTION="${GITLAB_PROJECT_DESCRIPTION}"
 fi
 
 GROUP_ID=$(get_groupid_from_group_name "${GROUP_NAME}") || exit 1
@@ -75,15 +77,19 @@ PARAMS+="&namespace_id=${GROUP_ID}"
 ENCODED=$(urlencode "${PROJECT_DESCRIPTION}")
 PARAMS+="&description=${ENCODED}"
 
-PARAMS+="&issues_enabled=${PROJECT_ISSUES_ENABLED}"
-PARAMS+="&merge_requests_enabled=${PROJECT_MERGE_REQUESTS_ENABLED}"
-PARAMS+="&jobs_enabled=${PROJECT_JOBS_ENABLED}"
-PARAMS+="&wiki_enabled=${PROJECT_WIKI_ENABLED}"
-PARAMS+="&snippets_enabled=${PROJECT_SNIPPETS_ENABLED}"
-PARAMS+="&visibility=${PROJECT_VISIBILITY}"
-PARAMS+="&lfs_enabled=${PROJECT_LFS_ENABLED}"
-PARAMS+="&request_access_enabled=${PROJECT_REQUEST_ACCESS_ENABLED}"
-PARAMS+="&printing_merge_request_link_enabled=${PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}"
+PARAMS+="&container_registry_enabled=${GITLAB_PROJECT_CONTAINER_REGISTRY_ENABLED}"
+PARAMS+="&issues_enabled=${GITLAB_PROJECT_ISSUES_ENABLED}"
+PARAMS+="&jobs_enabled=${GITLAB_PROJECT_JOBS_ENABLED}"
+PARAMS+="&lfs_enabled=${GITLAB_PROJECT_LFS_ENABLED}"
+PARAMS+="&merge_requests_enabled=${GITLAB_PROJECT_MERGE_REQUESTS_ENABLED}"
+PARAMS+="&only_allow_merge_if_all_discussions_are_resolved=${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}"
+PARAMS+="&only_allow_merge_if_pipeline_succeed=${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}"
+PARAMS+="&printing_merge_request_link_enabled=${GITLAB_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}"
+PARAMS+="&public_jobs=${GITLAB_PROJECT_PUBLIC_JOBS}"
+PARAMS+="&request_access_enabled=${GITLAB_PROJECT_REQUEST_ACCESS_ENABLED}"
+PARAMS+="&snippets_enabled=${GITLAB_PROJECT_SNIPPETS_ENABLED}"
+PARAMS+="&visibility=${GITLAB_PROJECT_VISIBILITY}"
+PARAMS+="&wiki_enabled=${GITLAB_PROJECT_WIKI_ENABLED}"
 
 #echo "$PARAMS"
 

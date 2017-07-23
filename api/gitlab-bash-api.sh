@@ -2,6 +2,8 @@
 #
 # GitLab bash API
 #
+# Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
+#
 NEXT_PAGE='*'
 
 #
@@ -143,6 +145,14 @@ function source_files {
   done
 }
 
+function list_groups_raw {
+  local group_id=$1
+  local params=$2
+
+  local answer=$(gitlab_get "groups/${group_id}" "${params}") || exit 1
+  echo "${answer}"
+}
+
 function list_projects_raw {
   local project_id=$1
   local params=$2
@@ -247,6 +257,41 @@ function get_project_urls {
 
     echo "${project_url}"
   done
+}
+
+function get_project_id {
+  local group_name=$1
+  local project_name=$2
+
+  local answer=$(gitlab_get "projects" ) || exit 1
+  local project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
+  local project_id=$(echo "${project_info}" | jq -c ".id") || exit 1
+  local valid_project_id=$(echo "${project_id}" | wc -l)
+
+  if [ ${valid_project_id} -ne 1 ] ; then
+    echo "*** More than one maching project: ${valid_project_id}" >&2
+    exit 1
+  fi
+
+  if [ -z "${project_id}" ] ; then
+    echo -e "** Project \"${group_name}/${project_name}\" does not exist" >&2
+    exit 1
+  fi
+
+  echo "${project_id}"
+}
+
+function delete_projects_by_id {
+  local project_id=$1
+
+  local answer=$(gitlab_delete "projects/${project_id}") || exit 1
+  if [ "${answer}" != "true" ] ; then
+    echo "Can not delete project..." >&2
+    echo "${answer}" >&2
+    exit 1
+  fi
+
+  echo "${answer}"
 }
 
 #

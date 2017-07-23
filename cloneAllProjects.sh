@@ -21,15 +21,15 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 case "$1" in
   http)
       URL_TYPE="http"
-        ;;
+      ;;
 
-     ssh)
+  ssh)
       URL_TYPE="ssh"
-        ;;
+      ;;
 
-   *)
-      echo $"Usage: $0 {http|ssh}" >&2
-        exit 1
+  *)
+      echo $"Usage: $0 http|ssh" >&2
+      exit 1
 esac
 
 PROJECT_URLS=$(get_project_urls | sort) || exit 1

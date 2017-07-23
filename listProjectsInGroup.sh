@@ -18,7 +18,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -ne 1 ]] ; then
-  echo "*** listProjectsInGroup.sh <GROUP_NAME>"
+  echo "Usage: $0 GROUP_NAME" >&2
   exit 1
 fi
 

@@ -42,7 +42,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 3 ]] ; then
-  echo "*** createUser.sh <USER_NAME> '<USER_FULLNAME>' '<USER_EMAIL>'"
+  echo "Usage: $0 USER_NAME 'USER_FULLNAME' 'USER_EMAIL'" >&2
   exit 1
 fi
 
@@ -61,13 +61,14 @@ PARAMS+="&username=${USER_NAME}"
 ENCODED=$(urlencode "${USER_FULLNAME}")
 PARAMS+="&name=${ENCODED}"
 
-PARAMS+="&password=${USER_INITIAL_PASSWORD}"
-PARAMS+="&reset_password=${USER_RESET_PASSWORD}"
-PARAMS+="&projects_limit=${USER_PROJECTS_LIMIT}"
-PARAMS+="&admin=${USER_IS_ADMIN}"
-PARAMS+="&can_create_group=${USER_CAN_CREATE_GROUP}"
-PARAMS+="&confirm=${USER_CONFIRM}"
-PARAMS+="&shared_runners_minutes_limit=${USER_SHARED_RUNNERS_MINUTES_LIMIT}"
+PARAMS+="&password=${GITLAB_USER_INITIAL_PASSWORD}"
+
+PARAMS+="&admin=${GITLAB_USER_IS_ADMIN}"
+PARAMS+="&can_create_group=${GITLAB_USER_CAN_CREATE_GROUP}"
+PARAMS+="&confirm=${GITLAB_USER_CONFIRM}"
+PARAMS+="&projects_limit=${GITLAB_USER_PROJECTS_LIMIT}"
+PARAMS+="&reset_password=${GITLAB_USER_RESET_PASSWORD}"
+PARAMS+="&shared_runners_minutes_limit=${GITLAB_USER_SHARED_RUNNERS_MINUTES_LIMIT}"
 
 #echo "PARAMS:${PARAMS}"
 
@@ -80,4 +81,4 @@ if [ "${USER_ID}" = "null" ] ; then
   exit 100
 fi
 
-echo "USER_ID=${USER_ID}"
+echo "${USER_ID}"

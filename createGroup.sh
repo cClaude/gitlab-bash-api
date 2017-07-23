@@ -31,7 +31,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 1 ]] ; then
-  echo "*** createGroup.sh <GROUP_PATH> ['<GROUP_NAME>' ['<GROUP_DESCRIPTION']]"
+  echo "Usage: $0 GROUP_PATH ['GROUP_NAME' ['GROUP_DESCRIPTION']]" >&2
   exit 1
 fi
 
@@ -41,6 +41,8 @@ GROUP_NAME=$2
 
 if [ ! -z "$3" ] ; then
   GROUP_DESCRIPTION="$3"
+else
+  GROUP_DESCRIPTION="${GITLAB_GROUP_DESCRIPTION}"
 fi
 
 if [ -z "${GROUP_NAME}" ] ; then
@@ -57,11 +59,11 @@ PARAMS+="&name=${ENCODED}"
 ENCODED=$(urlencode "${GROUP_DESCRIPTION}")
 PARAMS+="&description=${ENCODED}"
 
-PARAMS+="&lfs_enabled=${GROUP_LFS_ENABLED}"
-PARAMS+="&membership_lock=${GROUP_MEMBERSHIP_LOCK}"
-PARAMS+="&request_access_enabled=${GROUP_REQUEST_ACCESS_ENABLED}"
-PARAMS+="&share_with_group_lock=${GROUP_SHARE_WITH_GROUP_LOCK}"
-PARAMS+="&visibility=${GROUP_VISIBILITY}"
+PARAMS+="&lfs_enabled=${GITLAB_GROUP_LFS_ENABLED}"
+PARAMS+="&membership_lock=${GITLAB_GROUP_MEMBERSHIP_LOCK}"
+PARAMS+="&request_access_enabled=${GITLAB_GROUP_REQUEST_ACCESS_ENABLED}"
+PARAMS+="&share_with_group_lock=${GITLAB_GROUP_SHARE_WITH_GROUP_LOCK}"
+PARAMS+="&visibility=${GITLAB_GROUP_VISIBILITY}"
 
 #echo "PARAMS=${PARAMS}"
 
