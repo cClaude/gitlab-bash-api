@@ -1,0 +1,7 @@
+*.log
+*.tws
+.project
+.settings
+/my-config/
+/tests/
+

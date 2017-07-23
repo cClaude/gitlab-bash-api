@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Default values for groups
+#
+GROUP_LFS_ENABLED=false
+GROUP_MEMBERSHIP_LOCK=true
+GROUP_REQUEST_ACCESS_ENABLED=true
+GROUP_SHARE_WITH_GROUP_LOCK=true
+GROUP_VISIBILITY=internal
+GROUP_DESCRIPTION="PLEASE update description"
