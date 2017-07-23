@@ -145,6 +145,14 @@ function source_files {
   done
 }
 
+function list_groups_raw {
+  local group_id=$1
+  local params=$2
+
+  local answer=$(gitlab_get "groups/${group_id}" "${params}") || exit 1
+  echo "${answer}"
+}
+
 function list_projects_raw {
   local project_id=$1
   local params=$2
