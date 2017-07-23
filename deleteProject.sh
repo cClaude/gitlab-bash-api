@@ -20,7 +20,7 @@ fi
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 if [[ $# -lt 2 ]] ; then
-  echo "*** deleteProject.sh <GROUP_NAME> <PROJECT_NAME>"
+  echo "Usage: $0 <GROUP_NAME> <PROJECT_NAME>" >&2
   exit 1
 fi
 

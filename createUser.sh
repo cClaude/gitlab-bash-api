@@ -42,7 +42,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 3 ]] ; then
-  echo "*** createUser.sh <USER_NAME> '<USER_FULLNAME>' '<USER_EMAIL>'"
+  echo "Usage: $0 <USER_NAME> '<USER_FULLNAME>' '<USER_EMAIL>'" >&2
   exit 1
 fi
 

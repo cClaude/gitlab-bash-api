@@ -43,7 +43,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 2 ]] ; then
-  echo "*** createProject.sh <GROUP_NAME> <PROJECT_PATH> ['<PROJECT_NAME>' ['<PROJECT_DESCRIPTION']]"
+  echo "Usage: $0 <GROUP_NAME> <PROJECT_PATH> ['<PROJECT_NAME>' ['<PROJECT_DESCRIPTION']]" >&2
   exit 1
 fi
 

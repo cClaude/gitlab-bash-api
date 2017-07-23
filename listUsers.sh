@@ -30,7 +30,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [ $# -eq 0 ]; then
-  echo "*** listUsers.sh [--all | USER_NAME]" >&2
+  echo "*** $0 [--all | USER_NAME]" >&2
   exit 100
 fi
 

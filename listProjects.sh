@@ -18,7 +18,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [ $# -eq 0 ]; then
-  echo "*** $0 [--all | PROJECT_ID]" >&2
+  echo "Usage: $0 [--all | PROJECT_ID]" >&2
   exit 100
 fi
 

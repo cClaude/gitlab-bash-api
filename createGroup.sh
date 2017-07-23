@@ -31,7 +31,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 # Script start here
 if [[ $# -lt 1 ]] ; then
-  echo "*** createGroup.sh <GROUP_PATH> ['<GROUP_NAME>' ['<GROUP_DESCRIPTION']]"
+  echo "Usage: $0 <GROUP_PATH> ['<GROUP_NAME>' ['<GROUP_DESCRIPTION']]" >&2
   exit 1
 fi
 
