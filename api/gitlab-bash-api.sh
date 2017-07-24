@@ -308,6 +308,7 @@ if [ ! -z "$GITLAB_BASH_API_CONFIG" ]; then
     echo "GITLAB_BASH_API_CONFIG=${GITLAB_BASH_API_CONFIG} - Folder not found." >&2
     exit 1
   fi
+
   source_files "${GITLAB_BASH_API_CONFIG}"
 fi
 
@@ -315,12 +316,12 @@ fi
 # Check configuration
 #
 if [ -z "$GITLAB_PRIVATE_TOKEN" ]; then
-  echo "GITLAB_PRIVATE_TOKEN should be set"
+  echo "GITLAB_PRIVATE_TOKEN is missing." >&2
   exit 1
 fi
 
 if [ -z "$GITLAB_URL_PREFIX" ]; then
-  echo "GITLAB_URL_PREFIX should be set"
+  echo "GITLAB_URL_PREFIX is missing." >&2
   exit 1
 fi
 
