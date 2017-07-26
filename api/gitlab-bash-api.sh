@@ -2,6 +2,11 @@
 #
 # GitLab bash API
 #
+# Based on GitLab documentation:
+#  https://docs.gitlab.com/ee/api/
+#  https://docs.gitlab.com/ce/api/
+#  https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/api
+#
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
 NEXT_PAGE='*'
@@ -300,6 +305,39 @@ function delete_projects_by_id {
     echo "${answer}" >&2
     exit 601
   fi
+
+  echo "${answer}"
+}
+
+function list_deploy_keys_raw {
+  local project_id=$1
+  local params=$2
+  local answer=
+  
+  if [ -z "$project_id" ] ; then
+    answer=$(gitlab_get 'v3' "deploy_keys" "${params}") || exit 700
+  else 
+  echo "/projects/${project_id}/deploy_keys" >&2
+    answer=$(gitlab_get 'v3' "/projects/${project_id}/deploy_keys" "${params}") || exit 701
+  fi
+
+  echo "${answer}"
+}
+
+function enable_deploy_keys {
+  local project_id=$1
+  local deploy_key_id=$2
+
+  local answer=$(gitlab_post 'v3' "/projects/${project_id}/deploy_keys/${deploy_key_id}/enable") || exit 702
+
+  echo "${answer}"
+}
+
+function delete_deploy_keys {
+  local project_id=$1
+  local deploy_key_id=$2
+
+  local answer=$(gitlab_delete 'v3' "/projects/${project_id}/deploy_keys/${deploy_key_id}") || exit 703
 
   echo "${answer}"
 }
