@@ -72,7 +72,7 @@ PARAMS+="&shared_runners_minutes_limit=${GITLAB_USER_SHARED_RUNNERS_MINUTES_LIMI
 
 #echo "PARAMS:${PARAMS}"
 
-answer=$(gitlab_post "users" "${PARAMS}") || exit 1
+answer=$(gitlab_post 'v3' "users" "${PARAMS}") || exit 1
 USER_ID=$(echo "${answer}" | jq .id)
 
 if [ "${USER_ID}" = "null" ] ; then

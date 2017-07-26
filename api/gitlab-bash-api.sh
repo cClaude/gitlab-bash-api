@@ -10,11 +10,12 @@ NEXT_PAGE='*'
 # HTTP GET - Read one set of pages
 #
 function gitlab_get_page {
-  local api_url="$1"
-  local api_params="$2"
-  local page="$3"
+  local api_version="$1"
+  local api_url="$2"
+  local api_params="$3"
+  local page="$4"
 
-  local curl_url="${GITLAB_URL_PREFIX}/api/v3/${api_url}?page=${page}&per_page=${PER_PAGE_MAX}&${api_params}"
+  local curl_url="${GITLAB_URL_PREFIX}/api/${api_version}/${api_url}?page=${page}&per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result=$(curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}")
   local curl_rc=$?
 
@@ -35,7 +36,7 @@ function gitlab_get_page {
         header="${header}"$'\n'"${line}"
       fi
     else
-      if [ -z ${body} ]; then
+      if [ -z "${body}" ]; then
         body="${line}"
       else
         body="${body}"$'\n'"${line}"
@@ -51,14 +52,15 @@ function gitlab_get_page {
 # HTTP GET - Read all pages
 #
 function gitlab_get {
-  local api_url="$1"
-  local api_params="$2"
+  local api_version="$1"
+  local api_url="$2"
+  local api_params="$3"
   local page=1
   local json=
   local begin=
 
   while [[ ${page} =~ ^-?[0-9]+$ ]]; do
-    gitlab_get_page "${api_url}" "${api_params}" "${page}"
+    gitlab_get_page "${api_version}" "${api_url}" "${api_params}" "${page}"
 
     if [ ! -z "${json}" ] ; then
       json+=','
@@ -87,10 +89,11 @@ function gitlab_get {
 # HTTP POST - Read one set of pages
 #
 function gitlab_post {
-  local api_url="$1"
-  local api_params="$2"
+  local api_version="$1"
+  local api_url="$2"
+  local api_params="$3"
 
-  local curl_url="${GITLAB_URL_PREFIX}/api/v3/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
+  local curl_url="${GITLAB_URL_PREFIX}/api/${api_version}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}")
   local curl_rc=$?
 
@@ -106,10 +109,11 @@ function gitlab_post {
 # HTTP DELETE - Read one set of pages
 #
 function gitlab_delete {
-  local api_url="$1"
-  local api_params="$2"
+  local api_version="$1"
+  local api_url="$2"
+  local api_params="$3"
 
-  local curl_url="${GITLAB_URL_PREFIX}/api/v3/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
+  local curl_url="${GITLAB_URL_PREFIX}/api/${api_version}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}")
   local curl_rc=$?
 
@@ -149,7 +153,7 @@ function list_groups_raw {
   local group_id=$1
   local params=$2
 
-  local answer=$(gitlab_get "groups/${group_id}" "${params}") || exit 1
+  local answer=$(gitlab_get 'v3' "groups/${group_id}" "${params}") || exit 1
   echo "${answer}"
 }
 
@@ -157,7 +161,7 @@ function list_projects_raw {
   local project_id=$1
   local params=$2
 
-  local answer=$(gitlab_get "projects/${project_id}" "${params}") || exit 1
+  local answer=$(gitlab_get 'v3' "projects/${project_id}" "${params}") || exit 1
   echo "${answer}"
 }
 
@@ -202,7 +206,7 @@ function get_groupid_from_group_name {
   local group_name="$1"
   local answer=
 
-  answer=$(gitlab_get "groups/${group_name}") || return 1
+  answer=$(gitlab_get 'v3' "groups/${group_name}") || return 1
 
   local group_id=$(echo "${answer}" | jq .id)
 
@@ -263,7 +267,7 @@ function get_project_id {
   local group_name=$1
   local project_name=$2
 
-  local answer=$(gitlab_get "projects" ) || exit 1
+  local answer=$(gitlab_get 'v3' "projects" ) || exit 1
   local project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
   local project_id=$(echo "${project_info}" | jq -c ".id") || exit 1
   local valid_project_id=$(echo "${project_id}" | wc -l)
@@ -284,7 +288,7 @@ function get_project_id {
 function delete_projects_by_id {
   local project_id=$1
 
-  local answer=$(gitlab_delete "projects/${project_id}") || exit 1
+  local answer=$(gitlab_delete 'v3' "projects/${project_id}") || exit 1
   if [ "${answer}" != "true" ] ; then
     echo "Can not delete project..." >&2
     echo "${answer}" >&2

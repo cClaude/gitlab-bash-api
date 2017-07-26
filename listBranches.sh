@@ -25,7 +25,7 @@ fi
 # Parameters
 PROJECT_ID=$1
 
-answer=$(gitlab_get "projects/${PROJECT_ID}/repository/branches" "${PARAMS}") || exit 1
+answer=$(gitlab_get 'v3' "projects/${PROJECT_ID}/repository/branches" "${PARAMS}") || exit 1
 LIST_BRANCHES=$(echo "${answer}" | jq .)
 
 echo "${LIST_BRANCHES}"

@@ -67,7 +67,7 @@ PARAMS+="&visibility=${GITLAB_GROUP_VISIBILITY}"
 
 #echo "PARAMS=${PARAMS}"
 
-answer=$(gitlab_post "groups" "${PARAMS}") || exit 1
+answer=$(gitlab_post 'v3' "groups" "${PARAMS}") || exit 1
 GROUP_ID=$(echo "${answer}" | jq .id)
 
 if [ "${GROUP_ID}" = "null" ] ; then

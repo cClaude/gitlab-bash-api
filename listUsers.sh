@@ -41,7 +41,7 @@ else
   PARAMS="username=$1"
 fi
 
-answer=$(gitlab_get "users" "${PARAMS}") || exit 1
+answer=$(gitlab_get 'v3' "users" "${PARAMS}") || exit 1
 USER_LIST=$(echo "${answer}" | jq .)
 
 echo "${USER_LIST}"

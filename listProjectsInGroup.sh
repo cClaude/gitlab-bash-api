@@ -25,7 +25,5 @@ fi
 # Parameters
 GROUP_NAME=$1
 
-#answer=$(gitlab_get "projects" ) || exit 1
-
 PROJECTS_IN_GROUP=$(list_projects_in_group "${GROUP_NAME}") || exit 1
 echo "${PROJECTS_IN_GROUP}"
