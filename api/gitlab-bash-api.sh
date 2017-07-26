@@ -225,7 +225,7 @@ function get_groupid_from_group_name {
 
 function list_projects_in_group {
   local group_name=$1
-  
+
   answer=$(list_projects)
 
   # Rewrite result
@@ -339,5 +339,4 @@ if [ -z "$PER_PAGE_MAX" ]; then
   # Max value for GitLab is 100
   PER_PAGE_MAX=50
 fi
-
 
