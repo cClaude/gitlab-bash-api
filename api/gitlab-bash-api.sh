@@ -153,7 +153,7 @@ function list_groups_raw {
   local group_id=$1
   local params=$2
 
-  local answer=$(gitlab_get 'v3' "groups/${group_id}" "${params}") || exit 1
+  local answer=$(gitlab_get 'v3' "groups/${group_id}" "${params}") || exit 101
   echo "${answer}"
 }
 
@@ -161,7 +161,7 @@ function list_projects_raw {
   local project_id=$1
   local params=$2
 
-  local answer=$(gitlab_get 'v3' "projects/${project_id}" "${params}") || exit 1
+  local answer=$(gitlab_get 'v3' "projects/${project_id}" "${params}") || exit 102
   echo "${answer}"
 }
 
@@ -170,7 +170,7 @@ function list_projects {
   local params=$2
   local json=
 
-  local answer=$(list_projects_raw "${project_id}" "${params}") || exit 1
+  local answer=$(list_projects_raw "${project_id}" "${params}") || exit 103
   local begin=$(echo "${answer}" | cut -b1 )
   if [ "${begin}" = '[' ] ; then
     json="${answer}"
@@ -197,7 +197,7 @@ snippets_enabled: .snippets_enabled,
 shared_runners_enabled: .shared_runners_enabled,
 lfs_enabled: .lfs_enabled,
 request_access_enabled: .request_access_enabled
-}]')
+}]') || ext 104
 
   echo "${short_result}"
 }
@@ -217,7 +217,7 @@ function get_groupid_from_group_name {
 
   if [ "${group_id}" = "null" ] ; then
     echo "*** GROUP_NAME=[${group_name}] doest not exist - ${answer}" >&2
-    exit 200
+    exit 201
   fi
 
   echo "${group_id}"
@@ -225,29 +225,35 @@ function get_groupid_from_group_name {
 
 function list_projects_in_group {
   local group_name=$1
-
-  answer=$(list_projects) || exit 1
+  
+  answer=$(list_projects)
 
   # Rewrite result
-  local result_for_group=$(echo "${answer}" | jq "[.[] | select(.group_name==\"${group_name}\")]") || exit 1
+  local result_for_group=$(echo "${answer}" | jq "[.[] | select(.group_name==\"${group_name}\")]") || exit 301
 
-  echo "${result_for_group}" | jq -r ".[] | .project_path" || exit 1
+  local size=$( echo "${result_for_group}" |jq '. | length' )
+  
+  if [ $size -eq 0 ] ; then
+    echo "No project available for [${group_name}]" >&2
+    exit 303
+  fi
+  echo "${result_for_group}" | jq -r ".[] | .project_path" || exit 302
 }
 
 function get_project_urls {
   if [ "${URL_TYPE}" = "http" ] ; then
     if [ -z "${GITLAB_CLONE_HTTP_PREFIX}" ] ; then
       echo "*** GITLAB_CLONE_HTTP_PREFIX is not define" >&2
-      exit 1
+      exit 400
     fi
   else
     if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
       echo "*** GITLAB_CLONE_SSH_PREFIX is not define" >&2
-      exit 1
+      exit 401
     fi
   fi
 
-  local project_paths=$(list_projects '' '' | jq -r '.[] | .path_with_namespace' ) || exit 1
+  local project_paths=$(list_projects '' '' | jq -r '.[] | .path_with_namespace' ) || exit 402
 
   for p in ${project_paths}; do
     local project_path=$p
@@ -267,19 +273,19 @@ function get_project_id {
   local group_name=$1
   local project_name=$2
 
-  local answer=$(gitlab_get 'v3' "projects" ) || exit 1
+  local answer=$(gitlab_get 'v3' "projects" ) || exit 500
   local project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
-  local project_id=$(echo "${project_info}" | jq -c ".id") || exit 1
+  local project_id=$(echo "${project_info}" | jq -c ".id") || exit 501
   local valid_project_id=$(echo "${project_id}" | wc -l)
 
   if [ ${valid_project_id} -ne 1 ] ; then
     echo "*** More than one maching project: ${valid_project_id}" >&2
-    exit 1
+    exit 502
   fi
 
   if [ -z "${project_id}" ] ; then
     echo -e "** Project \"${group_name}/${project_name}\" does not exist" >&2
-    exit 1
+    exit 503
   fi
 
   echo "${project_id}"
@@ -288,11 +294,11 @@ function get_project_id {
 function delete_projects_by_id {
   local project_id=$1
 
-  local answer=$(gitlab_delete 'v3' "projects/${project_id}") || exit 1
+  local answer=$(gitlab_delete 'v3' "projects/${project_id}") || exit 600
   if [ "${answer}" != "true" ] ; then
     echo "Can not delete project..." >&2
     echo "${answer}" >&2
-    exit 1
+    exit 601
   fi
 
   echo "${answer}"
