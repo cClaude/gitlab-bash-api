@@ -187,3 +187,9 @@ listBranches.sh 10 | jq -r ' .[] | .name'
 ```
 
 
+### Related documentations
+
+* How to [get your GitLab API key](get-your-gitlab-api-key.md)
+
+
+
