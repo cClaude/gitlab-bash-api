@@ -4,7 +4,7 @@
 #   https://docs.gitlab.com/ee/api/groups.html
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -15,6 +15,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [ $# -eq 0 ]; then
@@ -43,7 +44,7 @@ answer=$(list_groups_raw "${GROUP_ID}" '')
 
 if [ -z "${GROUP_NAME}" ] ; then
   echo "${answer}" | jq .
-else 
+else
   echo "${answer}" | jq "[.[] | select(.name==\"${GROUP_NAME}\")]"
 fi
 

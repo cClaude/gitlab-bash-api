@@ -29,7 +29,7 @@
 #   wiki_enabled                        boolean         no      Enable wiki for this project
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -40,6 +40,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 2 ]] ; then
@@ -93,7 +94,7 @@ PARAMS+="&wiki_enabled=${GITLAB_PROJECT_WIKI_ENABLED}"
 
 #echo "$PARAMS"
 
-answer=$(gitlab_post 'v3' "projects" "${PARAMS}") || exit 1
+answer=$(gitlab_post "projects" "${PARAMS}") || exit 1
 PROJECT_ID=$(echo "${answer}" | jq .id)
 
 if [ "${PROJECT_ID}" = "null" ] ; then

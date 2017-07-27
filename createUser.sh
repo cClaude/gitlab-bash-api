@@ -28,7 +28,7 @@
 #   avatar (optional) - Image file for user's avatar#
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -39,6 +39,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 3 ]] ; then
@@ -72,7 +73,7 @@ PARAMS+="&shared_runners_minutes_limit=${GITLAB_USER_SHARED_RUNNERS_MINUTES_LIMI
 
 #echo "PARAMS:${PARAMS}"
 
-answer=$(gitlab_post 'v3' "users" "${PARAMS}") || exit 1
+answer=$(gitlab_post "users" "${PARAMS}") || exit 1
 USER_ID=$(echo "${answer}" | jq .id)
 
 if [ "${USER_ID}" = "null" ] ; then

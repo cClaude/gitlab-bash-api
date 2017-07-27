@@ -4,7 +4,7 @@
 #   https://docs.gitlab.com/ce/api/projects.html#list-branches
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -15,6 +15,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 1 ]] ; then
@@ -25,7 +26,7 @@ fi
 # Parameters
 PROJECT_ID=$1
 
-answer=$(gitlab_get 'v3' "projects/${PROJECT_ID}/repository/branches" "${PARAMS}") || exit 1
+answer=$(gitlab_get "projects/${PROJECT_ID}/repository/branches" "${PARAMS}") || exit 1
 LIST_BRANCHES=$(echo "${answer}" | jq .)
 
 echo "${LIST_BRANCHES}"

@@ -7,7 +7,7 @@
 #   id	integer/string	yes	The ID or URL-encoded path of the project
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -18,6 +18,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 if [[ $# -lt 2 ]] ; then
   echo "Usage: $0 GROUP_NAME PROJECT_NAME" >&2

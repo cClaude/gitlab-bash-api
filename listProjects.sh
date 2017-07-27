@@ -8,7 +8,7 @@ function display_usage {
   exit 100
 }
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -19,6 +19,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [ $# -eq 0 ]; then
@@ -37,21 +38,17 @@ shift
 case $param in
     -a|--all)
         ;;
-        
     -n|--name)
         PROJECT_NAME="$1"
         shift
         ;;
-        
     -i|--id)
         PROJECT_ID="$1"
         shift
         ;;
-        
     -r|--raw)
         RAW=true
         ;;
-        
     *)
         # unknown option
         display_usage
@@ -60,20 +57,16 @@ esac
 done
 
 if [ "${RAW}" = "true" ] ; then
+  JQ_FILTER="[.[] | select(.name==\"${PROJECT_NAME}\")]"
   answer=$(list_projects_raw "${PROJECT_ID}" '')
 else
+  JQ_FILTER="[.[] | select(.project_name==\"${PROJECT_NAME}\")]"
   answer=$(list_projects "${PROJECT_ID}" '')
 fi
 
 if [ -z "${PROJECT_NAME}" ] ; then
   echo "${answer}" | jq .
-else 
-  if [ "${RAW}" = "true" ] ; then
-    JQ_FILTER="[.[] | select(.name==\"${PROJECT_NAME}\")]"
-  else
-    JQ_FILTER="[.[] | select(.project_name==\"${PROJECT_NAME}\")]"
-  fi
-
+else
   echo "${answer}" | jq "${JQ_FILTER}"
 fi
 
@@ -86,7 +79,7 @@ fi
 # Number of projects visible for current user
 # ./listProjects.sh --all | jq '. | length'
 
-# 
+#
 # ./listProjects.sh --all | jq "[.[] | select(.group_name==\"${GROUP_NAME}\")]"
 # ./listProjects.sh --all --raw | jq "[.[] | select(.namespace.path==\"${GROUP_NAME}\")]"
 

@@ -17,7 +17,7 @@
 #   visibility (optional) - The group's visibility. Can be private, internal, or public.
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -28,6 +28,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 1 ]] ; then
@@ -67,7 +68,7 @@ PARAMS+="&visibility=${GITLAB_GROUP_VISIBILITY}"
 
 #echo "PARAMS=${PARAMS}"
 
-answer=$(gitlab_post 'v3' "groups" "${PARAMS}") || exit 1
+answer=$(gitlab_post "groups" "${PARAMS}") || exit 1
 GROUP_ID=$(echo "${answer}" | jq .id)
 
 if [ "${GROUP_ID}" = "null" ] ; then
