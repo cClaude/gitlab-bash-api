@@ -337,6 +337,34 @@ function delete_deploy_keys {
   echo "${answer}"
 }
 
+function set_action {
+  if [ -z "${ACTION}" ] ; then
+     ACTION=$1
+  else
+    display_usage
+  fi
+}
+
+function ensure_not_empty {
+  local var_name=$1
+  local var_value=${!var_name}
+
+  if [ -z "${var_value}" ] ; then
+    echo "Missing ${var_name} value" >&2
+    display_usage
+  fi
+}
+
+function ensure_empty {
+  local var_name=$1
+  local var_value=${!var_name}
+
+  if [ ! -z "${var_value}" ] ; then
+     echo "Unexpected value ${var_name}=${var_value}" >&2
+   display_usage
+  fi
+}
+
 #
 # Load configuration
 #
