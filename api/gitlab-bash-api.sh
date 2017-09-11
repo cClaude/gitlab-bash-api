@@ -236,7 +236,7 @@ function list_projects_in_group {
   local size=$( echo "${result_for_group}" |jq '. | length' )
 
   if [ $size -eq 0 ] ; then
-    echo "No project available for [${group_name}]" >&2
+    echo "No project available for group [${group_name}] (group does not exist ?)" >&2
     exit 303
   fi
   echo "${result_for_group}" | jq -r ".[] | .project_path" || exit 302
