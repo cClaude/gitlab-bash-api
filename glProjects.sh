@@ -4,7 +4,16 @@
 #   https://docs.gitlab.com/ce/api/projects.html#get-single-project
 #
 function display_usage {
-  echo "Usage: $0 --all | --name PROJECT_NAME | --id PROJECT_ID [--raw]" >&2
+  echo "Usage: $0" >&2
+  echo "  List all projects" >&2
+  echo "    $0 --all [--raw]" >&2
+  echo "  List projects by name (could return many entries)" >&2
+  echo "    $0 --name PROJECT_NAME [--raw]" >&2
+  echo "  Get project configuration (by id)" >&2
+  echo "    $0 --id PROJECT_ID [--raw]" >&2
+  echo "  Delete a project" >&2
+  echo "    $0 --delete --group GROUP_NAME --name PROJECT_NAME" >&2
+  echo "    $0 --delete --id PROJECT_ID" >&2
   exit 100
 }
 
@@ -29,7 +38,9 @@ fi
 # Parameters
 PROJECT_ID=
 PROJECT_NAME=
+GROUP_NAME=
 RAW=false
+DELETE=false
 
 while [[ $# > 0 ]]
 do
@@ -46,19 +57,41 @@ case $param in
         PROJECT_ID="$1"
         shift
         ;;
+    -g|--group)
+        GROUP_NAME="$1"
+        shift
+        ;;
     -r|--raw)
         RAW=true
         ;;
+    --delete)
+        DELETE=true
+        ;;
     *)
         # unknown option
+        echo "Undefine parameter ${param}"
         display_usage
         ;;
 esac
 done
 
+if [ "${DELETE}" = "true" ] ; then
+  if [ -z "${PROJECT_ID}" ]; then
+    ensure_not_empty "GROUP_NAME"
+    ensure_not_empty "PROJECT_NAME"
+    PROJECT_ID=$(get_project_id "${GROUP_NAME}" "${PROJECT_NAME}") || exit 1
+  fi
+  echo "# delete project: PROJECT_ID=[${PROJECT_ID}]" >&2
+
+  answer=$(delete_projects_by_id "${PROJECT_ID}") || exit 1
+
+  echo "${answer}"
+  exit $?
+fi
+
 if [ "${RAW}" = "true" ] ; then
   JQ_FILTER="[.[] | select(.name==\"${PROJECT_NAME}\")]"
-  answer=$(list_projects_raw "${PROJECT_ID}" '')
+  answer=$(list_projects_raw "${PROJECT_ID}" 'statistics=true')
 else
   JQ_FILTER="[.[] | select(.project_name==\"${PROJECT_NAME}\")]"
   answer=$(list_projects "${PROJECT_ID}" '')
@@ -71,15 +104,15 @@ else
 fi
 
 # List all id
-# ./listProjects.sh --all | jq '. [] | .id'
+# ./glProjects.sh --all | jq '. [] | .id'
 
 # List name and id
-# ./listProjects.sh --all | jq '[ . [] | { project_name: .name, project_id: .id } ]'
+# ./glProjects.sh --all | jq '[ . [] | { project_name: .name, project_id: .id } ]'
 
 # Number of projects visible for current user
-# ./listProjects.sh --all | jq '. | length'
+# ./glProjects.sh --all | jq '. | length'
 
 #
-# ./listProjects.sh --all | jq "[.[] | select(.group_name==\"${GROUP_NAME}\")]"
-# ./listProjects.sh --all --raw | jq "[.[] | select(.namespace.path==\"${GROUP_NAME}\")]"
+# ./glProjects.sh --all | jq "[.[] | select(.group_name==\"${GROUP_NAME}\")]"
+# ./glProjects.sh --all --raw | jq "[.[] | select(.namespace.path==\"${GROUP_NAME}\")]"
 

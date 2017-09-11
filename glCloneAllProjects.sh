@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# Documentation:
-#   https://docs.gitlab.com/ce/api/projects.html
+# Clone all projets for user in current folder
 #
 
 # Configuration - BEGIN

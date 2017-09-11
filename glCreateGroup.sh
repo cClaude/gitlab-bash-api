@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Documentation:
+# API Documentation:
 #   https://docs.gitlab.com/ee/api/groups.html#new-group
 #
 # Parameters:

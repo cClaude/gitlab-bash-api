@@ -1,3 +1,18 @@
+Table of Contents
+=================
+
+  * [GitLab bash API](#gitlab-bash-api)
+    * [Installation](#installation)
+    * [Configuration](#configuration)
+    * [Usage](#usage)
+      * [About users](#about-users)
+      * [About groups](#about-groups)
+      * [About projects / repositories](#about-projects--repositories)
+      * [About branches](#about-branches)
+      * [Related documentations](#related-documentations)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
 # GitLab bash API
 
 Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https://docs.gitlab.com/ee/api/) from bash.
@@ -92,13 +107,13 @@ listUsers.sh testuser
 * How to create a group ?
 
 ```bash
-${GITLAB_BASH_API_PATH}/createGroup.sh my_test_group
+${GITLAB_BASH_API_PATH}/glCreateGroup.sh my_test_group
 ```
 
 or simply (if **${GITLAB_BASH_API_PATH}** is in your path):
 
 ```bash
-createGroup.sh my_test_group
+glCreateGroup.sh my_test_group
 ```
 
 
@@ -106,29 +121,40 @@ createGroup.sh my_test_group
 
 * How to create some repositories ?
 
-Syntax!
-> createProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
+Usage:
+> glCreateProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
 
 ```bash
-createProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
-createProject.sh my_test_group my_test_repository2
+glCreateProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
+glCreateProject.sh my_test_group my_test_repository2
 ```
 
 * Projects main information:
 
-Syntax:
-> listProjects.sh [--all | PROJECT_ID]
+Usage:
+> * List all projects
+>   ./glProjects.sh --all [--raw]
+>
+> * List projects by name (could return many entries)
+> ./glProjects.sh --name PROJECT_NAME [--raw]
+>
+> * Get project configuration (by id)
+> ./glProjects.sh --id PROJECT_ID [--raw]
+>
+> * Delete a project
+> ./glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
+>./glProjects.sh --delete --id PROJECT_ID
 
 * Retrieve main informations on all projects:
 
 ```bash
-listProjects.sh --all
+glProjects.sh --all
 ```
 
 * Retrieve only path with name space:
 
 ```bash
-listProjects.sh --all | jq -r ' .[] | .path_with_namespace'
+glProjects.sh --all | jq -r ' .[] | .path_with_namespace'
 ```
 
 * List of all projects in a group
@@ -140,23 +166,23 @@ listProjectsInGroup.sh GROUP_NAME
 * To get complete information on a project (Need GitLab EE)
 
 ```bash
-statisticsProjects.sh 12
+glProjects.sh --raw --id 12
 ```
 
 * To delete a project
 
 Syntax:
-> deleteProject.sh GROUP_NAME PROJECT_NAME
-> deleteProject.sh --id PROJECT_ID
+> glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
+> glProjects.sh --delete --id PROJECT_ID
 
 ```bash
-deleteProject.sh GROUP_NAME PROJECT_NAME
+glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
 ```
 
 * To clone **all projects** you have access
 
 Syntax:
-> cloneAllProjects.sh http|ssh
+> glCloneAllProjects.sh http|ssh
 
 * Clone using ssh
 
@@ -164,7 +190,7 @@ Syntax:
 mkdir _a_new_empty_folder
 cd _a_new_empty_folder
 
-cloneAllProjects.sh ssh
+glCloneAllProjects.sh ssh
 ```
 
 ### About branches

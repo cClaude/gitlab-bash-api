@@ -6,6 +6,7 @@
 #  https://docs.gitlab.com/ee/api/
 #  https://docs.gitlab.com/ce/api/
 #  https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/api
+#  https://docs.gitlab.com/ce/api/projects.html
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
