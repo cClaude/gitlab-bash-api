@@ -3,7 +3,7 @@
 # Configuration related to the platform
 #
 
-GITLAB_URL_PREFIX=https://gitlab
+GITLAB_URL_PREFIX=https://gitlab.local
 
 # Optionnal
 
