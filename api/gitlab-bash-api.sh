@@ -387,17 +387,17 @@ fi
 #
 # Check configuration
 #
-if [ -z "$GITLAB_PRIVATE_TOKEN" ]; then
+if [ -z "${GITLAB_PRIVATE_TOKEN}" ]; then
   echo "GITLAB_PRIVATE_TOKEN is missing." >&2
   exit 1
 fi
 
-if [ -z "$GITLAB_URL_PREFIX" ]; then
+if [ -z "${GITLAB_URL_PREFIX}" ]; then
   echo "GITLAB_URL_PREFIX is missing." >&2
   exit 1
 fi
 
-if [ -z "$PER_PAGE_MAX" ]; then
+if [ -z "${PER_PAGE_MAX}" ]; then
   # Max value for GitLab is 100
   PER_PAGE_MAX=50
 fi
