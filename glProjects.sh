@@ -39,7 +39,7 @@ function delete_project {
 
 function is_project_could_by_identify {
   local result=true
-  
+
   if [ -z "${PROJECT_NAME}" ]; then
     if [ -z "${PROJECT_ID}" ]; then
       if [ -z "${GROUP_NAME}" ]; then
@@ -65,7 +65,7 @@ function error_if_project_not_could_by_identify {
 function get_project_full_list {
   error_if_project_not_could_by_identify || exit 1
 
-  # Note: if "${PROJECT_ID}" is define request time is smallest. 
+  # Note: if "${PROJECT_ID}" is define request time is smallest.
   if [ "${P_RAW}" = "true" ] ; then
     list_projects_raw "${PROJECT_ID}" 'statistics=true' || exit 1
   else
@@ -104,8 +104,8 @@ function show_projects_config_handle_params {
     exit 1
   fi
 
-  echo "jq_filter=${jq_filter}" >&2
-  echo "size=${size}" >&2
+  #echo "jq_filter=${jq_filter}" >&2
+  #echo "size=${size}" >&2
   echo "${result}"
 }
 
@@ -226,13 +226,13 @@ esac
 done
 
 case "${ACTION}" in
-    deleteAction) 
+    deleteAction)
         delete_project_handle_params
         ;;
-    listNamesAction) 
+    listNamesAction)
         list_projects_names_handle_params
         ;;
-    listIdsAction) 
+    listIdsAction)
         list_projects_ids_handle_params
         ;;
     showConfigAction)
