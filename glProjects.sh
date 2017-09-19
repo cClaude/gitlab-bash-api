@@ -1,8 +1,5 @@
 #!/bin/bash
-#
-# Documentation:
-#   https://docs.gitlab.com/ce/api/projects.html#get-single-project
-#
+
 function display_usage {
   echo "Usage: $0" >&2
   echo "  Get projects configuration" >&2
@@ -244,18 +241,3 @@ case "${ACTION}" in
         display_usage
         ;;
 esac
-
-
-# List all id
-# ./glProjects.sh --all | jq '. [] | .id'
-
-# List name and id
-# ./glProjects.sh --all | jq '[ . [] | { project_name: .name, project_id: .id } ]'
-
-# Number of projects visible for current user
-# ./glProjects.sh --all | jq '. | length'
-
-#
-# ./glProjects.sh --all | jq "[.[] | select(.group_name==\"${GROUP_NAME}\")]"
-# ./glProjects.sh --all --raw | jq "[.[] | select(.namespace.path==\"${GROUP_NAME}\")]"
-
