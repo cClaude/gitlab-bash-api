@@ -228,10 +228,10 @@ function get_groupid_from_group_name {
 function list_projects_in_group {
   local group_name=$1
 
-  answer=$(list_projects)
+  answer=$(list_projects_raw)
 
   # Rewrite result
-  local result_for_group=$(echo "${answer}" | jq "[.[] | select(.group_name==\"${group_name}\")]") || exit 301
+  local result_for_group=$(echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]") || exit 301
 
   local size=$( echo "${result_for_group}" |jq '. | length' )
 
@@ -239,36 +239,8 @@ function list_projects_in_group {
     echo "No project available for group [${group_name}] (group does not exist ?)" >&2
     exit 303
   fi
-  echo "${result_for_group}" | jq -r ".[] | .project_path" || exit 302
-}
 
-function get_project_urls {
-  if [ "${URL_TYPE}" = "http" ] ; then
-    if [ -z "${GITLAB_CLONE_HTTP_PREFIX}" ] ; then
-      echo "*** GITLAB_CLONE_HTTP_PREFIX is not define" >&2
-      exit 400
-    fi
-  else
-    if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
-      echo "*** GITLAB_CLONE_SSH_PREFIX is not define" >&2
-      exit 401
-    fi
-  fi
-
-  local project_paths=$(list_projects '' '' | jq -r '.[] | .path_with_namespace' ) || exit 402
-
-  for p in ${project_paths}; do
-    local project_path=$p
-    local project_url
-
-    if [ "${URL_TYPE}" = "http" ] ; then
-      project_url="${GITLAB_CLONE_HTTP_PREFIX}/${project_path}.git"
-    else
-      project_url="${GITLAB_CLONE_SSH_PREFIX}:${project_path}.git"
-    fi
-
-    echo "${project_url}"
-  done
+  echo "${result_for_group}" | jq -r ".[] | .path" || exit 302
 }
 
 function get_project_id {
