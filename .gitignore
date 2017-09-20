@@ -1,5 +1,6 @@
 *.log
 *.tws
+*.json
 .project
 .settings
 /my-config/
