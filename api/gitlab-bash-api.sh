@@ -13,7 +13,7 @@
 NEXT_PAGE='*'
 
 #
-# HTTP GET - Read one set of pages
+# HTTP GET - Read one page
 #
 function gitlab_get_page {
   local api_url="$1"
@@ -90,7 +90,7 @@ function gitlab_get {
 }
 
 #
-# HTTP POST - Read one set of pages
+# HTTP POST - Read 1st returned page
 #
 function gitlab_post {
   local api_url="$1"
@@ -109,7 +109,26 @@ function gitlab_post {
 }
 
 #
-# HTTP DELETE - Read one set of pages
+# HTTP PUT - Read 1st returned page
+#
+function gitlab_put {
+  local api_url="$1"
+  local api_params="$2"
+
+  local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
+  local curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}")
+  local curl_rc=$?
+
+  if [ $curl_rc -ne 0 ]; then
+    echo "*** Error curl status ${curl_rc} : curl_url=${curl_url}" >&2
+    return 1
+  fi
+
+  echo "${curl_result}"
+}
+
+#
+# HTTP DELETE - Read 1st returned page
 #
 function gitlab_delete {
   local api_url="$1"
@@ -310,6 +329,34 @@ function delete_deploy_keys {
   echo "${answer}"
 }
 
+# API: edit_group (use by glGroups)
+
+function edit_group {
+  local group_id=$1
+  local group_name=$2
+  local group_path=$3
+  local group_description=$4
+  local group_visibility=$5
+  local group_lfs_enabled=$6
+  local group_request_access_enabled=$7
+
+  # visibility_level
+  # - private : ??
+  # - internal: ??
+  # - public  : 20
+
+  #echo "edit group '${group_id}' '${group_name}' '${group_path}' '${group_description}' '${group_visibility}' '${group_lfs_enabled}' '${group_request_access_enabled}'" >&2
+
+  local params="name=$(urlencode "${group_name}")&path=${group_path}"
+  params+="&description=$(urlencode "${group_description}")"
+  params+="&visibility=${group_visibility}"
+  params+="&lfs_enabled=${group_lfs_enabled}"
+  params+="&request_access_enabled=${group_request_access_enabled}"
+
+  # echo "POST params: ${params}" >&2
+  gitlab_put "groups/${group_id}" "${params}"
+}
+
 function set_action {
   if [ -z "${ACTION}" ] ; then
      ACTION=$1
@@ -317,6 +364,8 @@ function set_action {
     display_usage
   fi
 }
+
+# API : ensure_not_empty (tooling)
 
 function ensure_not_empty {
   local var_name=$1
@@ -328,6 +377,8 @@ function ensure_not_empty {
   fi
 }
 
+# API : ensure_not_empty (tooling)
+
 function ensure_empty {
   local var_name=$1
   local var_value=${!var_name}
@@ -336,6 +387,22 @@ function ensure_empty {
      echo "Unexpected value ${var_name}=${var_value}" >&2
    display_usage
   fi
+}
+
+# API : ensure_boolean (tooling)
+
+function ensure_boolean {
+  local value=$1
+  local parameter=$2
+  
+  case "${value}" in
+    true|false)
+      ;;
+    *)
+      echo "Bad value '${value}' for '${parameter}'. Should be true or false" >&2
+      display_usage
+      ;;
+  esac
 }
 
 #

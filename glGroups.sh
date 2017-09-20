@@ -1,22 +1,27 @@
 #!/bin/bash
 
 function display_usage {
-  echo "Usage: $0" >&2
-  echo "  Get groups configuration" >&2
-  echo "    $0 --config --name GROUP_NAME" >&2
-  echo "    $0 --config --id GROUP_ID" >&2
-  echo "    $0 --config --all" >&2
-  echo "  List groups names" >&2
-  echo "    $0 --list-name --name GROUP_NAME" >&2
-  echo "    $0 --list-name --id GROUP_ID" >&2
-  echo "    $0 --list-name --all" >&2
-  echo "  List groups ids" >&2
-  echo "    $0 --list-id --name GROUP_NAME" >&2
-  echo "    $0 --list-id --id GROUP_ID" >&2
-  echo "    $0 --list-id --all" >&2
-  echo "  Delete a group" >&2
-  echo "    $0 --delete --group GROUP_NAME" >&2
-  echo "    $0 --delete --id GROUP_ID" >&2
+  echo "Usage: $0
+  Get groups configuration
+    $0 --config --name GROUP_NAME
+    $0 --config --id GROUP_ID
+    $0 --config --all
+  List groups names
+    $0 --list-name --name GROUP_NAME
+    $0 --list-name --id GROUP_ID
+    $0 --list-name --all
+  List groups ids
+    $0 --list-id --name GROUP_NAME
+    $0 --list-id --id GROUP_ID
+    $0 --list-id --all
+  Edit group configuration
+    $0 --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
+       --description GROUP_DESCRIPTION --visibility  private|internal|public \\
+       --lfs_enabled true|false --request_access_enabled true|false
+  Delete a group
+    $0 --delete --name GROUP_NAME
+    $0 --delete --id GROUP_ID
+" >&2
   exit 100
 }
 
@@ -133,6 +138,11 @@ fi
 # Parameters
 GROUP_ID=
 GROUP_NAME=
+GROUP_PATH=
+GROUP_DESCRIPTION=
+GROUP_VISIBILITY=
+LFS_ENABLED=
+REQUEST_ACCESS_ENABLED=
 P_ALL=false
 ACTION=
 
@@ -152,9 +162,23 @@ case "${param}" in
         ensure_empty ACTION
         ACTION=deleteAction
         ;;
+    --description)
+        GROUP_DESCRIPTION="$1"
+        shift
+        ;;
+    --edit)
+        ensure_empty ACTION
+        ACTION=editAction
+        ;;
     -i|--id)
         GROUP_ID="$1"
         shift
+        ;;
+    --lfs_enabled)
+        LFS_ENABLED="$1"
+        shift
+
+        ensure_boolean "${LFS_ENABLED}" '--lfs_enabled'
         ;;
     --list-name)
         ensure_empty ACTION
@@ -168,6 +192,29 @@ case "${param}" in
         GROUP_NAME="$1"
         shift
         ;;
+    --path)
+        GROUP_PATH="$1"
+        shift
+        ;;
+    --request_access_enabled)
+        REQUEST_ACCESS_ENABLED="$1"
+        shift
+
+        ensure_boolean "${REQUEST_ACCESS_ENABLED}" '--request_access_enabled'
+        ;;
+    --visibility)
+        GROUP_VISIBILITY="$1"
+        shift
+
+        case "${GROUP_VISIBILITY}" in
+           private|internal|public)
+             ;;
+           *)
+             echo "Illegal value '${GROUP_VISIBILITY}'. --visibility should be private, internal or public." >&2
+             display_usage
+             ;;
+        esac
+        ;;
     *)
         # unknown option
         echo "Undefine parameter ${param}" >&2
@@ -179,6 +226,14 @@ done
 case "${ACTION}" in
     deleteAction)
         delete_group_handle_params
+        ;;
+    editAction)
+         ensure_not_empty GROUP_ID
+         ensure_not_empty GROUP_NAME
+         ensure_not_empty GROUP_PATH
+         ensure_not_empty GROUP_VISIBILITY
+
+        edit_group "${GROUP_ID}" "${GROUP_NAME}" "${GROUP_PATH}" "${GROUP_DESCRIPTION}" "${GROUP_VISIBILITY}" "${LFS_ENABLED}" "${REQUEST_ACCESS_ENABLED}" | jq .
         ;;
     listNamesAction)
         list_groups_names_handle_params
