@@ -170,14 +170,6 @@ function source_files {
   done
 }
 
-function list_groups_raw {
-  local group_id=$1
-  local params=$2
-
-  local answer=$(gitlab_get "groups/${group_id}" "${params}") || exit 101
-  echo "${answer}"
-}
-
 function list_projects_raw {
   local project_id=$1
   local params=$2
@@ -327,34 +319,6 @@ function delete_deploy_keys {
   local answer=$(gitlab_delete "/projects/${project_id}/deploy_keys/${deploy_key_id}") || exit 703
 
   echo "${answer}"
-}
-
-# API: edit_group (use by glGroups)
-
-function edit_group {
-  local group_id=$1
-  local group_name=$2
-  local group_path=$3
-  local group_description=$4
-  local group_visibility=$5
-  local group_lfs_enabled=$6
-  local group_request_access_enabled=$7
-
-  # visibility_level
-  # - private : ??
-  # - internal: ??
-  # - public  : 20
-
-  #echo "edit group '${group_id}' '${group_name}' '${group_path}' '${group_description}' '${group_visibility}' '${group_lfs_enabled}' '${group_request_access_enabled}'" >&2
-
-  local params="name=$(urlencode "${group_name}")&path=${group_path}"
-  params+="&description=$(urlencode "${group_description}")"
-  params+="&visibility=${group_visibility}"
-  params+="&lfs_enabled=${group_lfs_enabled}"
-  params+="&request_access_enabled=${group_request_access_enabled}"
-
-  # echo "POST params: ${params}" >&2
-  gitlab_put "groups/${group_id}" "${params}"
 }
 
 function set_action {
