@@ -4,47 +4,67 @@ function display_usage {
   echo "Usage: $0
   Get groups configuration
     $0 --config --name GROUP_NAME
-    $0 --config --id GROUP_ID
+    $0 --config --id param_GROUP_ID
     $0 --config --all
   List groups names
     $0 --list-name --name GROUP_NAME
-    $0 --list-name --id GROUP_ID
+    $0 --list-name --id param_GROUP_ID
     $0 --list-name --all
   List groups ids
     $0 --list-id --name GROUP_NAME
-    $0 --list-id --id GROUP_ID
+    $0 --list-id --id param_GROUP_ID
     $0 --list-id --all
   Edit group configuration
-    $0 --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
+    $0 --edit --id param_GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
        --description GROUP_DESCRIPTION --visibility  private|internal|public \\
        --lfs_enabled true|false --request_access_enabled true|false
   Delete a group
     $0 --delete --name GROUP_NAME
-    $0 --delete --id GROUP_ID
+    $0 --delete --id param_GROUP_ID
 " >&2
   exit 100
 }
 
 function delete_group_handle_params {
+  local p_group_id=$1
+  local p_group_name=$2
+
   local group_id=
 
-  if [ -z "${GROUP_ID}" ]; then
-    ensure_not_empty "GROUP_NAME"
-    group_id=$(get_group_id "${GROUP_NAME}") || exit 1
+  if [ -z "${p_group_id}" ]; then
+    ensure_not_empty p_group_name
+    group_id=$(get_group_id "${p_group_name}") || exit 1
   else
-    group_id=${GROUP_ID}
+    group_id=${p_group_id}
   fi
 
   delete_group "${group_id}"
   exit $?
 }
 
-function list_groups_names_handle_params {
-  local group_name_or_id_or_empty="${GROUP_ID}"
+function get_group_name_or_id_or_empty {
+  local p_all_group=$1
+  local p_group_id=$2
+  local p_group_name=$3
+
+  local group_name_or_id_or_empty="${p_group_id}"
 
   if [ -z "${group_name_or_id_or_empty}" ]; then
-    group_name_or_id_or_empty="${GROUP_NAME}"
+    group_name_or_id_or_empty="${p_group_name}"
   fi
+
+  if [ -z "${group_name_or_id_or_empty}" ]; then
+    if [ ! "${p_all_group}" = true ]; then
+      echo "** Missing --id, --name or --all" >&2
+      exit 1
+    fi
+  fi
+
+  echo "${group_name_or_id_or_empty}"
+}
+
+function list_groups_names_handle_params {
+  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $?
 
   local result=$(list_groups "${group_name_or_id_or_empty}" '')
 
@@ -56,11 +76,7 @@ function list_groups_names_handle_params {
 }
 
 function list_groups_ids_handle_params {
-  local group_name_or_id_or_empty="${GROUP_ID}"
-
-  if [ -z "${group_name_or_id_or_empty}" ]; then
-    group_name_or_id_or_empty="${GROUP_NAME}"
-  fi
+  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $?
 
   local result=$(list_groups "${group_name_or_id_or_empty}" '')
 
@@ -72,11 +88,7 @@ function list_groups_ids_handle_params {
 }
 
 function show_group_config_handle_params {
-  local group_name_or_id_or_empty="${GROUP_ID}"
-
-  if [ -z "${group_name_or_id_or_empty}" ]; then
-    group_name_or_id_or_empty="${GROUP_NAME}"
-  fi
+  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $1
 
   local result=$(show_group_config "${group_name_or_id_or_empty}")
 
@@ -85,6 +97,14 @@ function show_group_config_handle_params {
 
 function main {
   local param=
+  local param_group_id=
+  local param_group_name=
+  local param_group_path=
+  local param_group_description=
+  local param_group_visibility=
+  local param_group_lfs_enabled=
+  local param_group_request_access_enabled=
+  local param_all_groups=false
   local action=
 
   while [[ $# > 0 ]]; do
@@ -93,7 +113,7 @@ function main {
 
     case "${param}" in
       -a|--all)
-        P_ALL=true
+        param_all_groups=true
         ;;
       --config)
         ensure_empty action
@@ -104,7 +124,7 @@ function main {
         action=deleteAction
         ;;
       --description)
-        GROUP_DESCRIPTION="$1"
+        param_group_description="$1"
         shift
         ;;
       --edit)
@@ -112,14 +132,14 @@ function main {
         action=editAction
         ;;
       -i|--id)
-        GROUP_ID="$1"
+        param_group_id="$1"
         shift
         ;;
       --lfs_enabled)
-        LFS_ENABLED="$1"
+        param_group_lfs_enabled="$1"
         shift
 
-        ensure_boolean "${LFS_ENABLED}" '--lfs_enabled'
+        ensure_boolean "${param_group_lfs_enabled}" '--lfs_enabled'
         ;;
       --list-name)
         ensure_empty action
@@ -130,35 +150,35 @@ function main {
         action=listIdsAction
         ;;
       -n|--name)
-        GROUP_NAME="$1"
+        param_group_name="$1"
         shift
         ;;
       --path)
-        GROUP_PATH="$1"
+        param_group_path="$1"
         shift
         ;;
       --request_access_enabled)
-        REQUEST_ACCESS_ENABLED="$1"
+        param_group_request_access_enabled="$1"
         shift
 
-        ensure_boolean "${REQUEST_ACCESS_ENABLED}" '--request_access_enabled'
+        ensure_boolean "${param_group_request_access_enabled}" '--request_access_enabled'
         ;;
       --visibility)
-        GROUP_VISIBILITY="$1"
+        param_group_visibility="$1"
         shift
 
-        case "${GROUP_VISIBILITY}" in
+        case "${param_group_visibility}" in
            private|internal|public)
              ;;
            *)
-             echo "Illegal value '${GROUP_VISIBILITY}'. --visibility should be private, internal or public." >&2
+             echo "Illegal value '${param_group_visibility}'. --visibility should be private, internal or public." >&2
              display_usage
              ;;
         esac
         ;;
       *)
         # unknown option
-        echo "Undefine parameter ${param}" >&2
+        echo "Unknown parameter ${param}" >&2
         display_usage
         ;;
     esac
@@ -166,24 +186,24 @@ function main {
 
   case "${action}" in
     deleteAction)
-        delete_group_handle_params
+        delete_group_handle_params "${param_group_id}" "${param_group_name}"
         ;;
     editAction)
-        ensure_not_empty GROUP_ID
-        ensure_not_empty GROUP_NAME
-        ensure_not_empty GROUP_PATH
-        ensure_not_empty GROUP_VISIBILITY
+        ensure_not_empty param_group_id
+        ensure_not_empty param_group_name
+        ensure_not_empty param_group_path
+        ensure_not_empty param_group_visibility
 
-        edit_group "${GROUP_ID}" "${GROUP_NAME}" "${GROUP_PATH}" "${GROUP_DESCRIPTION}" "${GROUP_VISIBILITY}" "${LFS_ENABLED}" "${REQUEST_ACCESS_ENABLED}" | jq .
+        edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" "${param_group_description}" "${param_group_visibility}" "${param_group_lfs_enabled}" "${param_group_request_access_enabled}" | jq .
         ;;
     listNamesAction)
-        list_groups_names_handle_params
+        list_groups_names_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
         ;;
     listIdsAction)
-        list_groups_ids_handle_params
+        list_groups_ids_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
         ;;
     showConfigAction)
-        show_group_config_handle_params
+        show_group_config_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
         ;;
     *)
         # unknown option
@@ -214,14 +234,4 @@ if [ $# -eq 0 ]; then
   display_usage
 fi
 
-# Parameters
-GROUP_ID=
-GROUP_NAME=
-GROUP_PATH=
-GROUP_DESCRIPTION=
-GROUP_VISIBILITY=
-LFS_ENABLED=
-REQUEST_ACCESS_ENABLED=
-P_ALL=false
-
-main $@
+main "$@"
