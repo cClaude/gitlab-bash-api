@@ -119,15 +119,38 @@ Syntax:
 glCreateGroup.sh my_test_group
 ```
 
-* How to display groups ?
+* How to manage groups configuration ?
 
-Syntax:
-> listGroups.sh --all | --name GROUP_NAME | GROUP_ID
+Usage:
+> *  Get groups configuration
+>    ./glGroups.sh --config --name GROUP_NAME
+>    ./glGroups.sh --config --id GROUP_ID
+>    ./glGroups.sh --config --all
+>
+> * List groups names
+>    ./glGroups.sh --list-name --name GROUP_NAME
+>    ./glGroups.sh --list-name --id GROUP_ID
+>    ./glGroups.sh --list-name --all
+>
+> * List groups ids
+>    ./glGroups.sh --list-id --name GROUP_NAME
+>    ./glGroups.sh --list-id --id GROUP_ID
+>    ./glGroups.sh --list-id --all
+>
+> * Edit group configuration
+>    ./glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+>       --description GROUP_DESCRIPTION --visibility  private|internal|public \
+>       --lfs_enabled true|false --request_access_enabled true|false
+>
+> * Delete a group
+>    ./glGroups.sh --delete --name GROUP_NAME
+>    ./glGroups.sh --delete --id GROUP_ID
+
+* Retrieve main configuration on all groups:
 
 ```bash
-listGroups.sh --all
+glGroups.sh --config --all
 ```
-
 
 ### About projects / repositories
 
@@ -167,7 +190,7 @@ Usage:
 >    ./glProjects.sh --delete --id PROJECT_ID
 
 
-* Retrieve main informations on all projects:
+* Retrieve main configuration on all projects:
 
 ```bash
 glProjects.sh --config --all
