@@ -4,13 +4,21 @@
 # Clone all projets for user in current folder
 #
 
+function display_usage {
+  echo "Usage: $0
+  $0 --http [--bare] [--destination <ROOT_OUTPUT_DIRECTORY>]
+  $0 --ssh [--bare] [--destination <ROOT_OUTPUT_DIRECTORY>]
+  " >&2
+  exit 1
+}
+
 function get_all_projects_path_with_namespace {
   local project_paths=$(list_projects_compact '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
 
   echo "${project_paths}" | sort
 }
 
-function get_prefix_url_from_params {
+function get_prefix_url {
   local prefix_url=
 
   if [ "${URL_TYPE}" = "http" ] ; then
@@ -19,17 +27,13 @@ function get_prefix_url_from_params {
         exit 1
     fi
 
-    #local begin=$(echo "${GITLAB_CLONE_HTTP_PREFIX}" | cut -d'/' -f1)
-    #local end=$(echo "${GITLAB_CLONE_HTTP_PREFIX}" | cut -d'/' -f3-)
-
-    #prefix_url=${begin}//${GITLAB_USER}@${end}/
     prefix_url="${GITLAB_CLONE_HTTP_PREFIX}/"
   else
     if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
       echo "*** GITLAB_CLONE_SSH_PREFIX is not define" >&2
       exit 1
     fi
-    prefix_url="${GITLAB_CLONE_HTTP_PREFIX}:"
+    prefix_url="${GITLAB_CLONE_SSH_PREFIX}:"
   fi
 
   echo "${prefix_url}"
@@ -37,18 +41,39 @@ function get_prefix_url_from_params {
 
 function git_clone {
   local project_url=$1
+  local p_bare=$2
+
+  if [ ! $# -eq 2 ]; then
+    echo "* git_clone: Expecting 2 parameters found $# : '$@'" >&2
+    exit 1
+  fi
 
   echo "clone ${project_url}"
-  git clone ${BARE} ${project_url}
+  git clone ${p_bare} ${project_url}
   echo "clone $?"
 }
 
-function do_clone_from_params {
-  local prefix_url=$(get_prefix_url_from_params) || exit $?
+function clone_all_projects {
+  local url_type=$1
+  local bare=$2
+  local root_output_directory=$3
+
+  if [ ! $# -eq 3 ]; then
+    echo "* clone_all_projects: Expecting 3 parameters found $# : '$@'" >&2
+    exit 1
+  fi
+
+  local prefix_url=$(get_prefix_url "${url_type}") || exit $?
+
+  if [ -z "${prefix_url}" ]; then
+    echo "*** Error when computing clone URL" >&2
+    exit 1
+  fi
+
   local project_paths=$(get_all_projects_path_with_namespace) || exit $?
 
-  mkdir -p "${ROOT_OUTPUT_DIRECTORY}"
-  pushd "${ROOT_OUTPUT_DIRECTORY}"
+  mkdir -p "${root_output_directory}"
+  pushd "${root_output_directory}"
 
   for project_path in ${project_paths}; do
     local group_folder=$(echo "${project_path}" | cut -d'/' -f1)
@@ -58,7 +83,7 @@ function do_clone_from_params {
     mkdir -p "${group_folder}"
     pushd "${group_folder}"
 
-    git_clone "${prefix_url}${project_path}.git"
+    git_clone "${bare}" "${prefix_url}${project_path}.git"
 
     popd >/dev/null
   done
@@ -83,9 +108,49 @@ function display_http_helper {
   echo "  git config --global credential.${GITLAB_CLONE_HTTP_PREFIX} ${user}" >&2
 }
 
-function display_usage {
-  echo "Usage: $0 --http|--ssh [--destination <ROOT_OUTPUT_DIRECTORY>]" >&2
-  exit 1
+function main {
+  local url_type=
+  local bare=
+  local root_output_directory=.
+
+  while [[ $# > 0 ]]; do
+    local param="$1"
+    shift
+
+    case "${param}" in
+    --bare)
+      bare="--bare"
+      ;;
+    -d|--destination)
+      root_output_directory="$1"
+      shift
+      ;;
+    --http)
+      ensure_empty url_type
+      url_type="http"
+      ;;
+    --ssh)
+      ensure_empty url_type
+      url_type="ssh"
+      ;;
+    *)
+      # unknown option
+      echo "Undefine parameter ${param}" >&2
+      display_usage
+      ;;
+    esac
+  done
+
+  if [ -z "${url_type}" ] ; then
+    echo "** Missing parameter --http or --ssh" >&2
+    display_usage
+  fi
+
+  if [ "${url_type}" = "http" ] ; then
+    display_http_helper
+  fi
+
+  clone_all_projects "${url_type}" "${bare}" "${root_output_directory}"
 }
 
 # Configuration - BEGIN
@@ -104,46 +169,4 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 # Script start here
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
-# Parameters
-BARE=
-URL_TYPE=
-ROOT_OUTPUT_DIRECTORY=.
-
-while [[ $# > 0 ]]
-do
-param="$1"
-shift
-case "${param}" in
-  --bare)
-      BARE="--bare"
-      ;;
-  -d|--destination)
-      ROOT_OUTPUT_DIRECTORY="$1"
-      shift
-      ;;
-  --http)
-      ensure_empty URL_TYPE
-      URL_TYPE="http"
-      ;;
-  --ssh)
-      ensure_empty URL_TYPE
-      URL_TYPE="ssh"
-      ;;
-  *)
-      # unknown option
-      echo "Undefine parameter ${param}" >&2
-      display_usage
-      ;;
-esac
-done
-
-if [ -z "${URL_TYPE}" ] ; then
-  echo "** Missing parameter --http or --ssh" >&2
-  display_usage
-fi
-
-if [ "${URL_TYPE}" = "http" ] ; then
-  display_http_helper
-fi
-
-do_clone_from_params || exit $?
+main "$@"
