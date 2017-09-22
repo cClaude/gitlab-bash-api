@@ -207,7 +207,7 @@ function main {
         ;;
     *)
         # unknown option
-        echo "Missing --config, --list-name, --list-id or --delete" >&2
+        echo "Missing --config, --list-name, --list-id, --edit or --delete" >&2
         echo "Unexpected value for action: '${action}'" >&2
         display_usage
         ;;
