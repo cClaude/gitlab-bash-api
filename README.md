@@ -1,10 +1,11 @@
 Table of Contents
 =================
 
+  * [Table of Contents](#table-of-contents)
   * [GitLab bash API](#gitlab-bash-api)
     * [Installation](#installation)
     * [Configuration](#configuration)
-    * [Usage](#usage)
+    * [Global usage](#global-usage)
       * [About users](#about-users)
       * [About groups](#about-groups)
       * [About projects / repositories](#about-projects--repositories)
@@ -12,6 +13,7 @@ Table of Contents
       * [Related documentations](#related-documentations)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
 
 # GitLab bash API
 
@@ -40,7 +42,7 @@ git clone https://github.com/cClaude/gitlab-bash-api.git
 You can create a **my-config** folder (ignored by git) to configure/customize this application or just copy content of **custom-config-sample/**.
 The **my-config** folder is taken in account by default by the API
 
-> You can also use any custom folder for configuration, you just need to set **GITLAB_BASH_API_CONFIG** 
+> You can also use any custom folder for configuration, by setting **GITLAB_BASH_API_CONFIG**
 > variable with the full path of your custom folder.
 
 In you configuration files:
@@ -71,6 +73,7 @@ export GITLAB_BASH_API_CONFIG="__YOUR_PATH_TO__/your-custom-config-folder"
 PATH=$PATH:${GITLAB_BASH_API_PATH}/
 ```
 
+
 ## Global usage
 
 You can call comment using the full path
@@ -83,6 +86,7 @@ or simply (if **${GITLAB_BASH_API_PATH}** is in your path):
 ```bash
 listUsers.sh --all
 ```
+
 
 ### About users
 
@@ -152,6 +156,7 @@ Usage:
 glGroups.sh --config --all
 ```
 
+
 ### About projects / repositories
 
 * How to create some repositories ?
@@ -208,12 +213,6 @@ glProjects.sh --config --all | jq -r ' .[] | .path_with_namespace'
 glProjects.sh --list-id --group GROUP_NAME
 ```
 
-* To get complete information on a project (Need GitLab EE)
-
-```bash
-glProjects.sh --config --id 12
-```
-
 * To delete a project
 
 ```bash
@@ -233,6 +232,7 @@ cd _a_new_empty_folder
 
 glCloneAllProjects.sh ssh
 ```
+
 
 ### About branches
 
@@ -257,6 +257,4 @@ listBranches.sh 10 | jq -r ' .[] | .name'
 ### Related documentations
 
 * How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
-
-
 
