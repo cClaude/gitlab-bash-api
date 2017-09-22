@@ -28,7 +28,7 @@
 #   avatar (optional) - Image file for user's avatar#
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -39,6 +39,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 3 ]] ; then

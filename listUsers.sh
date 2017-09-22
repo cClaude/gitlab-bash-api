@@ -16,7 +16,7 @@
 #   shared_runners_minutes_limit (optional) - (admin-only) Pipeline minutes quota for this group
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -27,6 +27,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [ $# -eq 0 ]; then

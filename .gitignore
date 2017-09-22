@@ -1,7 +1,9 @@
 *.log
 *.tws
+*.json
 .project
 .settings
 /my-config/
-/tests/
+/tests-result/
+/test/
 

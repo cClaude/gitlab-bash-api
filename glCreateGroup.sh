@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Documentation:
+# API Documentation:
 #   https://docs.gitlab.com/ee/api/groups.html#new-group
 #
 # Parameters:
@@ -17,7 +17,7 @@
 #   visibility (optional) - The group's visibility. Can be private, internal, or public.
 #
 
-# Configuration
+# Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
@@ -28,6 +28,7 @@ if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
 fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
 
 # Script start here
 if [[ $# -lt 1 ]] ; then

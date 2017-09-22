@@ -1,3 +1,18 @@
+Table of Contents
+=================
+
+  * [GitLab bash API](#gitlab-bash-api)
+    * [Installation](#installation)
+    * [Configuration](#configuration)
+    * [Usage](#usage)
+      * [About users](#about-users)
+      * [About groups](#about-groups)
+      * [About projects / repositories](#about-projects--repositories)
+      * [About branches](#about-branches)
+      * [Related documentations](#related-documentations)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
 # GitLab bash API
 
 Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https://docs.gitlab.com/ee/api/) from bash.
@@ -22,21 +37,28 @@ git clone https://github.com/cClaude/gitlab-bash-api.git
 
 ## Configuration
 
-You can create a **my-config** folder (ignored by git) to configure/customize this application or just copy
-content of **custom-config-sample/**.
+You can create a **my-config** folder (ignored by git) to configure/customize this application or just copy content of **custom-config-sample/**.
+The **my-config** folder is taken in account by default by the API
 
-> You can use any custom folder for configuration, you just need to set **GITLAB_BASH_API_CONFIG** 
+> You can also use any custom folder for configuration, you just need to set **GITLAB_BASH_API_CONFIG** 
 > variable with the full path of your custom folder.
 
-In you configuration files you can override default values define in **config/** folder and you need at
-least define values for **GITLAB_PRIVATE_TOKEN** and **GITLAB_URL_PREFIX**.
+In you configuration files:
 
+* You can create any custom file to declare variables (bash format), all theses files will be sourced.
+* You can override default values define in **config/** folder,
+* You need **at least** define values for **GITLAB_PRIVATE_TOKEN** and **GITLAB_URL_PREFIX**.
 
 ```bash
 GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOCKEN_HERE__
 GITLAB_URL_PREFIX=__YOUR_GITLAB_USER_HERE__
 ```
 
+Configuration algorithms :
+
+1. source files in "${GITLAB_BASH_API_PATH}/config"
+2. source files in "${GITLAB_BASH_API_PATH}/my-config" (if folder exists)
+3. source files in "${GITLAB_BASH_API_CONFIG}" (if variable is define and if folder exists)
 
 **Facultative configuration:**
 
@@ -49,8 +71,7 @@ export GITLAB_BASH_API_CONFIG="__YOUR_PATH_TO__/your-custom-config-folder"
 PATH=$PATH:${GITLAB_BASH_API_PATH}/
 ```
 
-
-## Usage
+## Global usage
 
 You can call comment using the full path
 ```bash
@@ -68,10 +89,10 @@ listUsers.sh --all
 * How to create a new user ?
 
 Syntax:
-> createUser.sh USER_NAME 'USER_FULLNAME' 'USER_EMAIL'
+> glCreateUser.sh USER_NAME 'USER_FULLNAME' 'USER_EMAIL'
 
 ```bash
-createUser.sh testuser "test user" test-user@example.org
+glCreateUser.sh testuser "test user" test-user@example.org
 ```
 
 * How to display all users ?
@@ -91,72 +112,118 @@ listUsers.sh testuser
 
 * How to create a group ?
 
-```bash
-${GITLAB_BASH_API_PATH}/createGroup.sh my_test_group
-```
-
-or simply (if **${GITLAB_BASH_API_PATH}** is in your path):
+Syntax:
+> glCreateGroup.sh GROUP_PATH ['GROUP_NAME' ['GROUP_DESCRIPTION']]
 
 ```bash
-createGroup.sh my_test_group
+glCreateGroup.sh my_test_group
 ```
 
+* How to manage groups configuration ?
+
+Usage:
+> *  Get groups configuration
+>    ./glGroups.sh --config --name GROUP_NAME
+>    ./glGroups.sh --config --id GROUP_ID
+>    ./glGroups.sh --config --all
+>
+> * List groups names
+>    ./glGroups.sh --list-name --name GROUP_NAME
+>    ./glGroups.sh --list-name --id GROUP_ID
+>    ./glGroups.sh --list-name --all
+>
+> * List groups ids
+>    ./glGroups.sh --list-id --name GROUP_NAME
+>    ./glGroups.sh --list-id --id GROUP_ID
+>    ./glGroups.sh --list-id --all
+>
+> * Edit group configuration
+>    ./glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+>       --description GROUP_DESCRIPTION --visibility  private|internal|public \
+>       --lfs_enabled true|false --request_access_enabled true|false
+>
+> * Delete a group
+>    ./glGroups.sh --delete --name GROUP_NAME
+>    ./glGroups.sh --delete --id GROUP_ID
+
+* Retrieve main configuration on all groups:
+
+```bash
+glGroups.sh --config --all
+```
 
 ### About projects / repositories
 
 * How to create some repositories ?
 
-Syntax!
-> createProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
+Usage:
+> glCreateProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
 
 ```bash
-createProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
-createProject.sh my_test_group my_test_repository2
+glCreateProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
+glCreateProject.sh my_test_group my_test_repository2
 ```
 
 * Projects main information:
 
-Syntax:
-> listProjects.sh [--all | PROJECT_ID]
+Usage:
+> * Get projects configuration
+>    ./glProjects.sh --config [--compact] --name PROJECT_NAME
+>    ./glProjects.sh --config [--compact] --id PROJECT_ID
+>    ./glProjects.sh --config [--compact] --group GROUP_NAME
+>    ./glProjects.sh --config [--compact] --all
+>
+> * List projects names
+>    ./glProjects.sh --list-name --name PROJECT_NAME (could return more than one entry)
+>    ./glProjects.sh --list-name --id PROJECT_ID
+>    ./glProjects.sh --list-name --group GROUP_NAME (could return more than one entry)
+>    ./glProjects.sh --list-name --all
+>
+> * List projects ids
+>    ./glProjects.sh --list-id --name PROJECT_NAME
+>    ./glProjects.sh --list-id --id PROJECT_ID
+>    ./glProjects.sh --list-id --group GROUP_NAME (could return more than one entry)
+>    ./glProjects.sh --list-id --all
+>
+> * Delete a project
+>    ./glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
+>    ./glProjects.sh --delete --id PROJECT_ID
 
-* Retrieve main informations on all projects:
+
+* Retrieve main configuration on all projects:
 
 ```bash
-listProjects.sh --all
+glProjects.sh --config --all
 ```
 
 * Retrieve only path with name space:
 
 ```bash
-listProjects.sh --all | jq -r ' .[] | .path_with_namespace'
+glProjects.sh --config --all | jq -r ' .[] | .path_with_namespace'
 ```
 
-* List of all projects in a group
+* List of all projects id of a group
 
 ```bash
-listProjectsInGroup.sh GROUP_NAME
+glProjects.sh --list-id --group GROUP_NAME
 ```
 
 * To get complete information on a project (Need GitLab EE)
 
 ```bash
-statisticsProjects.sh 12
+glProjects.sh --config --id 12
 ```
 
 * To delete a project
 
-Syntax:
-> deleteProject.sh GROUP_NAME PROJECT_NAME
-> deleteProject.sh --id PROJECT_ID
-
 ```bash
-deleteProject.sh GROUP_NAME PROJECT_NAME
+glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
 ```
 
 * To clone **all projects** you have access
 
 Syntax:
-> cloneAllProjects.sh http|ssh
+> glCloneAllProjects.sh http|ssh
 
 * Clone using ssh
 
@@ -164,7 +231,7 @@ Syntax:
 mkdir _a_new_empty_folder
 cd _a_new_empty_folder
 
-cloneAllProjects.sh ssh
+glCloneAllProjects.sh ssh
 ```
 
 ### About branches
@@ -185,5 +252,11 @@ listBranches.sh 82
 ```bash
 listBranches.sh 10 | jq -r ' .[] | .name'
 ```
+
+
+### Related documentations
+
+* How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
+
 
 
