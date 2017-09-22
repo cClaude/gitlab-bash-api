@@ -5,7 +5,7 @@
 #
 
 function get_all_projects_path_with_namespace {
-  local project_paths=$(list_projects '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
+  local project_paths=$(list_projects_compact '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
 
   echo "${project_paths}" | sort
 }
@@ -100,6 +100,9 @@ fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 # Configuration - END
+
+# Script start here
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 # Parameters
 BARE=

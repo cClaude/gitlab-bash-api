@@ -170,51 +170,6 @@ function source_files {
   done
 }
 
-function list_projects_raw {
-  local project_id=$1
-  local params=$2
-
-  local answer=$(gitlab_get "projects/${project_id}" "${params}") || exit 102
-  echo "${answer}"
-}
-
-function list_projects {
-  local project_id=$1
-  local params=$2
-  local json=
-
-  local answer=$(list_projects_raw "${project_id}" "${params}") || exit 103
-  local begin=$(echo "${answer}" | cut -b1 )
-  if [ "${begin}" = '[' ] ; then
-    json="${answer}"
-  else
-    json="[${answer}]"
-  fi
-
-  #echo "${json}" >answer.json
-
-  local short_result=$(echo "${json}" | jq '[.[] | {
-project_id: .id,
-project_name: .name,
-project_path: .path,
-group_name: .namespace.name,
-path_with_namespace: .path_with_namespace,
-ssh_url_to_repo: .ssh_url_to_repo,
-http_url_to_repo: .http_url_to_repo,
-container_registry_enabled: .container_registry_enabled,
-issues_enabled: .issues_enabled,
-merge_requests_enabled: .merge_requests_enabled,
-wiki_enabled: .wiki_enabled,
-builds_enabled: .builds_enabled,
-snippets_enabled: .snippets_enabled,
-shared_runners_enabled: .shared_runners_enabled,
-lfs_enabled: .lfs_enabled,
-request_access_enabled: .request_access_enabled
-}]') || ext 104
-
-  echo "${short_result}"
-}
-
 function get_groupid_from_group_name {
   local group_name="$1"
   local answer=
@@ -327,6 +282,18 @@ function set_action {
   else
     display_usage
   fi
+}
+
+# API : getErrorMessage
+
+function getErrorMessage {
+  local message=$(echo "$1" | jq -r '. .message' 2>/dev/null)
+
+  if [ "${message}" = 'null' ]; then
+    echo ''
+  else
+    echo "${message}"
+  fi 
 }
 
 # API : ensure_not_empty (tooling)
