@@ -21,7 +21,7 @@ Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https
 
 Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 
-Current version is base on [GitLab V3 API](https://docs.gitlab.com/ce/api/v3_to_v4.html).
+Current version is base on [GitLab V3 API](https://docs.gitlab.com/ce/api/v3_to_v4.html) but tested on both V3 and V4.
 
 
 ## Installation
