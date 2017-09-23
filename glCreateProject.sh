@@ -42,19 +42,19 @@ function create_project_from_params {
       name "${project_name}" \
       namespace_id "${group_id}" \
       description "${project_description}" \
-      container_registry_enabled "${GITLAB_PROJECT_CONTAINER_REGISTRY_ENABLED}" \
-      issues_enabled "${GITLAB_PROJECT_ISSUES_ENABLED}" \
-      jobs_enabled "${GITLAB_PROJECT_JOBS_ENABLED}" \
-      lfs_enabled "${GITLAB_PROJECT_LFS_ENABLED}" \
-      merge_requests_enabled "${GITLAB_PROJECT_MERGE_REQUESTS_ENABLED}" \
-      only_allow_merge_if_all_discussions_are_resolved "${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}" \
-      only_allow_merge_if_pipeline_succeed "${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}" \
-      printing_merge_request_link_enabled "${GITLAB_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}" \
-      public_jobs "${GITLAB_PROJECT_PUBLIC_JOBS}" \
-      request_access_enabled "${GITLAB_PROJECT_REQUEST_ACCESS_ENABLED}" \
-      snippets_enabled "${GITLAB_PROJECT_SNIPPETS_ENABLED}" \
-      visibility "${GITLAB_PROJECT_VISIBILITY}" \
-      wiki_enabled "${GITLAB_PROJECT_WIKI_ENABLED}")
+      container_registry_enabled "${GITLAB_DEFAULT_PROJECT_CONTAINER_REGISTRY_ENABLED}" \
+      issues_enabled "${GITLAB_DEFAULT_PROJECT_ISSUES_ENABLED}" \
+      jobs_enabled "${GITLAB_DEFAULT_PROJECT_JOBS_ENABLED}" \
+      lfs_enabled "${GITLAB_DEFAULT_PROJECT_LFS_ENABLED}" \
+      merge_requests_enabled "${GITLAB_DEFAULT_PROJECT_MERGE_REQUESTS_ENABLED}" \
+      only_allow_merge_if_all_discussions_are_resolved "${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}" \
+      only_allow_merge_if_pipeline_succeed "${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}" \
+      printing_merge_request_link_enabled "${GITLAB_DEFAULT_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}" \
+      public_jobs "${GITLAB_DEFAULT_PROJECT_PUBLIC_JOBS}" \
+      request_access_enabled "${GITLAB_DEFAULT_PROJECT_REQUEST_ACCESS_ENABLED}" \
+      snippets_enabled "${GITLAB_DEFAULT_PROJECT_SNIPPETS_ENABLED}" \
+      visibility "${GITLAB_DEFAULT_PROJECT_VISIBILITY}" \
+      wiki_enabled "${GITLAB_DEFAULT_PROJECT_WIKI_ENABLED}")
 
   local project_id=$(echo "${answer}" | jq .id)
 
@@ -82,7 +82,7 @@ function main {
   if [ ! -z "$4" ] ; then
     project_description="$4"
   else
-    project_description="${GITLAB_PROJECT_DESCRIPTION}"
+    project_description="${GITLAB_DEFAULT_PROJECT_DESCRIPTION}"
   fi
 
   local group_id=$(get_groupid_from_group_name "${group_name}") || exit 1
