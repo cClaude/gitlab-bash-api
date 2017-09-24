@@ -1,40 +1,42 @@
 #!/bin/bash
 
-#
-# Clone all projets for user in current folder
-#
-
 function display_usage {
-  echo "Usage: $0
+  echo "Clone all projects by groups
+
+Usage: $0
   $0 --http [--bare] [--destination <ROOT_OUTPUT_DIRECTORY>]
   $0 --ssh [--bare] [--destination <ROOT_OUTPUT_DIRECTORY>]
   " >&2
   exit 1
 }
 
-function get_all_projects_path_with_namespace {
-  local project_paths=$(list_projects_compact '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
-
-  echo "${project_paths}" | sort
-}
-
 function get_prefix_url {
+  local clone_type=$1
+
   local prefix_url=
 
-  if [ "${URL_TYPE}" = "http" ] ; then
-    if [ -z "${GITLAB_CLONE_HTTP_PREFIX}" ] ; then
+  case "${clone_type}" in
+    http)
+      if [ -z "${GITLAB_CLONE_HTTP_PREFIX}" ] ; then
         echo "*** GITLAB_CLONE_HTTP_PREFIX is not define" >&2
         exit 1
-    fi
+      fi
 
-    prefix_url="${GITLAB_CLONE_HTTP_PREFIX}/"
-  else
-    if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
-      echo "*** GITLAB_CLONE_SSH_PREFIX is not define" >&2
+      prefix_url="${GITLAB_CLONE_HTTP_PREFIX}/"
+      ;;
+    ssh)
+      if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
+        echo "*** GITLAB_CLONE_SSH_PREFIX is not define" >&2
+        exit 1
+      fi
+
+      prefix_url="${GITLAB_CLONE_SSH_PREFIX}:"
+      ;;
+    *)
+      echo "Unkown clone_type: '${clone_type}'"
       exit 1
-    fi
-    prefix_url="${GITLAB_CLONE_SSH_PREFIX}:"
-  fi
+      ;;
+  esac
 
   echo "${prefix_url}"
 }

@@ -1,10 +1,11 @@
 Table of Contents
 =================
 
+  * [Table of Contents](#table-of-contents)
   * [GitLab bash API](#gitlab-bash-api)
     * [Installation](#installation)
     * [Configuration](#configuration)
-    * [Usage](#usage)
+    * [Global usage](#global-usage)
       * [About users](#about-users)
       * [About groups](#about-groups)
       * [About projects / repositories](#about-projects--repositories)
@@ -13,13 +14,14 @@ Table of Contents
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
+
 # GitLab bash API
 
 Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https://docs.gitlab.com/ee/api/) from bash.
 
 Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 
-Current version is base on [GitLab V3 API](https://docs.gitlab.com/ce/api/v3_to_v4.html).
+Current version is base on [GitLab V3 API](https://docs.gitlab.com/ce/api/v3_to_v4.html) but tested on both V3 and V4.
 
 
 ## Installation
@@ -40,7 +42,7 @@ git clone https://github.com/cClaude/gitlab-bash-api.git
 You can create a **my-config** folder (ignored by git) to configure/customize this application or just copy content of **custom-config-sample/**.
 The **my-config** folder is taken in account by default by the API
 
-> You can also use any custom folder for configuration, you just need to set **GITLAB_BASH_API_CONFIG** 
+> You can also use any custom folder for configuration, by setting **GITLAB_BASH_API_CONFIG**
 > variable with the full path of your custom folder.
 
 In you configuration files:
@@ -71,6 +73,7 @@ export GITLAB_BASH_API_CONFIG="__YOUR_PATH_TO__/your-custom-config-folder"
 PATH=$PATH:${GITLAB_BASH_API_PATH}/
 ```
 
+
 ## Global usage
 
 You can call comment using the full path
@@ -83,6 +86,7 @@ or simply (if **${GITLAB_BASH_API_PATH}** is in your path):
 ```bash
 listUsers.sh --all
 ```
+
 
 ### About users
 
@@ -110,47 +114,50 @@ listUsers.sh testuser
 
 ### About groups
 
-* How to create a group ?
-
-Syntax:
-> glCreateGroup.sh GROUP_PATH ['GROUP_NAME' ['GROUP_DESCRIPTION']]
-
-```bash
-glCreateGroup.sh my_test_group
-```
-
-* How to manage groups configuration ?
+* How to manage groups ?
 
 Usage:
-> *  Get groups configuration
->    ./glGroups.sh --config --name GROUP_NAME
->    ./glGroups.sh --config --id GROUP_ID
->    ./glGroups.sh --config --all
+> * Get groups configuration
+>    glGroups.sh --config --name GROUP_NAME
+>    /glGroups.sh --config --id GROUP_ID
+>    /glGroups.sh --config --all
 >
 > * List groups names
->    ./glGroups.sh --list-name --name GROUP_NAME
->    ./glGroups.sh --list-name --id GROUP_ID
->    ./glGroups.sh --list-name --all
+>    glGroups.sh --list-name --name GROUP_NAME
+>    glGroups.sh --list-name --id GROUP_ID
+>    glGroups.sh --list-name --all
 >
 > * List groups ids
->    ./glGroups.sh --list-id --name GROUP_NAME
->    ./glGroups.sh --list-id --id GROUP_ID
->    ./glGroups.sh --list-id --all
+>    glGroups.sh --list-id --name GROUP_NAME
+>    glGroups.sh --list-id --id GROUP_ID
+>    glGroups.sh --list-id --all
 >
 > * Edit group configuration
->    ./glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+>    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
 >       --description GROUP_DESCRIPTION --visibility  private|internal|public \
 >       --lfs_enabled true|false --request_access_enabled true|false
 >
+> * Create group
+>    glGroups.sh --create --path GROUP_PATH
+>        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \\
+>        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false]
+>        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
+>
 > * Delete a group
->    ./glGroups.sh --delete --name GROUP_NAME
->    ./glGroups.sh --delete --id GROUP_ID
+>    glGroups.sh --delete --id GROUP_ID
 
 * Retrieve main configuration on all groups:
 
 ```bash
 glGroups.sh --config --all
 ```
+
+* How to create a group ?
+
+```bash
+glGroups.sh --create --path my_test_group
+```
+
 
 ### About projects / repositories
 
@@ -208,12 +215,6 @@ glProjects.sh --config --all | jq -r ' .[] | .path_with_namespace'
 glProjects.sh --list-id --group GROUP_NAME
 ```
 
-* To get complete information on a project (Need GitLab EE)
-
-```bash
-glProjects.sh --config --id 12
-```
-
 * To delete a project
 
 ```bash
@@ -233,6 +234,7 @@ cd _a_new_empty_folder
 
 glCloneAllProjects.sh ssh
 ```
+
 
 ### About branches
 
@@ -257,6 +259,4 @@ listBranches.sh 10 | jq -r ' .[] | .name'
 ### Related documentations
 
 * How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
-
-
 

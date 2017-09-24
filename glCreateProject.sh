@@ -29,6 +29,71 @@
 #   wiki_enabled                        boolean         no      Enable wiki for this project
 #
 
+function create_project_from_params {
+  local group_id=$1
+  local project_path=$2
+  local project_name=$3
+  local project_description=$4
+
+  echo "# create project: GROUP_ID=${group_id} - PROJECT_PATH=[${project_path}] / PROJECT_NAME=[${project_name}] - PROJECT_DESCRIPTION=[${project_description}]"
+
+  # Build paramters
+  local answer=$(create_project path "${project_path}" \
+      name "${project_name}" \
+      namespace_id "${group_id}" \
+      description "${project_description}" \
+      container_registry_enabled "${GITLAB_DEFAULT_PROJECT_CONTAINER_REGISTRY_ENABLED}" \
+      issues_enabled "${GITLAB_DEFAULT_PROJECT_ISSUES_ENABLED}" \
+      jobs_enabled "${GITLAB_DEFAULT_PROJECT_JOBS_ENABLED}" \
+      lfs_enabled "${GITLAB_DEFAULT_PROJECT_LFS_ENABLED}" \
+      merge_requests_enabled "${GITLAB_DEFAULT_PROJECT_MERGE_REQUESTS_ENABLED}" \
+      only_allow_merge_if_all_discussions_are_resolved "${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}" \
+      only_allow_merge_if_pipeline_succeed "${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}" \
+      printing_merge_request_link_enabled "${GITLAB_DEFAULT_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}" \
+      public_jobs "${GITLAB_DEFAULT_PROJECT_PUBLIC_JOBS}" \
+      request_access_enabled "${GITLAB_DEFAULT_PROJECT_REQUEST_ACCESS_ENABLED}" \
+      snippets_enabled "${GITLAB_DEFAULT_PROJECT_SNIPPETS_ENABLED}" \
+      visibility "${GITLAB_DEFAULT_PROJECT_VISIBILITY}" \
+      wiki_enabled "${GITLAB_DEFAULT_PROJECT_WIKI_ENABLED}")
+
+  local project_id=$(echo "${answer}" | jq .id)
+
+  if [ "${project_id}" = "null" ] ; then
+    echo "*** GROUP_ID=${group_id}/PROJECT_NAME=[${project_name}] not created - already exist ?" >&2
+    echo "${answer}" >&2
+    exit 100
+  fi
+
+  echo "# GROUP_ID=${GROUP_ID} PROJECT_ID=${project_id}"
+}
+
+function main {
+  if [[ $# -lt 2 ]] ; then
+    echo "Usage: $0 GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]" >&2
+    exit 1
+  fi
+
+  # Parameters
+  local group_name=$1
+  local project_path=$2
+  local project_name=$3
+  local project_description=
+
+  if [ ! -z "$4" ] ; then
+    project_description="$4"
+  else
+    project_description="${GITLAB_DEFAULT_PROJECT_DESCRIPTION}"
+  fi
+
+  local group_id=$(get_groupid_from_group_name "${group_name}") || exit 1
+
+  if [ -z "${project_name}" ] ; then
+    project_name="${project_path}"
+  fi
+
+  create_project_from_params "${group_id}" "${project_path}" "${project_name}" "${project_description}"
+}
+
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
@@ -41,66 +106,8 @@ fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 # Configuration - END
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 # Script start here
-if [[ $# -lt 2 ]] ; then
-  echo "Usage: $0 GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]" >&2
-  exit 1
-fi
+main "$@"
 
-# Parameters
-GROUP_NAME=$1
-PROJECT_PATH=$2
-PROJECT_NAME=$3
-
-if [ ! -z "$4" ] ; then
-  PROJECT_DESCRIPTION="$4"
-else
-  PROJECT_DESCRIPTION="${GITLAB_PROJECT_DESCRIPTION}"
-fi
-
-GROUP_ID=$(get_groupid_from_group_name "${GROUP_NAME}") || exit 1
-
-if [ -z "${PROJECT_NAME}" ] ; then
-  PROJECT_NAME="${PROJECT_PATH}"
-fi
-
-echo "# create project: GROUP_ID=${GROUP_ID} / GROUP_NAME=[${GROUP_NAME}] - PROJECT_PATH=[${PROJECT_PATH}] / PROJECT_NAME=[${PROJECT_NAME}] - PROJECT_DESCRIPTION=[${PROJECT_DESCRIPTION}]"
-
-# Build paramters
-PARAMS="path=${PROJECT_PATH}"
-
-ENCODED=$(urlencode "${PROJECT_NAME}")
-PARAMS+="&name=${ENCODED}"
-
-PARAMS+="&namespace_id=${GROUP_ID}"
-
-ENCODED=$(urlencode "${PROJECT_DESCRIPTION}")
-PARAMS+="&description=${ENCODED}"
-
-PARAMS+="&container_registry_enabled=${GITLAB_PROJECT_CONTAINER_REGISTRY_ENABLED}"
-PARAMS+="&issues_enabled=${GITLAB_PROJECT_ISSUES_ENABLED}"
-PARAMS+="&jobs_enabled=${GITLAB_PROJECT_JOBS_ENABLED}"
-PARAMS+="&lfs_enabled=${GITLAB_PROJECT_LFS_ENABLED}"
-PARAMS+="&merge_requests_enabled=${GITLAB_PROJECT_MERGE_REQUESTS_ENABLED}"
-PARAMS+="&only_allow_merge_if_all_discussions_are_resolved=${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}"
-PARAMS+="&only_allow_merge_if_pipeline_succeed=${GITLAB_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}"
-PARAMS+="&printing_merge_request_link_enabled=${GITLAB_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}"
-PARAMS+="&public_jobs=${GITLAB_PROJECT_PUBLIC_JOBS}"
-PARAMS+="&request_access_enabled=${GITLAB_PROJECT_REQUEST_ACCESS_ENABLED}"
-PARAMS+="&snippets_enabled=${GITLAB_PROJECT_SNIPPETS_ENABLED}"
-PARAMS+="&visibility=${GITLAB_PROJECT_VISIBILITY}"
-PARAMS+="&wiki_enabled=${GITLAB_PROJECT_WIKI_ENABLED}"
-
-#echo "$PARAMS"
-
-answer=$(gitlab_post "projects" "${PARAMS}") || exit 1
-PROJECT_ID=$(echo "${answer}" | jq .id)
-
-if [ "${PROJECT_ID}" = "null" ] ; then
-  echo "*** GROUP_ID=${GROUP_ID}/PROJECT_NAME=[${PROJECT_NAME}] not created - already exist ?" >&2
-  echo "${answer}" >&2
-  exit 100
-fi
-
-echo "# GROUP_ID=${GROUP_ID} PROJECT_ID=${PROJECT_ID}"

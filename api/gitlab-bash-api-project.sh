@@ -17,7 +17,7 @@ function list_projects_raw {
   local params=$2
 
   local answer=$(gitlab_get "projects/${project_id}" "${params}") || exit 102
-  local error_message=$(getErrorMessage "${answer}") 
+  local error_message=$(getErrorMessage "${answer}")
 
   if [ ! -z "${error_message}" ]; then
     echo "${answer}" # This is an error (not format)
@@ -87,6 +87,54 @@ function show_project_config {
   fi
 }
 
+# API: create_project
+
+function create_project {
+  local params=
+
+  # optional parameters
+  while [[ $# > 0 ]]; do
+    if [ ! $# \> 1 ]; then
+      echo "*** create_project error: odd number of remind parameters. $#" >&2
+      exit 1
+    fi
+
+    local param_name="$1"
+    shift
+    local param_value="$1"
+    shift
+
+    params+="&${param_name}=$(urlencode "${param_value}")"
+  done
+
+  # DEBUG echo "POST params: ${params}" >&2
+  gitlab_post 'projects' "${params}"
+}
+
+# API: create_project_params
+
+function create_project_params {
+  echo '
+path
+name
+namespace_id
+description
+container_registry_enabled
+issues_enabled
+jobs_enabled
+lfs_enabled
+merge_requests_enabled
+only_allow_merge_if_all_discussions_are_resolved
+only_allow_merge_if_pipeline_succeed
+printing_merge_request_link_enabled
+public_jobs
+request_access_enabled
+snippets_enabled
+visibility
+wiki_enabled
+'
+}
+
 # API: edit_project
 
 function edit_project {
@@ -99,10 +147,10 @@ function edit_project {
 
   local params="name=$(urlencode "${p_name}")"
 
-  # optional parameters 
+  # optional parameters
   while [[ $# > 0 ]]; do
     if [ ! $# \> 1 ]; then
-      echo "Error: odd number of remind parameters. $#" >&2
+      echo "*** edit_project error: odd number of remind parameters. $#" >&2
       exit 1
     fi
 
@@ -117,6 +165,8 @@ function edit_project {
 echo "POST params: ${params}" >&2
   gitlab_put "projects/${p_id}" "${params}"
 }
+
+# API: edit_project_all_values
 
 function edit_project_all_values {
   local p_id=$1     # The ID or URL-encoded path of the project
@@ -164,18 +214,24 @@ function edit_project_all_values {
     'request_access_enabled' "${p_request_access_enabled}" \
     'tag_list' "${p_tag_list}" \
     'avatar' "${p_avatar}" \
-    'ci_config_path' "${p_ci_config_path}" 
+    'ci_config_path' "${p_ci_config_path}"
 }
 
 # API: delete_project
 
 function delete_project {
   local project_id=$1
-  local answer=
 
   echo "# delete project: project_id=[${project_id}]" >&2
 
-  answer=$(delete_projects_by_id "${project_id}") || exit 1
-
-  echo "${answer}"
+  gitlab_delete "projects/${project_id}"
 }
+
+# API: get_all_projects_path_with_namespace
+
+function get_all_projects_path_with_namespace {
+  local project_paths=$(list_projects_compact '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
+
+  echo "${project_paths}" | sort
+}
+

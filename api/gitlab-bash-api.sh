@@ -231,19 +231,6 @@ function get_project_id {
   echo "${project_id}"
 }
 
-function delete_projects_by_id {
-  local project_id=$1
-
-  local answer=$(gitlab_delete "projects/${project_id}") || exit 600
-  if [ "${answer}" != "true" ] ; then
-    echo "Can not delete project..." >&2
-    echo "${answer}" >&2
-    exit 601
-  fi
-
-  echo "${answer}"
-}
-
 function list_deploy_keys_raw {
   local project_id=$1
   local params=$2
