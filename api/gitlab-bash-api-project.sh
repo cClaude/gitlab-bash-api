@@ -107,8 +107,8 @@ function create_project {
     params+="&${param_name}=$(urlencode "${param_value}")"
   done
 
-echo "POST params: ${params}" >&2
-  gitlab_post "projects" "${params}"
+  # DEBUG echo "POST params: ${params}" >&2
+  gitlab_post 'projects' "${params}"
 }
 
 # API: create_project_params
@@ -221,13 +221,10 @@ function edit_project_all_values {
 
 function delete_project {
   local project_id=$1
-  local answer=
 
   echo "# delete project: project_id=[${project_id}]" >&2
 
-  answer=$(delete_projects_by_id "${project_id}") || exit 1
-
-  echo "${answer}"
+  gitlab_delete "projects/${project_id}"
 }
 
 # API: get_all_projects_path_with_namespace
