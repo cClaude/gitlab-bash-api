@@ -85,7 +85,12 @@ function main {
     project_description="${GITLAB_DEFAULT_PROJECT_DESCRIPTION}"
   fi
 
-  local group_id=$(get_group_id_from_group_path "${group_path}") || exit 1
+  local group_id=$(get_group_id_from_group_path "${group_path}")
+
+  if [ -z "${group_id}" ]; then
+   echo "*** Can not create project with no group id" >&2
+   exit 1
+  fi
 
   if [ -z "${project_name}" ] ; then
     project_name="${project_path}"

@@ -47,6 +47,7 @@ project_id: .id,
 project_name: .name,
 project_path: .path,
 group_name: .namespace.name,
+group_path: .namespace.path,
 path_with_namespace: .path_with_namespace,
 ssh_url_to_repo: .ssh_url_to_repo,
 http_url_to_repo: .http_url_to_repo,
@@ -59,7 +60,7 @@ snippets_enabled: .snippets_enabled,
 shared_runners_enabled: .shared_runners_enabled,
 lfs_enabled: .lfs_enabled,
 request_access_enabled: .request_access_enabled
-}]') || ext 104
+}]')
 
   echo "${short_result}"
 }
