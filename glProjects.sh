@@ -4,23 +4,23 @@ function display_usage {
   echo "Usage: $0
   Get projects configuration
     $0 --config [--compact] --id PROJECT_ID
-    $0 --config [--compact] --group_path GROUP_PATH
+    $0 --config [--compact] --group-path GROUP_PATH
     $0 --config [--compact] --all
     $0 --config [--compact] --path PROJECT_PATH
   List projects names
     $0 --list-name --id PROJECT_ID
-    $0 --list-name --group_path GROUP_PATH (could return more than one entry)
+    $0 --list-name --group-path GROUP_PATH (could return more than one entry)
     $0 --list-name --all
     $0 --list-name --path PROJECT_PATH (could return more than one entry)
   List projects ids
     $0 --list-id --id PROJECT_ID
-    $0 --list-id --group_path GROUP_PATH (could return more than one entry)
+    $0 --list-id --group-path GROUP_PATH (could return more than one entry)
     $0 --list-id --all
     $0 --list-id --path PROJECT_PATH
   Create project
-    $0 --create --group_path GROUP_PATH
+    $0 --create --group-path GROUP_PATH
   Delete a project
-    $0 --delete --group_path GROUP_PATH --path PROJECT_PATH
+    $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
 " >&2
   exit 100
@@ -58,7 +58,7 @@ function show_projects_config_handle_params {
     elif [ ! -z "${param_project_id}" ] ; then
       jq_filter='.'
     else
-      echo "Missing PROJECT_ID, GROUP_PATH, PROJECT_NAME or ALL parameter" >&2
+      echo "Missing PROJECT_ID, GROUP_PATH, PROJECT_PATH or ALL parameter" >&2
       display_usage
     fi
   else
@@ -71,7 +71,7 @@ function show_projects_config_handle_params {
     elif [ ! -z "${param_project_id}" ] ; then
       jq_filter='.'
     else
-      echo "Missing PROJECT_ID, GROUP_PATH, PROJECT_NAME or ALL parameter" >&2
+      echo "Missing PROJECT_ID, GROUP_PATH, PROJECT_PATH or ALL parameter" >&2
       display_usage
     fi
   fi
