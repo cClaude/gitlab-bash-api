@@ -14,32 +14,65 @@ function display_usage {
     $0 --list-id --name GROUP_NAME
     $0 --list-id --id param_GROUP_ID
     $0 --list-id --all
+  Create group
+    $0 --create --path GROUP_PATH
+        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \\
+        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false]
+        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
   Edit group configuration
     $0 --edit --id param_GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
        --description GROUP_DESCRIPTION --visibility  private|internal|public \\
        --lfs_enabled true|false --request_access_enabled true|false
   Delete a group
-    $0 --delete --name GROUP_NAME
     $0 --delete --id param_GROUP_ID
 " >&2
   exit 100
 }
 
-function delete_group_handle_params {
-  local p_group_id=$1
-  local p_group_name=$2
+#        create_group_handle_params "${param_group_path}" "${param_group_name}"  "${param_group_description}" \
+#          "${param_group_lfs_enabled}" "${param_group_membership_lock}" "${param_group_request_access_enabled}" \
+#          "${param_group_share_with_group_lock}" "${param_group_visibility}" \
+#          | jq .
+function create_group_handle_params {
+  local param_group_path=$1
+  local param_group_name=$2
+  local param_group_description=$3
+  local param_group_lfs_enabled=$4
+  local param_group_membership_lock=$5
+  local param_group_request_access_enabled=$6
+  local param_group_share_with_group_lock=$7
+  local param_group_visibility=$8
 
-  local group_id=
-
-  if [ -z "${p_group_id}" ]; then
-    ensure_not_empty p_group_name
-    group_id=$(get_group_id "${p_group_name}") || exit 1
-  else
-    group_id=${p_group_id}
+  if [ -z "${param_group_name}" ]; then
+    param_group_name="${param_group_path}"
+  fi
+  if [ -z "${param_group_description}" ]; then
+  param_group_description="${GITLAB_DEFAULT_GROUP_DESCRIPTION}"
+  fi
+  if [ -z "${param_group_lfs_enabled}" ]; then
+    param_group_lfs_enabled="${GITLAB_DEFAULT_GROUP_LFS_ENABLED}"
+  fi
+  if [ -z "${param_group_membership_lock}" ]; then
+    param_group_membership_lock="${GITLAB_DEFAULT_GROUP_MEMBERSHIP_LOCK}"
+  fi
+  if [ -z "${param_group_request_access_enabled}" ]; then
+    param_group_request_access_enabled="${GITLAB_DEFAULT_GROUP_REQUEST_ACCESS_ENABLED}"
+  fi
+  if [ -z "${param_group_share_with_group_lock}" ]; then
+    param_group_share_with_group_lock="${GITLAB_DEFAULT_GROUP_SHARE_WITH_GROUP_LOCK}"
+  fi
+  if [ -z "${param_group_visibility}" ]; then
+    param_group_visibility="${GITLAB_DEFAULT_GROUP_VISIBILITY}"
   fi
 
-  delete_group "${group_id}"
-  exit $?
+  create_group 'path' "${param_group_path}" \
+    'name' "${param_group_name}" \
+    'description' "${param_group_description}" \
+    'lfs_enabled' "${param_group_lfs_enabled}" \
+    'membership_lock' "${param_group_membership_lock}" \
+    'request_access_enabled' "${param_group_request_access_enabled}" \
+    'share_with_group_lock' "${param_group_share_with_group_lock}" \
+    'visibility' "${param_group_visibility}"
 }
 
 function get_group_name_or_id_or_empty {
@@ -97,14 +130,17 @@ function show_group_config_handle_params {
 
 function main {
   local param=
+  local param_all_groups=false
+  local param_group_description=
   local param_group_id=
+  local param_group_lfs_enabled=
   local param_group_name=
   local param_group_path=
-  local param_group_description=
-  local param_group_visibility=
-  local param_group_lfs_enabled=
   local param_group_request_access_enabled=
-  local param_all_groups=false
+  local param_group_visibility=
+  local param_group_visibility=
+  local param_group_share_with_group_lock=
+  local param_group_membership_lock=
   local action=
 
   while [[ $# > 0 ]]; do
@@ -118,6 +154,10 @@ function main {
       --config)
         ensure_empty action
         action=showConfigAction
+        ;;
+      --create)
+        ensure_empty action
+        action=createAction
         ;;
       --delete)
         ensure_empty action
@@ -149,6 +189,12 @@ function main {
         ensure_empty action
         action=listIdsAction
         ;;
+      --membership_lock)
+        param_group_membership_lock="$1"
+        shift
+
+        ensure_boolean "${param_group_membership_lock}" '--membership_lock'
+        ;;
       -n|--name)
         param_group_name="$1"
         shift
@@ -162,6 +208,12 @@ function main {
         shift
 
         ensure_boolean "${param_group_request_access_enabled}" '--request_access_enabled'
+        ;;
+      --share_with_group_lock)
+        param_group_share_with_group_lock="$1"
+        shift
+
+        ensure_boolean "${param_group_share_with_group_lock}" '--share_with_group_lock'
         ;;
       --visibility)
         param_group_visibility="$1"
@@ -185,8 +237,17 @@ function main {
   done
 
   case "${action}" in
+    createAction)
+        ensure_not_empty param_group_path
+        create_group_handle_params "${param_group_path}" "${param_group_name}"  "${param_group_description}" \
+          "${param_group_lfs_enabled}" "${param_group_membership_lock}" "${param_group_request_access_enabled}" \
+          "${param_group_share_with_group_lock}" "${param_group_visibility}" \
+          | jq .
+        ;;
     deleteAction)
-        delete_group_handle_params "${param_group_id}" "${param_group_name}"
+        ensure_not_empty param_group_id
+        delete_group "${param_group_id}" \
+          | jq .
         ;;
     editAction)
         ensure_not_empty param_group_id
@@ -194,7 +255,9 @@ function main {
         ensure_not_empty param_group_path
         ensure_not_empty param_group_visibility
 
-        edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" "${param_group_description}" "${param_group_visibility}" "${param_group_lfs_enabled}" "${param_group_request_access_enabled}" | jq .
+        edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" "${param_group_description}" \
+          "${param_group_visibility}" "${param_group_lfs_enabled}" "${param_group_request_access_enabled}" \
+          | jq .
         ;;
     listNamesAction)
         list_groups_names_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"

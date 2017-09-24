@@ -1,13 +1,22 @@
 #!/bin/bash
 
+# Monstly based on https://docs.gitlab.com/ce/api/groups.html
+
 # API: list_groups
 
 function list_groups {
   local group_id=$1
   local params=$2
 
-  local answer=$(gitlab_get "groups/${group_id}" "${params}") || exit 101
-  echo "${answer}"
+  gitlab_get "groups/${group_id}" "${params}"
+}
+
+# API: search_group_
+
+function search_group_ {
+  local group_id=$1
+
+  gitlab_get "groups/search=${search_string}" ''
 }
 
 # API: show_group_config
@@ -37,6 +46,52 @@ function show_group_config {
     list_groups "${id}" ''
   done
   echo -n ']'
+}
+
+# API: create_group
+
+function create_group {
+  local params=
+  local first=true
+
+  # optional parameters
+  while [[ $# > 0 ]]; do
+    if [ ! $# \> 1 ]; then
+      echo "*** create_group error: odd number of remind parameters. $#" >&2
+      exit 1
+    fi
+
+    local param_name="$1"
+    shift
+    local param_value="$1"
+    shift
+
+    if [ "${first}" = true ]; then
+      first=false
+    else
+      params+='&'
+    fi
+
+    params+="${param_name}=$(urlencode "${param_value}")"
+  done
+
+  # DEBUG echo "# create_group POST params: ${params}" >&2
+  gitlab_post 'groups' "${params}"
+}
+
+# API: create_group_params
+
+function create_group_params {
+  echo '
+path
+name
+description
+lfs_enabled
+membership_lock
+request_access_enabled
+share_with_group_lock
+visibility
+'
 }
 
 # API: edit_group
@@ -72,7 +127,8 @@ function edit_group {
 function delete_group {
   local group_id=$1
 
-  echo "delete_group NOT IMPLEMTED" >&2
-  exit 1
+  echo "# delete group: group_id=[${group_id}]" >&2
+
+  gitlab_delete "groups/${group_id}"
 }
 

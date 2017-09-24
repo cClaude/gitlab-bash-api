@@ -114,46 +114,48 @@ listUsers.sh testuser
 
 ### About groups
 
-* How to create a group ?
-
-Syntax:
-> glCreateGroup.sh GROUP_PATH ['GROUP_NAME' ['GROUP_DESCRIPTION']]
-
-```bash
-glCreateGroup.sh my_test_group
-```
-
-* How to manage groups configuration ?
+* How to manage groups ?
 
 Usage:
-> *  Get groups configuration
->    ./glGroups.sh --config --name GROUP_NAME
->    ./glGroups.sh --config --id GROUP_ID
->    ./glGroups.sh --config --all
+> * Get groups configuration
+>    glGroups.sh --config --name GROUP_NAME
+>    /glGroups.sh --config --id GROUP_ID
+>    /glGroups.sh --config --all
 >
 > * List groups names
->    ./glGroups.sh --list-name --name GROUP_NAME
->    ./glGroups.sh --list-name --id GROUP_ID
->    ./glGroups.sh --list-name --all
+>    glGroups.sh --list-name --name GROUP_NAME
+>    glGroups.sh --list-name --id GROUP_ID
+>    glGroups.sh --list-name --all
 >
 > * List groups ids
->    ./glGroups.sh --list-id --name GROUP_NAME
->    ./glGroups.sh --list-id --id GROUP_ID
->    ./glGroups.sh --list-id --all
+>    glGroups.sh --list-id --name GROUP_NAME
+>    glGroups.sh --list-id --id GROUP_ID
+>    glGroups.sh --list-id --all
 >
 > * Edit group configuration
->    ./glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+>    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
 >       --description GROUP_DESCRIPTION --visibility  private|internal|public \
 >       --lfs_enabled true|false --request_access_enabled true|false
 >
+> * Create group
+>    glGroups.sh --create --path GROUP_PATH
+>        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \\
+>        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false]
+>        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
+>
 > * Delete a group
->    ./glGroups.sh --delete --name GROUP_NAME
->    ./glGroups.sh --delete --id GROUP_ID
+>    glGroups.sh --delete --id GROUP_ID
 
 * Retrieve main configuration on all groups:
 
 ```bash
 glGroups.sh --config --all
+```
+
+* How to create a group ?
+
+```bash
+glGroups.sh --create --path my_test_group
 ```
 
 
