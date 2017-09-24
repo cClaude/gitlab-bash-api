@@ -1,9 +1,11 @@
+*.json
 *.log
 *.tws
-*.json
 .project
 .settings
+/docker-tests/generated-config-bootstrap/init.sh
+/docker-tests/gitlab-bash-api-config-for-docker/generate-private-token
+/docker-tests/gitlab-bash-api-config-for-docker/generated-configuration
 /my-config/
-/tests-result/
 /test/
-
+/tests-result/
