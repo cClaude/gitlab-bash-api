@@ -118,21 +118,21 @@ How to manage groups using **glGroups** command ?
 
 * **Usage**: Get groups configuration
 ```bash
-    glGroups.sh --config --name GROUP_NAME
+    glGroups.sh --config --path GROUP_PATH
     glGroups.sh --config --id GROUP_ID
     glGroups.sh --config --all
 ```
 
-* **Usage**: List groups names
+* **Usage**: List groups paths
 ```bash
-    glGroups.sh --list-name --name GROUP_NAME
-    glGroups.sh --list-name --id GROUP_ID
-    glGroups.sh --list-name --all
+    glGroups.sh --list-path --path GROUP_PATH
+    glGroups.sh --list-path --id GROUP_ID
+    glGroups.sh --list-path --all
 ```
 
 * **Usage**: List groups ids
 ```bash
-    glGroups.sh --list-id --name GROUP_NAME
+    glGroups.sh --list-id --path GROUP_PATH
     glGroups.sh --list-id --id GROUP_ID
     glGroups.sh --list-id --all
 ```

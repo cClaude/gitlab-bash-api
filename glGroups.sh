@@ -3,16 +3,16 @@
 function display_usage {
   echo "Usage: $0
   Get groups configuration
-    $0 --config --name GROUP_NAME
-    $0 --config --id param_GROUP_ID
+    $0 --config --path GROUP_PATH
+    $0 --config --id GROUP_ID
     $0 --config --all
-  List groups names
-    $0 --list-name --name GROUP_NAME
-    $0 --list-name --id param_GROUP_ID
-    $0 --list-name --all
+  List groups paths
+    $0 --list-path --path GROUP_PATH
+    $0 --list-path --id ROUP_ID
+    $0 --list-path --all
   List groups ids
-    $0 --list-id --name GROUP_NAME
-    $0 --list-id --id param_GROUP_ID
+    $0 --list-id --path GROUP_PATH
+    $0 --list-id --id GROUP_ID
     $0 --list-id --all
   Create group
     $0 --create --path GROUP_PATH
@@ -20,11 +20,11 @@ function display_usage {
         [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false] \\
         [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
   Edit group configuration
-    $0 --edit --id param_GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
+    $0 --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
        --description GROUP_DESCRIPTION --visibility  private|internal|public \\
        --lfs_enabled true|false --request_access_enabled true|false
   Delete a group
-    $0 --delete --id param_GROUP_ID
+    $0 --delete --id GROUP_ID
 " >&2
   exit 100
 }
@@ -75,57 +75,58 @@ function create_group_handle_params {
     'visibility' "${param_group_visibility}"
 }
 
-function get_group_name_or_id_or_empty {
+function get_group_path_or_id_or_empty {
   local p_all_group=$1
   local p_group_id=$2
-  local p_group_name=$3
+  local p_group_path=$3
 
-  local group_name_or_id_or_empty="${p_group_id}"
+  local group_path_or_id_or_empty="${p_group_id}"
 
-  if [ -z "${group_name_or_id_or_empty}" ]; then
-    group_name_or_id_or_empty="${p_group_name}"
+  if [ -z "${group_path_or_id_or_empty}" ]; then
+    group_path_or_id_or_empty="${p_group_path}"
   fi
 
-  if [ -z "${group_name_or_id_or_empty}" ]; then
+  if [ -z "${group_path_or_id_or_empty}" ]; then
     if [ ! "${p_all_group}" = true ]; then
       echo "** Missing --id, --name or --all" >&2
       exit 1
     fi
   fi
 
-  echo "${group_name_or_id_or_empty}"
+  echo "${group_path_or_id_or_empty}"
 }
 
-function list_groups_names_handle_params {
-  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $?
+function list_groups_paths_handle_params {
+  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $?
+  local jq_filter=
 
-  local result=$(list_groups "${group_name_or_id_or_empty}" '')
-
-  if [ -z "${group_name_or_id_or_empty}" ]; then
-    echo "${result}" | jq '. [] | .name'
+  if [ -z "${group_path_or_id_or_empty}" ]; then
+    jq_filter='. [] | .path'
   else
-    echo "${result}" | jq '. | .name'
+    jq_filter='. | .path'
   fi
+
+  list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}"
+
 }
 
 function list_groups_ids_handle_params {
-  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $?
+  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $?
+  local jq_filter=
 
-  local result=$(list_groups "${group_name_or_id_or_empty}" '')
-
-  if [ -z "${group_name_or_id_or_empty}" ]; then
-    echo "${result}" | jq '. [] | .id'
+  if [ -z "${group_path_or_id_or_empty}" ]; then
+    jq_filter='. [] | .id'
   else
-    echo "${result}" | jq '. | .id'
+    jq_filter='. | .id'
   fi
+
+  list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}"
 }
 
 function show_group_config_handle_params {
-  local group_name_or_id_or_empty=$(get_group_name_or_id_or_empty $@) || exit $1
+  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $1
 
-  local result=$(show_group_config "${group_name_or_id_or_empty}")
-
-  echo "${result}" | jq .
+  show_group_config "${group_path_or_id_or_empty}" | jq .
 }
 
 function main {
@@ -181,9 +182,9 @@ function main {
 
         ensure_boolean "${param_group_lfs_enabled}" '--lfs_enabled'
         ;;
-      --list-name)
+      --list-path)
         ensure_empty action
-        action=listNamesAction
+        action=listPathsAction
         ;;
       --list-id)
         ensure_empty action
@@ -259,14 +260,14 @@ function main {
           "${param_group_visibility}" "${param_group_lfs_enabled}" "${param_group_request_access_enabled}" \
           | jq .
         ;;
-    listNamesAction)
-        list_groups_names_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
+    listPathsAction)
+        list_groups_paths_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_path}"
         ;;
     listIdsAction)
-        list_groups_ids_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
+        list_groups_ids_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_path}"
         ;;
     showConfigAction)
-        show_group_config_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_name}"
+        show_group_config_handle_params "${param_all_groups}" "${param_group_id}" "${param_group_path}"
         ;;
     *)
         # unknown option
