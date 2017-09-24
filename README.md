@@ -114,45 +114,56 @@ listUsers.sh testuser
 
 ### About groups
 
-* How to manage groups ?
+How to manage groups using **glGroups** command ?
 
-Usage:
-> * Get groups configuration
->    glGroups.sh --config --name GROUP_NAME
->    /glGroups.sh --config --id GROUP_ID
->    /glGroups.sh --config --all
->
-> * List groups names
->    glGroups.sh --list-name --name GROUP_NAME
->    glGroups.sh --list-name --id GROUP_ID
->    glGroups.sh --list-name --all
->
-> * List groups ids
->    glGroups.sh --list-id --name GROUP_NAME
->    glGroups.sh --list-id --id GROUP_ID
->    glGroups.sh --list-id --all
->
-> * Edit group configuration
->    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
->       --description GROUP_DESCRIPTION --visibility  private|internal|public \
->       --lfs_enabled true|false --request_access_enabled true|false
->
-> * Create group
->    glGroups.sh --create --path GROUP_PATH
->        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \\
->        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false]
->        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
->
-> * Delete a group
->    glGroups.sh --delete --id GROUP_ID
+* **Usage**: Get groups configuration
+```bash
+    glGroups.sh --config --name GROUP_NAME
+    glGroups.sh --config --id GROUP_ID
+    glGroups.sh --config --all
+```
 
-* Retrieve main configuration on all groups:
+* **Usage**: List groups names
+```bash
+    glGroups.sh --list-name --name GROUP_NAME
+    glGroups.sh --list-name --id GROUP_ID
+    glGroups.sh --list-name --all
+```
+
+* **Usage**: List groups ids
+```bash
+    glGroups.sh --list-id --name GROUP_NAME
+    glGroups.sh --list-id --id GROUP_ID
+    glGroups.sh --list-id --all
+```
+
+* **Usage**: Edit group configuration
+```bash
+    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+       --description GROUP_DESCRIPTION --visibility  private|internal|public \
+       --lfs_enabled true|false --request_access_enabled true|false
+```
+
+* **Usage**: Create group
+```bash
+    glGroups.sh --create --path GROUP_PATH
+        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \
+        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false] \
+        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \
+```
+
+* **Usage**: Delete a group
+```bash
+    glGroups.sh --delete --id GROUP_ID
+```
+
+* **Sample**: Retrieve main configuration on all groups:
 
 ```bash
 glGroups.sh --config --all
 ```
 
-* How to create a group ?
+* **Sample**: create a group
 
 ```bash
 glGroups.sh --create --path my_test_group
@@ -161,7 +172,7 @@ glGroups.sh --create --path my_test_group
 
 ### About projects / repositories
 
-* How to create some repositories ?
+* How to create some repositories ? (almost deprecated)
 
 Usage:
 > glCreateProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
@@ -171,51 +182,57 @@ glCreateProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice
 glCreateProject.sh my_test_group my_test_repository2
 ```
 
-* Projects main information:
+How to manage groups using **glProjects** command ?
 
-Usage:
-> * Get projects configuration
->    ./glProjects.sh --config [--compact] --name PROJECT_NAME
->    ./glProjects.sh --config [--compact] --id PROJECT_ID
->    ./glProjects.sh --config [--compact] --group GROUP_NAME
->    ./glProjects.sh --config [--compact] --all
->
-> * List projects names
->    ./glProjects.sh --list-name --name PROJECT_NAME (could return more than one entry)
->    ./glProjects.sh --list-name --id PROJECT_ID
->    ./glProjects.sh --list-name --group GROUP_NAME (could return more than one entry)
->    ./glProjects.sh --list-name --all
->
-> * List projects ids
->    ./glProjects.sh --list-id --name PROJECT_NAME
->    ./glProjects.sh --list-id --id PROJECT_ID
->    ./glProjects.sh --list-id --group GROUP_NAME (could return more than one entry)
->    ./glProjects.sh --list-id --all
->
-> * Delete a project
->    ./glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
->    ./glProjects.sh --delete --id PROJECT_ID
+* **Usage**: Get projects configuration
+```bash
+    glProjects.sh --config [--compact] --name PROJECT_NAME
+    glProjects.sh --config [--compact] --id PROJECT_ID
+    glProjects.sh --config [--compact] --group GROUP_NAME
+    glProjects.sh --config [--compact] --all
+```
 
+* **Usage**: List projects names
+```bash
+    ./glProjects.sh --list-name --name PROJECT_NAME (could return more than one entry)
+    ./glProjects.sh --list-name --id PROJECT_ID
+    ./glProjects.sh --list-name --group GROUP_NAME (could return more than one entry)
+    ./glProjects.sh --list-name --all
+```
 
-* Retrieve main configuration on all projects:
+* **Usage**: List projects ids
+```bash
+    ./glProjects.sh --list-id --name PROJECT_NAME
+    ./glProjects.sh --list-id --id PROJECT_ID
+    ./glProjects.sh --list-id --group GROUP_NAME (could return more than one entry)
+    ./glProjects.sh --list-id --all
+```
+
+* **Usage**: Delete a project
+```bash
+    ./glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
+    ./glProjects.sh --delete --id PROJECT_ID
+```
+
+* **Sample**: Retrieve main configuration on all projects:
 
 ```bash
 glProjects.sh --config --all
 ```
 
-* Retrieve only path with name space:
+* **Sample**: Retrieve only path with name space:
 
 ```bash
 glProjects.sh --config --all | jq -r ' .[] | .path_with_namespace'
 ```
 
-* List of all projects id of a group
+* **Sample**: List of all projects id of a group
 
 ```bash
 glProjects.sh --list-id --group GROUP_NAME
 ```
 
-* To delete a project
+* **Sample**: To delete a project
 
 ```bash
 glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
