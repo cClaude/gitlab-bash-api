@@ -92,6 +92,7 @@ function show_project_config {
 
 function create_project {
   local params=
+  local first=true
 
   # optional parameters
   while [[ $# > 0 ]]; do
@@ -105,10 +106,17 @@ function create_project {
     local param_value="$1"
     shift
 
-    params+="&${param_name}=$(urlencode "${param_value}")"
+    if [ "${first}" = true ]; then
+      first=false
+    else
+      params+='&'
+    fi
+
+    params+="${param_name}=$(urlencode "${param_value}")"
   done
 
-  # DEBUG echo "POST params: ${params}" >&2
+  # DEBUG
+  echo "POST params: ${params}" >&2
   gitlab_post 'projects' "${params}"
 }
 
@@ -163,7 +171,8 @@ function edit_project {
     params+="&${param_name}=$(urlencode "${param_value}")"
   done
 
-echo "POST params: ${params}" >&2
+  # DEBUG
+  echo "POST params: ${params}" >&2
   gitlab_put "projects/${p_id}" "${params}"
 }
 

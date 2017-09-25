@@ -23,6 +23,7 @@ function display_usage {
     $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
 " >&2
+
   exit 100
 }
 
@@ -94,14 +95,17 @@ function create_projects_handle_params {
       jobs_enabled "${p_jobs_enabled}" \
       lfs_enabled "${p_lfs_enabled}" \
       merge_requests_enabled "${p_merge_requests_enabled}" \
-      only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
       only_allow_merge_if_pipeline_succeed "${p_only_allow_merge_if_pipeline_succeed}" \
-      printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
-      public_jobs "${p_public_jobs}" \
-      request_access_enabled "${p_request_access_enabled}" \
-      snippets_enabled "${p_snippets_enabled}" \
-      visibility "${p_visibility}" \
-      wiki_enabled "${p_wiki_enabled}"
+      public_jobs "${p_public_jobs}"
+      #
+      # Theses parameters are not accepted by gitlab (yet ?)
+      #
+      #printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
+      #only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
+      #request_access_enabled "${p_request_access_enabled}" \
+      #visibility "${p_visibility}" \
+      #snippets_enabled "${p_snippets_enabled}" \
+      #wiki_enabled "${p_wiki_enabled}" \
 }
 
 function show_projects_config_handle_params {
@@ -155,7 +159,13 @@ function show_projects_config_handle_params {
   fi
 
   local result=$(echo "${answer}" |jq "${jq_filter}" ) || exit 1
-  local size=$(echo "${result}" |jq '. | length' ) || exit 1
+  local size=
+
+  if [ -z "${result}" ]; then
+    size=0
+  else
+    size=$(echo "${result}" |jq '. | length' ) || exit 1
+  fi
 
   if [ $size -eq 0 ] ; then
     echo "* No project available." >&2
@@ -219,26 +229,26 @@ function delete_project_handle_params {
 
 function main {
   local param_all=false
-  local param_group_id=XXXX
+  local param_group_id=
   local param_group_path=
   local param_project_id=
   local param_project_path=
   local param_raw_display=true
-  local p_container_registry_enabled=XXXX
-  local p_issues_enabled=XXXX
-  local p_jobs_enabled=XXXX
-  local p_lfs_enabled=XXXX
-  local p_merge_requests_enabled=XXXX
-  local p_only_allow_merge_if_all_discussions_are_resolved=XXXX
-  local p_only_allow_merge_if_pipeline_succeed=XXXX
-  local p_printing_merge_request_link_enabled=XXXX
-  local p_project_description=XXXX
-  local p_project_name=XXXX
-  local p_public_jobs=XXXX
-  local p_request_access_enabled=XXXX
-  local p_snippets_enabled=XXXX
-  local p_visibility=XXXX
-  local p_wiki_enabled=XXXX
+  local p_container_registry_enabled=
+  local p_issues_enabled=
+  local p_jobs_enabled=
+  local p_lfs_enabled=
+  local p_merge_requests_enabled=
+  local p_only_allow_merge_if_all_discussions_are_resolved=
+  local p_only_allow_merge_if_pipeline_succeed=
+  local p_printing_merge_request_link_enabled=
+  local p_project_description=
+  local p_project_name=
+  local p_public_jobs=
+  local p_request_access_enabled=
+  local p_snippets_enabled=
+  local p_visibility=
+  local p_wiki_enabled=
   local action=
 
   while [[ $# > 0 ]]; do
@@ -252,6 +262,11 @@ function main {
       --compact)
         param_raw_display=false
         ;;
+      --container-registry-enabled)
+        p_container_registry_enabled="$1"
+        ensure_boolean "${p_container_registry_enabled}" '--container-registry-enabled'
+        shift
+        ;;
       --create)
         ensure_empty action
         action=createAction
@@ -264,12 +279,31 @@ function main {
         ensure_empty action
         action=deleteAction
         ;;
+      --group-id)
+        param_group_id="$1"
+        shift
+        ;;
       -g|--group-path)
         param_group_path="$1"
         shift
         ;;
       -i|--id)
         param_project_id="$1"
+        shift
+        ;;
+      --issues-enabled)
+        p_issues_enabled="$1"
+        ensure_boolean "${p_issues_enabled}" '--issues-enabled'
+        shift
+        ;;
+      --jobs-enabled)
+        p_jobs_enabled="$1"
+        ensure_boolean "${p_jobs_enabled}" '--jobs-enabled'
+        shift
+        ;;
+      --lfs-enabled)
+        p_lfs_enabled="$1"
+        ensure_boolean "${p_lfs_enabled}" '--lfs-enabled'
         shift
         ;;
       --list-name)
@@ -284,9 +318,71 @@ function main {
         param_project_path="$1"
         shift
         ;;
+      --merge-requests-enabled)
+        p_merge_requests_enabled="$1"
+        ensure_boolean "${p_merge_requests_enabled}" '--merge-requests-enabled'
+        shift
+        ;;
+      --only-allow-merge-if-all-discussions-are-resolved)
+        p_only_allow_merge_if_all_discussions_are_resolved="$1"
+        ensure_boolean "${p_only_allow_merge_if_all_discussions_are_resolved}" '--only-allow-merge-if-all-discussions-are-resolved'
+        shift
+        ;;
+      --only-allow-merge-if-pipeline-succeed)
+        p_only_allow_merge_if_pipeline_succeed="$1"
+        ensure_boolean "${p_only_allow_merge_if_pipeline_succeed}" '--only-allow-merge-if-pipeline-succeed'
+        shift
+        ;;
+      --printing-merge-request-link-enabled)
+        p_printing_merge_request_link_enabled="$1"
+        ensure_boolean "${p_printing_merge_request_link_enabled}" '--printing-merge-request-link-enabled'
+        shift
+        ;;
+      --project-description)
+        p_project_description="$1"
+        shift
+        ;;
+      --project-name)
+        p_project_name="$1"
+        shift
+        ;;
+      --public-jobs)
+        p_public_jobs="$1"
+        ensure_boolean "${p_public_jobs}" '--public-jobs'
+        shift
+        ;;
+      --request-access-enabled)
+        p_request_access_enabled="$1"
+        ensure_boolean "${p_request_access_enabled}" '--request-access-enabled'
+        shift
+        ;;
+      --snippets-enabled)
+        p_snippets_enabled="$1"
+        ensure_boolean "${p_snippets_enabled}" '--snippets-enabled'
+        shift
+        ;;
+      --visibility)
+        p_visibility="$1"
+        shift
+
+        case "${p_visibility}" in
+           private|internal|public)
+             ;;
+           *)
+             echo "Illegal value '${p_visibility}'. --visibility should be private, internal or public." >&2
+             display_usage
+             ;;
+        esac
+        ;;
+      --wiki-enabled)
+        p_wiki_enabled="$1"
+        ensure_boolean "${p_wiki_enabled}" '--wiki-enabled'
+        shift
+        ;;
       *)
         # unknown option
         echo "Undefine parameter ${param}" >&2
+        action=
         display_usage
         ;;
     esac
@@ -301,10 +397,11 @@ function main {
           "${p_only_allow_merge_if_pipeline_succeed}" \
           "${p_printing_merge_request_link_enabled}" \
           "${p_public_jobs}" "${p_request_access_enabled}" "${p_snippets_enabled}" \
-          "${p_visibility}" "${p_wiki_enabled}"
+          "${p_visibility}" "${p_wiki_enabled}" \
+          | jq .
         ;;
     deleteAction)
-        delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}"
+        delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}" | jq .
         ;;
     listNamesAction)
         list_projects_names_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"
