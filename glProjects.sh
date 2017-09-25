@@ -7,11 +7,11 @@ function display_usage {
     $0 --config [--compact] --group-path GROUP_PATH
     $0 --config [--compact] --all
     $0 --config [--compact] --path PROJECT_PATH
-  List projects names
-    $0 --list-name --id PROJECT_ID
-    $0 --list-name --group-path GROUP_PATH (could return more than one entry)
-    $0 --list-name --all
-    $0 --list-name --path PROJECT_PATH (could return more than one entry)
+  List projects paths
+    $0 --list-path --id PROJECT_ID
+    $0 --list-path --group-path GROUP_PATH (could return more than one entry)
+    $0 --list-path --all
+    $0 --list-path --path PROJECT_PATH (could return more than one entry)
   List projects ids
     $0 --list-id --id PROJECT_ID
     $0 --list-id --group-path GROUP_PATH (could return more than one entry)
@@ -174,7 +174,7 @@ function show_projects_config_handle_params {
   echo "${result}"
 }
 
-function list_projects_names_handle_params {
+function list_projects_paths_handle_params {
   local param_raw_display=$1
 
   local answer=$(show_projects_config_handle_params "$@")
@@ -182,9 +182,9 @@ function list_projects_names_handle_params {
   local jq_filter=
 
   if [ "${param_raw_display}" = "true" ] ; then
-    jq_filter='.[] | .name'
+    jq_filter='.[] | .path'
   else
-    jq_filter='.[] | .project_name'
+    jq_filter='.[] | .project_path'
   fi
 
   echo "${answer}" | jq -r "${jq_filter}"
@@ -306,9 +306,9 @@ function main {
         ensure_boolean "${p_lfs_enabled}" '--lfs-enabled'
         shift
         ;;
-      --list-name)
+      --list-path)
         ensure_empty action
-        action=listNamesAction
+        action=listPathsAction
         ;;
       --list-id)
         ensure_empty action
@@ -403,8 +403,8 @@ function main {
     deleteAction)
         delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}" | jq .
         ;;
-    listNamesAction)
-        list_projects_names_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"
+    listPathsAction)
+        list_projects_paths_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"
         ;;
     listIdsAction)
         list_projects_ids_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"

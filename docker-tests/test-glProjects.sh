@@ -44,9 +44,27 @@ echo "Group ID=${group_id}"
 
 # --visibility private public
 
-echo 'Project list - begin'
-"${GLPROJECTS}" --list-name --all
-echo 'Project list - end'
+echo '
+Project list path - begin'
+"${GLPROJECTS}" --list-path --all
+echo 'Project list path - end
+'
+echo '
+Project list path (compact)- begin'
+"${GLPROJECTS}" --list-path --all --compact
+echo 'Project list path (compact)- end
+'
+echo '
+Project list id - begin'
+"${GLPROJECTS}" --list-id --all
+echo 'Project list id - end
+'
+echo '
+Project list id (compact)- begin'
+"${GLPROJECTS}" --list-id --all --compact
+echo 'Project list id (compact)- end
+'
+
 project_id=$("${GLPROJECTS}" --list-id --path 'a_project_path')
 
 echo "Project ID=${project_id}"
