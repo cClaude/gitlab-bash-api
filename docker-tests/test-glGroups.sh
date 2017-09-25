@@ -37,7 +37,7 @@ function delete_group_by_path {
 #
 # Display all groups names
 #
-"${GLGROUPS}" --list-name --all
+"${GLGROUPS}" --list-path --all
 
 #
 # Edit group
