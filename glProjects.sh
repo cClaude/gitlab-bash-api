@@ -18,12 +18,90 @@ function display_usage {
     $0 --list-id --all
     $0 --list-id --path PROJECT_PATH
   Create project
-    $0 --create --group-path GROUP_PATH
+    $0 --create --group-id GROUP_ID --path PROJECT_PATH
   Delete a project
     $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
 " >&2
   exit 100
+}
+
+function create_projects_handle_params {
+  local group_id=$1
+  local project_path=$2
+  local project_name=$3
+  local project_description=$4
+  local p_container_registry_enabled=$5
+  local p_issues_enabled=$6
+  local p_jobs_enabled=$7
+  local p_lfs_enabled=$8
+  local p_merge_requests_enabled=$9
+  local p_only_allow_merge_if_all_discussions_are_resolved=$10
+  local p_only_allow_merge_if_pipeline_succeed=$11
+  local p_printing_merge_request_link_enabled=$12
+  local p_public_jobs=$13
+  local p_request_access_enabled=$14
+  local p_snippets_enabled=$15
+  local p_visibility=$16
+  local p_wiki_enabled=$17
+
+  if [ -z "${p_container_registry_enabled}" ]; then
+    p_container_registry_enabled="${GITLAB_DEFAULT_PROJECT_CONTAINER_REGISTRY_ENABLED}"
+  fi
+  if [ -z "${p_issues_enabled}" ]; then
+    p_issues_enabled="${GITLAB_DEFAULT_PROJECT_ISSUES_ENABLED}"
+  fi
+  if [ -z "${p_jobs_enabled}" ]; then
+    p_jobs_enabled="${GITLAB_DEFAULT_PROJECT_JOBS_ENABLED}"
+  fi
+  if [ -z "${p_lfs_enabled}" ]; then
+    p_lfs_enabled="${GITLAB_DEFAULT_PROJECT_LFS_ENABLED}"
+  fi
+  if [ -z "${p_merge_requests_enabled}" ]; then
+    p_merge_requests_enabled="${GITLAB_DEFAULT_PROJECT_MERGE_REQUESTS_ENABLED}"
+  fi
+  if [ -z "${p_only_allow_merge_if_all_discussions_are_resolved}" ]; then
+    p_only_allow_merge_if_all_discussions_are_resolved="${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}"
+  fi
+  if [ -z "${p_only_allow_merge_if_pipeline_succeed}" ]; then
+    p_only_allow_merge_if_pipeline_succeed="${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}"
+  fi
+  if [ -z "${p_printing_merge_request_link_enabled}" ]; then
+    p_printing_merge_request_link_enabled="${GITLAB_DEFAULT_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}"
+  fi
+  if [ -z "${p_public_jobs}" ]; then
+    p_public_jobs="${GITLAB_DEFAULT_PROJECT_PUBLIC_JOBS}"
+  fi
+  if [ -z "${p_request_access_enabled}" ]; then
+    p_request_access_enabled="${GITLAB_DEFAULT_PROJECT_REQUEST_ACCESS_ENABLED}"
+  fi
+  if [ -z "${p_snippets_enabled}" ]; then
+    p_snippets_enabled="${GITLAB_DEFAULT_PROJECT_SNIPPETS_ENABLED}"
+  fi
+  if [ -z "${p_visibility}" ]; then
+    p_visibility="${GITLAB_DEFAULT_PROJECT_VISIBILITY}"
+  fi
+  if [ -z "${p_wiki_enabled}" ]; then
+    p_wiki_enabled="${GITLAB_DEFAULT_PROJECT_WIKI_ENABLED}"
+  fi
+
+  create_project path "${project_path}" \
+      name "${project_name}" \
+      namespace_id "${group_id}" \
+      description "${project_description}" \
+      container_registry_enabled "${p_container_registry_enabled}" \
+      issues_enabled "${p_issues_enabled}" \
+      jobs_enabled "${p_jobs_enabled}" \
+      lfs_enabled "${p_lfs_enabled}" \
+      merge_requests_enabled "${p_merge_requests_enabled}" \
+      only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
+      only_allow_merge_if_pipeline_succeed "${p_only_allow_merge_if_pipeline_succeed}" \
+      printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
+      public_jobs "${p_public_jobs}" \
+      request_access_enabled "${p_request_access_enabled}" \
+      snippets_enabled "${p_snippets_enabled}" \
+      visibility "${p_visibility}" \
+      wiki_enabled "${p_wiki_enabled}"
 }
 
 function show_projects_config_handle_params {
@@ -137,15 +215,30 @@ function delete_project_handle_params {
   fi
 
   delete_project "${project_id}"
-  exit $?
 }
 
 function main {
+  local param_all=false
+  local param_group_id=XXXX
+  local param_group_path=
   local param_project_id=
   local param_project_path=
-  local param_group_path=
   local param_raw_display=true
-  local param_all=false
+  local p_container_registry_enabled=XXXX
+  local p_issues_enabled=XXXX
+  local p_jobs_enabled=XXXX
+  local p_lfs_enabled=XXXX
+  local p_merge_requests_enabled=XXXX
+  local p_only_allow_merge_if_all_discussions_are_resolved=XXXX
+  local p_only_allow_merge_if_pipeline_succeed=XXXX
+  local p_printing_merge_request_link_enabled=XXXX
+  local p_project_description=XXXX
+  local p_project_name=XXXX
+  local p_public_jobs=XXXX
+  local p_request_access_enabled=XXXX
+  local p_snippets_enabled=XXXX
+  local p_visibility=XXXX
+  local p_wiki_enabled=XXXX
   local action=
 
   while [[ $# > 0 ]]; do
@@ -158,6 +251,10 @@ function main {
         ;;
       --compact)
         param_raw_display=false
+        ;;
+      --create)
+        ensure_empty action
+        action=createAction
         ;;
       --config)
         ensure_empty action
@@ -196,6 +293,16 @@ function main {
   done
 
   case "${action}" in
+    createAction)
+        create_projects_handle_params "${param_group_id}" "${param_project_path}" "${p_project_name}" \
+          "${p_project_description}" "${p_container_registry_enabled}" "${p_issues_enabled}" \
+          "${p_jobs_enabled}" "${p_lfs_enabled}" "${p_merge_requests_enabled}" \
+          "${p_only_allow_merge_if_all_discussions_are_resolved}" \
+          "${p_only_allow_merge_if_pipeline_succeed}" \
+          "${p_printing_merge_request_link_enabled}" \
+          "${p_public_jobs}" "${p_request_access_enabled}" "${p_snippets_enabled}" \
+          "${p_visibility}" "${p_wiki_enabled}"
+        ;;
     deleteAction)
         delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}"
         ;;
