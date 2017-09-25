@@ -118,21 +118,21 @@ How to manage groups using **glGroups** command ?
 
 * **Usage**: Get groups configuration
 ```bash
-    glGroups.sh --config --name GROUP_NAME
+    glGroups.sh --config --path GROUP_PATH
     glGroups.sh --config --id GROUP_ID
     glGroups.sh --config --all
 ```
 
-* **Usage**: List groups names
+* **Usage**: List groups paths
 ```bash
-    glGroups.sh --list-name --name GROUP_NAME
-    glGroups.sh --list-name --id GROUP_ID
-    glGroups.sh --list-name --all
+    glGroups.sh --list-path --path GROUP_PATH
+    glGroups.sh --list-path --id GROUP_ID
+    glGroups.sh --list-path --all
 ```
 
 * **Usage**: List groups ids
 ```bash
-    glGroups.sh --list-id --name GROUP_NAME
+    glGroups.sh --list-id --path GROUP_PATH
     glGroups.sh --list-id --id GROUP_ID
     glGroups.sh --list-id --all
 ```
@@ -186,32 +186,32 @@ How to manage groups using **glProjects** command ?
 
 * **Usage**: Get projects configuration
 ```bash
-    glProjects.sh --config [--compact] --name PROJECT_NAME
     glProjects.sh --config [--compact] --id PROJECT_ID
-    glProjects.sh --config [--compact] --group GROUP_NAME
+    glProjects.sh --config [--compact] --group-path GROUP_PATH
     glProjects.sh --config [--compact] --all
+    glProjects.sh --config [--compact] --path PROJECT_PATH
 ```
 
 * **Usage**: List projects names
 ```bash
-    ./glProjects.sh --list-name --name PROJECT_NAME (could return more than one entry)
-    ./glProjects.sh --list-name --id PROJECT_ID
-    ./glProjects.sh --list-name --group GROUP_NAME (could return more than one entry)
-    ./glProjects.sh --list-name --all
+    glProjects.sh --list-name --id PROJECT_ID
+    glProjects.sh --list-name --group-path GROUP_PATH (could return more than one entry)
+    glProjects.sh --list-name --all
+    glProjects.sh --list-name --path PROJECT_PATH (could return more than one entry)
 ```
 
 * **Usage**: List projects ids
 ```bash
-    ./glProjects.sh --list-id --name PROJECT_NAME
-    ./glProjects.sh --list-id --id PROJECT_ID
-    ./glProjects.sh --list-id --group GROUP_NAME (could return more than one entry)
-    ./glProjects.sh --list-id --all
+    glProjects.sh --list-id --id PROJECT_ID
+    glProjects.sh --list-id --group-path GROUP_PATH (could return more than one entry)
+    glProjects.sh --list-id --all
+    glProjects.sh --list-id --path PROJECT_PATH
 ```
 
 * **Usage**: Delete a project
 ```bash
-    ./glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
-    ./glProjects.sh --delete --id PROJECT_ID
+    glProjects.sh --delete --group-path GROUP_PATH --path PROJECT_PATH
+    glProjects.sh --delete --id PROJECT_ID
 ```
 
 * **Sample**: Retrieve main configuration on all projects:
@@ -229,13 +229,13 @@ glProjects.sh --config --all | jq -r ' .[] | .path_with_namespace'
 * **Sample**: List of all projects id of a group
 
 ```bash
-glProjects.sh --list-id --group GROUP_NAME
+glProjects.sh --list-id --group-path GROUP_PATH
 ```
 
 * **Sample**: To delete a project
 
 ```bash
-glProjects.sh --delete --group GROUP_NAME --name PROJECT_NAME
+glProjects.sh --delete --id PROJECT_ID
 ```
 
 * To clone **all projects** you have access

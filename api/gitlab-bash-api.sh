@@ -170,27 +170,6 @@ function source_files {
   done
 }
 
-function get_groupid_from_group_name {
-  local group_name="$1"
-  local answer=
-
-  answer=$(gitlab_get "groups/${group_name}") || return 1
-
-  local group_id=$(echo "${answer}" | jq .id)
-
-  if [ -z "${group_id}" ] ; then
-    echo "*** GROUP_NAME=[${group_name}] doest not exist - ${answer}" >&2
-    exit 200
-  fi
-
-  if [ "${group_id}" = "null" ] ; then
-    echo "*** GROUP_NAME=[${group_name}] doest not exist - ${answer}" >&2
-    exit 201
-  fi
-
-  echo "${group_id}"
-}
-
 function list_projects_in_group {
   local group_name=$1
 
@@ -280,7 +259,7 @@ function getErrorMessage {
     echo ''
   else
     echo "${message}"
-  fi 
+  fi
 }
 
 # API : ensure_not_empty (tooling)
@@ -312,7 +291,7 @@ function ensure_empty {
 function ensure_boolean {
   local value=$1
   local parameter=$2
-  
+
   case "${value}" in
     true|false)
       ;;

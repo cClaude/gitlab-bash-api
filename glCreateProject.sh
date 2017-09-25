@@ -69,12 +69,12 @@ function create_project_from_params {
 
 function main {
   if [[ $# -lt 2 ]] ; then
-    echo "Usage: $0 GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]" >&2
+    echo "Usage: $0 GROUP_PATH PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]" >&2
     exit 1
   fi
 
   # Parameters
-  local group_name=$1
+  local group_path=$1
   local project_path=$2
   local project_name=$3
   local project_description=
@@ -85,7 +85,12 @@ function main {
     project_description="${GITLAB_DEFAULT_PROJECT_DESCRIPTION}"
   fi
 
-  local group_id=$(get_groupid_from_group_name "${group_name}") || exit 1
+  local group_id=$(get_group_id_from_group_path "${group_path}")
+
+  if [ -z "${group_id}" ]; then
+   echo "*** Can not create project with no group id" >&2
+   exit 1
+  fi
 
   if [ -z "${project_name}" ] ; then
     project_name="${project_path}"
@@ -106,6 +111,7 @@ fi
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 # Configuration - END
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-group.sh"
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 # Script start here

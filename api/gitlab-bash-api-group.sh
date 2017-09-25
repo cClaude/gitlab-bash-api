@@ -8,7 +8,7 @@ function list_groups {
   local group_id=$1
   local params=$2
 
-  gitlab_get "groups/${group_id}" "${params}"
+  gitlab_get "groups/$(urlencode "${group_id}")" "${params}"
 }
 
 # API: search_group_
@@ -16,7 +16,30 @@ function list_groups {
 function search_group_ {
   local group_id=$1
 
-  gitlab_get "groups/search=${search_string}" ''
+  gitlab_get "groups/search=$(urlencode "${search_string}")" ''
+}
+
+# API: get_group_id_from_group_path
+
+function get_group_id_from_group_path {
+  local group_path="$1"
+  local answer=
+
+  answer=$(gitlab_get "groups/$(urlencode "${group_path}")") || return 1
+
+  local group_id=$(echo "${answer}" | jq .id)
+
+  if [ -z "${group_id}" ] ; then
+    echo "*** GROUP_PATH '${group_path}' doest not exist - '${answer}'" >&2
+    exit 200
+  fi
+
+  if [ "${group_id}" = "null" ] ; then
+    echo "*** GROUP_PATH '${group_path}' doest not exist - '${answer}'" >&2
+    exit 201
+  fi
+
+  echo "${group_id}"
 }
 
 # API: show_group_config
@@ -105,6 +128,34 @@ function edit_group {
   local group_lfs_enabled=$6
   local group_request_access_enabled=$7
 
+  if [ -z "${group_id}" ]; then
+    echo "*** error: edit_group missing group_id" >&2
+    exit 1
+  fi
+  if [ -z "${group_name}" ]; then
+    echo "*** error: edit_group missing group_name" >&2
+    exit 1
+  fi
+  if [ -z "${group_path}" ]; then
+    echo "*** error: edit_group missing group_path" >&2
+    exit 1
+  fi
+  if [ -z "${group_description}" ]; then
+    echo "*** warning: edit_group group_description is empty" >&2
+  fi
+  if [ -z "${group_visibility}" ]; then
+    echo "*** warning: edit_group missing group_visibility use default: '${GITLAB_DEFAULT_GROUP_VISIBILITY}'" >&2
+    group_visibility="${GITLAB_DEFAULT_GROUP_VISIBILITY}"
+  fi
+  if [ -z "${group_lfs_enabled}" ]; then
+    echo "*** warning: edit_group missing group_lfs_enabled use default: '${GITLAB_DEFAULT_GROUP_LFS_ENABLED}'" >&2
+    group_lfs_enabled="${GITLAB_DEFAULT_GROUP_LFS_ENABLED}"
+  fi
+  if [ -z "${group_request_access_enabled}" ]; then
+    echo "*** warning: edit_group missing group_request_access_enabled use default: '${GITLAB_DEFAULT_GROUP_REQUEST_ACCESS_ENABLED}'" >&2
+    group_request_access_enabled="${GITLAB_DEFAULT_GROUP_REQUEST_ACCESS_ENABLED}"
+  fi
+
   # visibility_level
   # - private : ??
   # - internal: ??
@@ -119,7 +170,7 @@ function edit_group {
   params+="&request_access_enabled=${group_request_access_enabled}"
 
   # echo "POST params: ${params}" >&2
-  gitlab_put "groups/${group_id}" "${params}"
+  gitlab_put "groups/$(urlencode "${group_id}")" "${params}"
 }
 
 # API: delete_group
@@ -129,6 +180,6 @@ function delete_group {
 
   echo "# delete group: group_id=[${group_id}]" >&2
 
-  gitlab_delete "groups/${group_id}"
+  gitlab_delete "groups/$(urlencode "${group_id}")"
 }
 
