@@ -90,7 +90,7 @@ function gitlab_get {
 }
 
 #
-# HTTP POST - Read 1st returned page
+# API: gitlab_post - HTTP POST - Read 1st returned page
 #
 function gitlab_post {
   local api_url="$1"

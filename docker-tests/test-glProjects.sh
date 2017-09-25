@@ -2,27 +2,34 @@
 
 source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 
-GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
-GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
+declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
+declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
 
-#
-# Group creation
-#
-"${GLGROUPS}" --create --path test_group_for_test_projects --name "test group for test projects"
+declare -r TEST_GROUP_PATH=group_for_tests
 
-#
+echo '#
+# Create group
+#'
+"${GLGROUPS}" --create --path ${TEST_GROUP_PATH} --name "test group for test projects"
+
+echo '#
 # Display all groups names
-#
+#'
 echo 'Group list - begin'
 "${GLGROUPS}" --list-path --all
 echo 'Group list - end'
-group_id=$("${GLGROUPS}" --list-id --path 'test_group_for_test_projects')
+group_id=$("${GLGROUPS}" --list-id --path ${TEST_GROUP_PATH})
 
 echo "Group ID=${group_id}"
 
-#
-# Project creation
-#
+if [ "${group_id}" = 'null' ]; then
+  echo '*** ERROR: Can not create initial group.'
+  exit 1
+fi
+
+echo '#
+# Create project
+#'
 "${GLPROJECTS}" --create \
       --group-id "${group_id}" \
       --path 'a_project_path' \
@@ -69,6 +76,21 @@ project_id=$("${GLPROJECTS}" --list-id --path 'a_project_path')
 
 echo "Project ID=${project_id}"
 
-"${GLPROJECTS}" --delete --id "${project_id}"
-"${GLGROUPS}" --delete --id "${group_id}"
+if [ -z "${project_id}" ]; then
+  echo '*** Error project not found.'
+fi
 
+echo '#
+# Display project configuration
+#'
+"${GLPROJECTS}" --config --id "${project_id}"
+
+echo '#
+# Delete project
+#'
+"${GLPROJECTS}" --delete --id "${project_id}"
+
+echo '#
+# Delete group
+#'
+"${GLGROUPS}" --delete --id "${group_id}"

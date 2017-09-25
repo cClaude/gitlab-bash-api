@@ -112,11 +112,20 @@ function create_project {
       params+='&'
     fi
 
-    params+="${param_name}=$(urlencode "${param_value}")"
+  case "${param_name}" in
+    printing_merge_request_link_enabled|container_registry_enabled)
+        ensure_boolean "${param_value}" "${param_name}"
+
+        params+="${param_name}=${param_value}"
+        ;;
+    *)
+        params+="${param_name}=$(urlencode "${param_value}")"
+        ;;
+  esac
+
   done
 
-  # DEBUG
-  echo "POST params: ${params}" >&2
+  # DEBUG echo "POST params: ${params}" >&2
   gitlab_post 'projects' "${params}"
 }
 
@@ -171,8 +180,7 @@ function edit_project {
     params+="&${param_name}=$(urlencode "${param_value}")"
   done
 
-  # DEBUG
-  echo "POST params: ${params}" >&2
+  # DEBUG echo "POST params: ${params}" >&2
   gitlab_put "projects/${p_id}" "${params}"
 }
 
