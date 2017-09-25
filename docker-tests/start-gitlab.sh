@@ -23,3 +23,11 @@ sudo docker run --detach \
     --volume /srv/gitlab/logs:/var/log/gitlab \
     --volume /srv/gitlab/data:/var/opt/gitlab \
     gitlab/gitlab-ce:latest
+docker_run_rc=$?
+
+if [ ${docker_run_rc} -eq 125 ]; then
+  echo 'Already running -> try to restart'
+
+  sudo docker restart gitlab
+fi
+
