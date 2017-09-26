@@ -2,17 +2,18 @@
 
 source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 
-GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
+declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 
 function delete_group_by_path {
-  local group_name=$1
+  local group_path=$1
 
-  local group_id=$("${GLGROUPS}" --list-id --name "${group_name}")
+  local group_id=$("${GLGROUPS}" --list-id --path "${group_path}")
 
   if [ "${group_id}" = 'null' ]; then
-    echo "*** Can not find '${group_name}' => '${group_id}'" >&2
-    exit 1
+    echo "*** Can not find '${group_path}' => '${group_id}'" >&2
   else
+    echo "Delete group '${group_path}':'${group_id}'"
+
     "${GLGROUPS}" --delete --id "${group_id}"
   fi
 }
@@ -42,7 +43,7 @@ function delete_group_by_path {
 #
 # Edit group
 #
-TEST_GRP_ID=$("${GLGROUPS}" --list-id --name test_group_path4)
+TEST_GRP_ID=$("${GLGROUPS}" --list-id --path test_group_path4)
 
 echo "EDIT"
 #bash -ex
@@ -51,7 +52,7 @@ echo "EDIT"
 #
 # Display group id
 #
-"${GLGROUPS}" --list-id --name 'my_test_4_path'
+"${GLGROUPS}" --list-id --path 'my_test_4_path'
 
 
 delete_group_by_path test_group_path1

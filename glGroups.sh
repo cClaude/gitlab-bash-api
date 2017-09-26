@@ -88,7 +88,7 @@ function get_group_path_or_id_or_empty {
 
   if [ -z "${group_path_or_id_or_empty}" ]; then
     if [ ! "${p_all_group}" = true ]; then
-      echo "** Missing --id, --name or --all" >&2
+      echo "** Missing --id, --path or --all" >&2
       exit 1
     fi
   fi

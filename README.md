@@ -172,16 +172,6 @@ glGroups.sh --create --path my_test_group
 
 ### About projects / repositories
 
-* How to create some repositories ? (almost deprecated)
-
-Usage:
-> glCreateProject.sh GROUP_NAME PROJECT_PATH ['PROJECT_NAME' ['PROJECT_DESCRIPTION']]
-
-```bash
-glCreateProject.sh my_test_group my_test_repository1 "My test Project 1" "A nice description"
-glCreateProject.sh my_test_group my_test_repository2
-```
-
 How to manage groups using **glProjects** command ?
 
 * **Usage**: Get projects configuration
@@ -192,12 +182,12 @@ How to manage groups using **glProjects** command ?
     glProjects.sh --config [--compact] --path PROJECT_PATH
 ```
 
-* **Usage**: List projects names
+* **Usage**: List projects paths
 ```bash
-    glProjects.sh --list-name --id PROJECT_ID
-    glProjects.sh --list-name --group-path GROUP_PATH (could return more than one entry)
-    glProjects.sh --list-name --all
-    glProjects.sh --list-name --path PROJECT_PATH (could return more than one entry)
+    glProjects.sh --list-path --id PROJECT_ID
+    glProjects.sh --list-path --group-path GROUP_PATH (could return more than one entry)
+    glProjects.sh --list-path --all
+    glProjects.sh --list-path --path PROJECT_PATH (could return more than one entry)
 ```
 
 * **Usage**: List projects ids
@@ -206,6 +196,21 @@ How to manage groups using **glProjects** command ?
     glProjects.sh --list-id --group-path GROUP_PATH (could return more than one entry)
     glProjects.sh --list-id --all
     glProjects.sh --list-id --path PROJECT_PATH
+```
+
+* **Usage**: Create project
+```bash
+    .glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
+      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \
+      [--container-registry-enabled true|false] [--issues-enabled true|false] \
+      [--jobs-enabled true|false] [--lfs-enabled true|false] \
+      [--merge-requests-enabled true|false] \
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \
+      [--only-allow-merge-if-pipeline-succeed true|false] \
+      [--printing-merge-request-link-enabled true|false] \
+      [--public-jobs true|false] [--request-access-enabled true|false] \
+      [--snippets-enabled true|false] [--visibility private|internal|public] \
+      [--wiki-enabled true|false]
 ```
 
 * **Usage**: Delete a project

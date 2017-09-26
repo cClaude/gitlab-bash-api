@@ -18,7 +18,17 @@ function display_usage {
     $0 --list-id --all
     $0 --list-id --path PROJECT_PATH
   Create project
-    $0 --create --group-id GROUP_ID --path PROJECT_PATH
+    $0 --create --group-id GROUP_ID --path PROJECT_PATH \\
+      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \\
+      [--container-registry-enabled true|false] [--issues-enabled true|false] \\
+      [--jobs-enabled true|false] [--lfs-enabled true|false] \\
+      [--merge-requests-enabled true|false] \\
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \\
+      [--only-allow-merge-if-pipeline-succeed true|false] \\
+      [--printing-merge-request-link-enabled true|false] \\
+      [--public-jobs true|false] [--request-access-enabled true|false] \\
+      [--snippets-enabled true|false] [--visibility private|internal|public] \\
+      [--wiki-enabled true|false]
   Delete a project
     $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
@@ -28,23 +38,23 @@ function display_usage {
 }
 
 function create_projects_handle_params {
-  local group_id=$1
-  local project_path=$2
-  local project_name=$3
-  local project_description=$4
-  local p_container_registry_enabled=$5
-  local p_issues_enabled=$6
-  local p_jobs_enabled=$7
-  local p_lfs_enabled=$8
-  local p_merge_requests_enabled=$9
-  local p_only_allow_merge_if_all_discussions_are_resolved=$10
-  local p_only_allow_merge_if_pipeline_succeed=$11
-  local p_printing_merge_request_link_enabled=$12
-  local p_public_jobs=$13
-  local p_request_access_enabled=$14
-  local p_snippets_enabled=$15
-  local p_visibility=$16
-  local p_wiki_enabled=$17
+  local group_id=${1}
+  local project_path=${2}
+  local project_name=${3}
+  local project_description=${4}
+  local p_container_registry_enabled=${5}
+  local p_issues_enabled=${6}
+  local p_jobs_enabled=${7}
+  local p_lfs_enabled=${8}
+  local p_merge_requests_enabled=${9}
+  local p_only_allow_merge_if_all_discussions_are_resolved=${10}
+  local p_only_allow_merge_if_pipeline_succeed=${11}
+  local p_printing_merge_request_link_enabled=${12}
+  local p_public_jobs=${13}
+  local p_request_access_enabled=${14}
+  local p_snippets_enabled=${15}
+  local p_visibility=${16}
+  local p_wiki_enabled=${17}
 
   if [ -z "${p_container_registry_enabled}" ]; then
     p_container_registry_enabled="${GITLAB_DEFAULT_PROJECT_CONTAINER_REGISTRY_ENABLED}"
@@ -86,26 +96,26 @@ function create_projects_handle_params {
     p_wiki_enabled="${GITLAB_DEFAULT_PROJECT_WIKI_ENABLED}"
   fi
 
+  ensure_boolean "${p_container_registry_enabled}" 'container_registry_enabled'
+  ensure_boolean "${p_printing_merge_request_link_enabled}" 'printing_merge_request_link_enabled'
+
   create_project path "${project_path}" \
-      name "${project_name}" \
-      namespace_id "${group_id}" \
-      description "${project_description}" \
       container_registry_enabled "${p_container_registry_enabled}" \
+      description "${project_description}" \
       issues_enabled "${p_issues_enabled}" \
       jobs_enabled "${p_jobs_enabled}" \
       lfs_enabled "${p_lfs_enabled}" \
       merge_requests_enabled "${p_merge_requests_enabled}" \
+      name "${project_name}" \
+      namespace_id "${group_id}" \
+      only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
       only_allow_merge_if_pipeline_succeed "${p_only_allow_merge_if_pipeline_succeed}" \
-      public_jobs "${p_public_jobs}"
-      #
-      # Theses parameters are not accepted by gitlab (yet ?)
-      #
-      #printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
-      #only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
-      #request_access_enabled "${p_request_access_enabled}" \
-      #visibility "${p_visibility}" \
-      #snippets_enabled "${p_snippets_enabled}" \
-      #wiki_enabled "${p_wiki_enabled}" \
+      printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
+      public_jobs "${p_public_jobs}" \
+      request_access_enabled "${p_request_access_enabled}" \
+      snippets_enabled "${p_snippets_enabled}" \
+      visibility "${p_visibility}" \
+      wiki_enabled "${p_wiki_enabled}"
 }
 
 function show_projects_config_handle_params {
@@ -202,8 +212,6 @@ function list_projects_ids_handle_params {
   else
     jq_filter='.[] | .project_id'
   fi
-
-  echo "${answer}" >answer.json
 
   echo "${answer}" | jq -r "${jq_filter}"
 }
@@ -410,7 +418,9 @@ function main {
         list_projects_ids_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"
         ;;
     showConfigAction)
-        show_projects_config_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"
+        show_projects_config_handle_params "${param_raw_display}" "${param_all}" \
+            "${param_project_id}" "${param_group_path}" "${param_project_path}" \
+            | jq .
         ;;
     *)
         # unknown option
