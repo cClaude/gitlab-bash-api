@@ -18,7 +18,17 @@ function display_usage {
     $0 --list-id --all
     $0 --list-id --path PROJECT_PATH
   Create project
-    $0 --create --group-id GROUP_ID --path PROJECT_PATH
+    $0 --create --group-id GROUP_ID --path PROJECT_PATH \\
+      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \\
+      [--container-registry-enabled true|false] [--issues-enabled true|false] \\
+      [--jobs-enabled true|false] [--lfs-enabled true|false] \\
+      [--merge-requests-enabled true|false] \\
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \\
+      [--only-allow-merge-if-pipeline-succeed true|false] \\
+      [--printing-merge-request-link-enabled true|false] \\
+      [--public-jobs true|false] [--request-access-enabled true|false] \\
+      [--snippets-enabled true|false] [--visibility private|internal|public] \\
+      [--wiki-enabled true|false]
   Delete a project
     $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
@@ -202,8 +212,6 @@ function list_projects_ids_handle_params {
   else
     jq_filter='.[] | .project_id'
   fi
-
-  echo "${answer}" >answer.json
 
   echo "${answer}" | jq -r "${jq_filter}"
 }
