@@ -106,8 +106,7 @@ function list_groups_paths_handle_params {
     jq_filter='. | .path'
   fi
 
-  list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}"
-
+  list_groups "${group_path_or_id_or_empty}" '' | jq -r "${jq_filter}"
 }
 
 function list_groups_ids_handle_params {
