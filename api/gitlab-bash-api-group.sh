@@ -45,11 +45,11 @@ function get_group_id_from_group_path {
 # API: show_group_config
 
 function show_group_config {
-  local group_name_or_id_or_empty=$1
+  local group_path_or_id_or_empty=$1
 
-  local result=$(list_groups "${group_name_or_id_or_empty}" '')
+  local result=$(list_groups "${group_path_or_id_or_empty}" '')
 
-  if [ ! -z "${group_name_or_id_or_empty}" ]; then
+  if [ ! -z "${group_path_or_id_or_empty}" ]; then
     echo "${result}"
     exit 0
   fi
