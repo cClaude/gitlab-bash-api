@@ -5,6 +5,7 @@ source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 declare RESULTS_HOME="$(dirname $(dirname $(realpath "$0")))/tests-result"
 declare AUDIT_FOLDER="${RESULTS_HOME}/glAudit"
 
+declare REFERENCES_HOME="$(dirname $(realpath "$0"))/references"
 
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
@@ -63,6 +64,34 @@ echo '#
 # Audit - END
 #'
 
+TMP_REF="${AUDIT_FOLDER}/tmp-${group1_id}-REF.json"
+TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group1_id}-AUDIT.json"
+
+jq -S "setpath([\"id\"]; ${group1_id})" "${REFERENCES_HOME}/audit/audit_group_path1.json" > "${TMP_REF}"
+jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group1_id}.json" > "${TMP_AUDIT}"
+
+echo "DIFF with ref for: ${group1_id}"
+diff "${TMP_REF}" "${TMP_AUDIT}"
+if [ ! $? -eq 0 ]; then
+  echo "*** ERROR: in result for group ${group1_id}"
+  exit 1
+fi
+rm "${TMP_REF}" "${TMP_AUDIT}"
+
+TMP_REF="${AUDIT_FOLDER}/tmp-${group2_id}-REF.json"
+TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group2_id}-AUDIT.json"
+
+jq -S "setpath([\"id\"]; ${group2_id})" "${REFERENCES_HOME}/audit/audit_group_path2.json" > "${TMP_REF}"
+jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group2_id}.json" > "${TMP_AUDIT}"
+
+echo "DIFF with ref for: ${group2_id}"
+diff "${TMP_REF}" "${TMP_AUDIT}"
+if [ ! $? -eq 0 ]; then
+  echo "*** ERROR: in result for group ${group2_id}"
+  exit 1
+fi
+rm "${TMP_REF}" "${TMP_AUDIT}"
+
 echo '#
 # Display groups ids
 #'
@@ -93,38 +122,3 @@ echo '#
 #'
 PRG_LIST=$("${GLPROJECTS}" --config --all)
 echo "Projects List='${PRG_LIST}'"
-
-exit 0
-
-
-"${GLPROJECTS}" --config --id "${project_1_1_id}" | jq ". | select(.[].id=${project_1_1_id}) | .[0] | {
-id: .id,
-archived: .archived,
-avatar_url: .avatar_url,
-builds_enabled: .builds_enabled,
-container_registry_enabled: .container_registry_enabled,
-creator_id: .creator_id,
-default_branch: .default_branch,
-description: .description,
-http_url_to_repo: .http_url_to_repo,
-issues_enabled: .issues_enabled,
-lfs_enabled: .lfs_enabled,
-merge_requests_enabled: .merge_requests_enabled,
-name: .name,
-name_with_namespace: .name_with_namespace,
-only_allow_merge_if_all_discussions_are_resolved: .only_allow_merge_if_all_discussions_are_resolved,
-only_allow_merge_if_build_succeeds: .only_allow_merge_if_build_succeeds,
-path: .path,
-path_with_namespace: .path_with_namespace,
-public: .public,
-public_builds: .public_builds,
-request_access_enabled: .request_access_enabled,
-runners_token: .runners_token,
-shared_runners_enabled: .shared_runners_enabled,
-snippets_enabled: .snippets_enabled,
-ssh_url_to_repo: .ssh_url_to_repo,
-visibility_level: .visibility_level,
-web_url: .web_url,
-wiki_enabled: .wiki_enabled,
-}"
-
