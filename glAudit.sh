@@ -112,7 +112,9 @@ function get_project_config_by_id {
     exit 1
   fi
 
-  "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --id "${project_id}" \
+  # "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --id "${project_id}" \
+  #   | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
+  show_project_config true "${project_id}" \
     | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
 }
 
