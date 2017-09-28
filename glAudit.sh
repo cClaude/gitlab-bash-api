@@ -98,7 +98,9 @@ function get_group_config_by_id {
     exit 1
   fi
 
-  "${GITLAB_BASH_API_PATH}/glGroups.sh" --config --id "${group_id}" \
+  # "${GITLAB_BASH_API_PATH}/glGroups.sh" --config --id "${group_id}" \
+  #   | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
+  show_group_config "${group_id}" \
     | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
 }
 
@@ -222,5 +224,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 # Configuration - END
 
 # Script start here
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-group.sh"
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 main $@
