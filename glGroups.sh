@@ -8,7 +8,7 @@ function display_usage {
     $0 --config --all
   List groups paths
     $0 --list-path --path GROUP_PATH
-    $0 --list-path --id ROUP_ID
+    $0 --list-path --id GROUP_ID
     $0 --list-path --all
   List groups ids
     $0 --list-id --path GROUP_PATH
