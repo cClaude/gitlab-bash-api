@@ -48,7 +48,7 @@ function create_projects_handle_params {
   local p_lfs_enabled=${8}
   local p_merge_requests_enabled=${9}
   local p_only_allow_merge_if_all_discussions_are_resolved=${10}
-  local p_only_allow_merge_if_pipeline_succeed=${11}
+  local p_only_allow_merge_if_pipeline_succeeds=${11}
   local p_printing_merge_request_link_enabled=${12}
   local p_public_jobs=${13}
   local p_request_access_enabled=${14}
@@ -56,6 +56,14 @@ function create_projects_handle_params {
   local p_visibility=${16}
   local p_wiki_enabled=${17}
 
+  if [ -z "${group_id}" ]; then
+    echo "* Parameter --group-id is missing" >&2
+    display_usage
+  fi
+  if [ -z "${project_path}" ]; then
+    echo "* Parameter --path is missing" >&2
+    display_usage
+  fi
   if [ -z "${p_container_registry_enabled}" ]; then
     p_container_registry_enabled="${GITLAB_DEFAULT_PROJECT_CONTAINER_REGISTRY_ENABLED}"
   fi
@@ -74,8 +82,8 @@ function create_projects_handle_params {
   if [ -z "${p_only_allow_merge_if_all_discussions_are_resolved}" ]; then
     p_only_allow_merge_if_all_discussions_are_resolved="${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_ALL_DISCUSSIONS_ARE_RESOLVED}"
   fi
-  if [ -z "${p_only_allow_merge_if_pipeline_succeed}" ]; then
-    p_only_allow_merge_if_pipeline_succeed="${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEED}"
+  if [ -z "${p_only_allow_merge_if_pipeline_succeeds}" ]; then
+    p_only_allow_merge_if_pipeline_succeeds="${GITLAB_DEFAULT_PROJECT_ONLY_ALLOW_MERGE_IF_PIPELINE_SUCCEEDS}"
   fi
   if [ -z "${p_printing_merge_request_link_enabled}" ]; then
     p_printing_merge_request_link_enabled="${GITLAB_DEFAULT_PROJECT_PRINTING_MERGE_REQUEST_LINK_ENABLED}"
@@ -109,13 +117,68 @@ function create_projects_handle_params {
       name "${project_name}" \
       namespace_id "${group_id}" \
       only_allow_merge_if_all_discussions_are_resolved "${p_only_allow_merge_if_all_discussions_are_resolved}" \
-      only_allow_merge_if_pipeline_succeed "${p_only_allow_merge_if_pipeline_succeed}" \
+      only_allow_merge_if_pipeline_succeeds "${p_only_allow_merge_if_pipeline_succeeds}" \
       printing_merge_request_link_enabled "${p_printing_merge_request_link_enabled}" \
       public_jobs "${p_public_jobs}" \
       request_access_enabled "${p_request_access_enabled}" \
       snippets_enabled "${p_snippets_enabled}" \
       visibility "${p_visibility}" \
       wiki_enabled "${p_wiki_enabled}"
+}
+
+function edit_project_handle_params {
+  local id=${1}
+  local name=${2}
+  local path_defined=${3}
+  local path=${4}
+  local default_branch_defined=${5}
+  local default_branch=${6}
+  local description_defined=${7}
+  local description=${8}
+  local issues_enabled=${9}
+  local merge_requests_enabled=${10}
+  local jobs_enabled=${11}
+  local wiki_enabled=${12}
+  local snippets_enabled=${13}
+  local container_registry_enabled=${14}
+  local visibility=${15}
+  local public_jobs=${16}
+  local only_allow_merge_if_pipeline_succeeds=${17}
+  local only_allow_merge_if_all_discussions_are_resolved=${18}
+  local lfs_enabled=${19}
+  local request_access_enabled=${20}
+  #local shared_runners_enabled=
+  #local resolve_outdated_diff_discussions=
+  #local import_url=
+  #local tag_list=
+  #local avatar=
+  #local ci_config_path=
+
+  if [ -z "${id}" ]; then
+    echo '* Parameter --id is mandatory' >&2
+    display_usage
+  fi
+  if [ -z "${name}" ]; then
+    echo '* Parameter --name is mandatory' >&2
+    display_usage
+  fi
+  
+  local edit_optional_parameters=
+
+  if [ "${path_defined}" == true ]; then
+    edit_optional_parameters+="path '${path}' "
+  fi
+  if [ "${default_branch_defined}" == true ]; then
+    edit_optional_parameters+="default_branch '${default_branch}' "
+  fi
+  if [ "${description_defined}" == true ]; then
+    edit_optional_parameters+="description \"${description}\" "
+  fi
+
+  #set -ex
+  eval edit_project 'id' "${id}" 'name' "${name}" ${edit_optional_parameters}
+  #edit_project 'id' "${id}" 'name' "${name}" description "${description}"
+  #edit_project 'id' "${id}" 'name' "${name}" description "test test"
 }
 
 function show_projects_config_handle_params {
@@ -240,6 +303,7 @@ function main {
   local param_group_id=
   local param_group_path=
   local param_project_id=
+  local param_project_path_define=
   local param_project_path=
   local param_raw_display=true
   local p_container_registry_enabled=
@@ -248,8 +312,9 @@ function main {
   local p_lfs_enabled=
   local p_merge_requests_enabled=
   local p_only_allow_merge_if_all_discussions_are_resolved=
-  local p_only_allow_merge_if_pipeline_succeed=
+  local p_only_allow_merge_if_pipeline_succeeds=
   local p_printing_merge_request_link_enabled=
+  local p_project_description_define=
   local p_project_description=
   local p_project_name=
   local p_public_jobs=
@@ -286,6 +351,10 @@ function main {
       --delete)
         ensure_empty action
         action=deleteAction
+        ;;
+      --edit)
+        ensure_empty action
+        action=editAction
         ;;
       --group-id)
         param_group_id="$1"
@@ -324,6 +393,7 @@ function main {
         ;;
       -p|--path|--project-path)
         param_project_path="$1"
+        param_project_path_define=true
         shift
         ;;
       --merge-requests-enabled)
@@ -337,8 +407,8 @@ function main {
         shift
         ;;
       --only-allow-merge-if-pipeline-succeed)
-        p_only_allow_merge_if_pipeline_succeed="$1"
-        ensure_boolean "${p_only_allow_merge_if_pipeline_succeed}" '--only-allow-merge-if-pipeline-succeed'
+        p_only_allow_merge_if_pipeline_succeeds="$1"
+        ensure_boolean "${p_only_allow_merge_if_pipeline_succeeds}" '--only-allow-merge-if-pipeline-succeed'
         shift
         ;;
       --printing-merge-request-link-enabled)
@@ -348,6 +418,7 @@ function main {
         ;;
       --project-description)
         p_project_description="$1"
+        p_project_description_define=true
         shift
         ;;
       --project-name)
@@ -389,7 +460,7 @@ function main {
         ;;
       *)
         # unknown option
-        echo "Undefine parameter ${param}" >&2
+        echo "Unknown parameter ${param}" >&2
         action=
         display_usage
         ;;
@@ -402,7 +473,7 @@ function main {
           "${p_project_description}" "${p_container_registry_enabled}" "${p_issues_enabled}" \
           "${p_jobs_enabled}" "${p_lfs_enabled}" "${p_merge_requests_enabled}" \
           "${p_only_allow_merge_if_all_discussions_are_resolved}" \
-          "${p_only_allow_merge_if_pipeline_succeed}" \
+          "${p_only_allow_merge_if_pipeline_succeeds}" \
           "${p_printing_merge_request_link_enabled}" \
           "${p_public_jobs}" "${p_request_access_enabled}" "${p_snippets_enabled}" \
           "${p_visibility}" "${p_wiki_enabled}" \
@@ -410,6 +481,28 @@ function main {
         ;;
     deleteAction)
         delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}" | jq .
+        ;;
+    editAction)
+        local default_branch_defined=false
+        local default_branch=
+
+        edit_project_handle_params "${param_project_id}" "${p_project_name}" \
+            "${param_project_path_define}" "${param_project_path}" \
+            "${default_branch_defined}" "${default_branch}" \
+            "${p_project_description_define}" "${p_project_description}" \
+            "${p_issues_enabled}" \
+            "${p_merge_requests_enabled}" \
+            "${p_jobs_enabled}" \
+            "${p_wiki_enabled}" \
+            "${p_snippets_enabled}" \
+            "${p_container_registry_enabled}" \
+            "${p_visibility}" \
+            "${p_public_jobs}" \
+            "${p_only_allow_merge_if_pipeline_succeeds}" \
+            "${p_only_allow_merge_if_all_discussions_are_resolved}" \
+            "${p_lfs_enabled}" \
+            "${p_request_access_enabled}" \
+            | jq .
         ;;
     listPathsAction)
         list_projects_paths_handle_params "${param_raw_display}" "${param_all}" "${param_project_id}" "${param_group_path}" "${param_project_path}"

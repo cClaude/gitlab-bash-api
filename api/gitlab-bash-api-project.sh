@@ -143,7 +143,7 @@ jobs_enabled
 lfs_enabled
 merge_requests_enabled
 only_allow_merge_if_all_discussions_are_resolved
-only_allow_merge_if_pipeline_succeed
+only_allow_merge_if_pipeline_succeeds
 printing_merge_request_link_enabled
 public_jobs
 request_access_enabled
@@ -156,19 +156,13 @@ wiki_enabled
 # API: edit_project
 
 function edit_project {
-  # required
-  local p_id=$1   # The ID or URL-encoded path of the project
-  local p_name=$2 # The name of the project
-
-  shift
-  shift
-
-  local params="name=$(urlencode "${p_name}")"
+  local project_id=
+  local first=true
 
   # optional parameters
   while [[ $# > 0 ]]; do
     if [ ! $# \> 1 ]; then
-      echo "*** edit_project error: odd number of remind parameters. $#" >&2
+      echo "*** edit_project error: odd number of remind parameters. $# ($1) : Current parameters ${params}" >&2
       exit 1
     fi
 
@@ -177,11 +171,58 @@ function edit_project {
     local param_value="$1"
     shift
 
-    params+="&${param_name}=$(urlencode "${param_value}")"
+    if [ "${param_name}" = 'id' ]; then
+      # handle id
+      project_id=${param_value}
+    else
+      if [ "${first}" = true ]; then
+        first=false
+      else
+        params+='&'
+      fi
+
+      params+="${param_name}=$(urlencode "${param_value}")"
+    fi
+
   done
 
+  if [ -z "${project_id}" ]; then
+    echo '* edit_project project id is missing.' >&2
+    exit 1
+  fi
+
   # DEBUG echo "POST params: ${params}" >&2
-  gitlab_put "projects/${p_id}" "${params}"
+  gitlab_put "projects/${project_id}" "${params}"
+}
+
+# API: edit_project_parameters
+
+function edit_project_parameters {
+  echo '
+id
+name
+path
+default_branch
+description
+issues_enabled
+merge_requests_enabled
+jobs_enabled
+wiki_enabled
+snippets_enabled
+resolve_outdated_diff_discussions
+container_registry_enabled
+shared_runners_enabled
+visibility
+import_url
+public_jobs
+only_allow_merge_if_pipeline_succeeds
+only_allow_merge_if_all_discussions_are_resolved
+lfs_enabled
+request_access_enabled
+tag_list
+avatar
+ci_config_path
+'
 }
 
 # API: edit_project_all_values
@@ -211,7 +252,9 @@ function edit_project_all_values {
   local p_avatar=$22            # Image file for avatar of the project
   local p_ci_config_path=$23    # The path to CI config file
 
-  edit_project "${p_id}" "${p_name}" \
+  edit_project \
+    'id' "${p_id}" \
+    'name' "${p_name}" \
     'path' "${p_path}" \
     'default_branch' "${p_default_branch}" \
     'description' "${p_description}" \
