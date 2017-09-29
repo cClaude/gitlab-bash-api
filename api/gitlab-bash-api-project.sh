@@ -191,7 +191,8 @@ function edit_project {
     exit 1
   fi
 
-  # DEBUG echo "POST params: ${params}" >&2
+  # DEBUG 
+echo "POST params: ${params}" >&2
   gitlab_put "projects/${project_id}" "${params}"
 }
 
