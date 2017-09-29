@@ -93,13 +93,29 @@ function get_project_ids {
 function get_group_config_by_id {
   local group_id=$1
 
-  "${GITLAB_BASH_API_PATH}/glGroups.sh" --config --id "${group_id}" || exit 1
+  if [ -z "${GITLAB_DEFAULT_AUDIT_FOR_GROUP}" ]; then
+    echo "* GITLAB_DEFAULT_AUDIT_FOR_GROUP is not define" >&2
+    exit 1
+  fi
+
+  # "${GITLAB_BASH_API_PATH}/glGroups.sh" --config --id "${group_id}" \
+  #   | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
+  show_group_config "${group_id}" \
+    | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
 }
 
 function get_project_config_by_id {
   local project_id=$1
 
-  "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --id "${project_id}" || exit 1
+  if [ -z "${GITLAB_DEFAULT_AUDIT_FOR_PROJECT}" ]; then
+    echo "* GITLAB_DEFAULT_AUDIT_FOR_PROJECT is not define" >&2
+    exit 1
+  fi
+
+  # "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --id "${project_id}" \
+  #   | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
+  show_project_config true "${project_id}" \
+    | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
 }
 
 function audit_groups_configuration {
@@ -114,8 +130,8 @@ function audit_groups_configuration {
     if [ -z "${group_path}" ]; then
       echo "*** Error: can not retrieve configuration for group '${group_id}'" >&2
     else
-      local audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}") 
-      local path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}") 
+      local audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}")
+      local path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}")
 
       echo "* audit group ${group_id} / ${group_path}" >&2
       # echo "* audit group ${group_id} / ${group_path} -> ${audit_file}" >&2
@@ -134,14 +150,14 @@ function audit_projects_configuration {
 
   for project_id in ${project_ids}; do
     local project_config=$(get_project_config_by_id "${project_id}")
-    local project_path=$(echo "${project_config}" | jq -r '. [] .path')
-    local project_fullpath=$(echo "${project_config}" | jq -r '. [] .path_with_namespace')
+    local project_path=$(echo "${project_config}" | jq -r '.path')
+    local project_fullpath=$(echo "${project_config}" | jq -r '.path_with_namespace')
 
     if [ -z "${project_path}" ]; then
       echo "*** Error: can not retrieve configuration for project '${project_id}'" >&2
     else
-      local audit_file=$(build_audit_file "${audit_folder}" 'projects_by_id' "${project_id}") 
-      local path_link=$(build_audit_file "${audit_folder}" 'projects_by_path' "${project_path}") 
+      local audit_file=$(build_audit_file "${audit_folder}" 'projects_by_id' "${project_id}")
+      local path_link=$(build_audit_file "${audit_folder}" 'projects_by_path' "${project_path}")
       local fullpath_link=$(build_audit_file "${audit_folder}" 'projects_by_path_with_namespace' "${project_fullpath}")
 
       echo "* audit project ${project_id} / ${project_path}" >&2
@@ -196,8 +212,21 @@ function main {
   fi
 }
 
-if [ -z "${GITLAB_BASH_API_PATH}" ]; then
+# Configuration - BEGIN
+if [ -z "$GITLAB_BASH_API_PATH" ]; then
   GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
 fi
+
+if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
+  echo "gitlab-bash-api.sh not found! - Please set GITLAB_BASH_API_PATH" >&2
+  exit 1
+fi
+
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
+
+# Script start here
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-group.sh"
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 main $@
