@@ -1,23 +1,67 @@
 #!/bin/bash
 
-# Configuration - BEGIN
-if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(dirname $(realpath "$0")))
-fi
+source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 
-if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
-  echo "gitlab-bash-api.sh not found! - Please set GITLAB_BASH_API_PATH" >&2
-  exit 1
-fi
+declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
+declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
 
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
-# Configuration - END
-
-# Script start here
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
-edit_project 353 test-id353 \
-    description 'my test description' \
-    shared_runners_enabled 'false' \
-    request_access_enabled false \
-    public_builds false
+declare -r GROUP_PATH=group_for_$(echo "$0" | rev | cut -d'.' -f2- | cut -d'/' -f1 | rev )
+declare -r PROJECT_PATH=project_for_$(echo "$0" | rev | cut -d'.' -f2- | cut -d'/' -f1 | rev )
+
+function run_test {
+  echo '-- CREATE GROUP (if needed) ----------------------'
+   local group_id=$("${GLGROUPS}" --list-id --path "${GROUP_PATH}")
+   if [ -z "${group_id}" ]; then
+    echo '-- CREATE GROUP ----------------------'
+    "${GLGROUPS}" --create --path ${GROUP_PATH}
+
+     group_id=$("${GLGROUPS}" --list-id --path "${GROUP_PATH}")
+   fi
+
+   if [ -z "${group_id}" ]; then
+     echo "*** Error can not create/retrieve group" >&2
+     exit 1
+   fi
+
+  for project_id in $("${GLPROJECTS}" --list-id --group-path "${GROUP_PATH}"); do
+    echo "project_id=${project_id}"
+    "${GLPROJECTS}" --delete --id ${project_id}
+  done
+
+
+  echo '-- CREATE PROJECT ----------------------'
+  "${GLPROJECTS}" --create --group-id ${group_id} --path ${PROJECT_PATH}
+  local project_id=$("${GLPROJECTS}" --list-id --path "${PROJECT_PATH}")
+
+   if [ -z "${project_id}" ]; then
+     echo "*** Error can not create/retrieve project" >&2
+     exit 1
+   fi
+
+  echo '-- EDIT PROJECT ----------------------'
+  edit_project \
+      id ${project_id} \
+      path test-path-id-${project_id} \
+      name test-name-id-${project_id} \
+        description "test description $(date)" \
+      shared_runners_enabled 'false' \
+      request_access_enabled false \
+      public_builds false \
+      | jq .
+
+  echo '-- CLEANUP PROJECT ----------------------'
+  "${GLPROJECTS}" --delete --id ${project_id}
+
+  echo '-- CLEANUP GROUP ----------------------'
+  "${GLGROUPS}" --delete --id ${group_id}
+
+  echo '--'
+}
+
+run_test "$@"
+
+
+
