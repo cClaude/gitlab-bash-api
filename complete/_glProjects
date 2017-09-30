@@ -1,0 +1,161 @@
+#!/bin/bash
+
+#
+#  Completion for gitlab cli:
+#  glProjects
+#
+
+_glProjects()
+{
+    local cur prev opts
+
+    COMPREPLY=()
+
+    opts=""
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    if [ $COMP_CWORD == 1 ]; then
+        opts="--config --list-path --list-id --create --delete"
+    else
+        context=${COMP_WORDS[@]:1:COMP_CWORD-1}
+        sample=""
+        for word in "${COMP_WORDS[@]:1:COMP_CWORD-1}"
+        do
+            if [ "$sample" != "" ]; then
+                  sample="$sample "
+            fi
+            if [ "${word:0:2}" == "--" ]; then
+                  sample="$sample$word"
+            else
+                  sample="$sample@"
+            fi
+        done
+
+        case $sample in
+            "--config")
+                opts="--compact --path --group-path --id --all"
+                ;;
+            "--config --compact")
+                opts="--path --group-path --id --all"
+                ;;
+            *" --path")
+                opts=""
+                ;;
+            *" --group-path")
+                opts=""
+                ;;
+            *" --id")
+                opts=""
+                ;;
+            *" --name")
+                opts=""
+                ;;
+            "--list-path")
+                opts="--path --id --all --group-path"
+                ;;
+            "--list-id")
+                opts="--path --id --all --group-path"
+                ;;
+            "--create")
+                opts="--group-id"
+                ;;
+            "--create --group-id")
+                opts=""
+                ;;
+            "--create --group-id @")
+                opts="--path"
+                ;;
+            *" --project-name")
+                opts=""
+                ;;
+            *" --path")
+                opts=""
+                ;;
+            *" --visibility")
+                opts="private internal public"
+                ;;
+            *" --project-description")
+                opts=""
+                ;;
+            *" --lfs-enabled")
+                opts="true false"
+                ;;
+            *" --container-registry-enabled")
+                opts="true false"
+                ;;
+            *" --issues-enabled")
+                opts="true false"
+                ;;
+            *" --jobs-enabled")
+                opts="true false"
+                ;;
+            *" --merge-requests-enabled")
+                opts="true false"
+                ;;
+            *" --only-allow-merge-if-all-discussions-are-resolved")
+                opts="true false"
+                ;;
+            *" --only-allow-merge-if-pipeline-succeed")
+                opts="true false"
+                ;;
+            *" --printing-merge-request-link-enabled")
+                opts="true false"
+                ;;
+            *" --public-jobs")
+                opts="true false"
+                ;;
+            *" --request-access-enabled")
+                opts="true false"
+                ;;
+            *" --snippets-enabled")
+                opts="true false"
+                ;;
+            *" --wiki-enabled")
+                opts="true false"
+                ;;
+            "--create --group-id @ --path @"*)
+                opts="--project-name --project-description --container-registry-enabled --issues-enabled --jobs-enabled --lfs-enabled --merge-requests-enabled --only-allow-merge-if-all-discussions-are-resolved --only-allow-merge-if-pipeline-succeed --printing-merge-request-link-enabled --public-jobs --request-access-enabled --snippets-enabled --visibility --wiki-enabled"
+                ;;
+           "--delete")
+                opts="--group-path --id"
+                ;;
+           "--delete --group-path @")
+                opts="--path"
+                ;;
+           "--delete --id")
+                opts=""
+                ;;
+            *)
+                ;;
+         esac
+    fi
+
+    result=""
+
+    for word in $opts
+    do
+
+        if [ "$result" != "" ]; then
+            result="$result "
+        fi
+        if [ "${word:0:2}" == "--" ]; then
+            if doesntContain "${word}" "${COMP_WORDS[@]:1:COMP_CWORD-1}"; then
+                result="$result$word"
+            fi
+        else
+            result="$result$word"
+        fi
+    done
+
+    COMPREPLY=( $(compgen -W "${result}" -- ${cur}) )
+}
+
+if [ -z "${GITLAB_BASH_API_PATH}" ]; then
+  echo "*** GITLAB_BASH_API_PATH is missing" >&2
+  return 1
+fi
+
+alias glProjects="${GITLAB_BASH_API_PATH}/glProjects.sh"
+complete -F _glProjects glProjects
+

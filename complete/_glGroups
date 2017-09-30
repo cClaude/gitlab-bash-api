@@ -1,0 +1,143 @@
+#!/bin/bash
+
+#
+#  Completion for gitlab cli:
+#  glGroups
+#
+
+_glGroups()
+{
+    local cur prev opts
+    COMPREPLY=()
+    opts=""
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    if [ $COMP_CWORD == 1 ]; then
+        opts="--config --list-path --list-id --edit --create --delete"
+    else
+        context=${COMP_WORDS[@]:1:COMP_CWORD-1}
+        sample=""
+        for word in "${COMP_WORDS[@]:1:COMP_CWORD-1}"
+        do
+            if [ "$sample" != "" ]; then
+                  sample="$sample "
+            fi
+            if [ "${word:0:2}" == "--" ]; then
+                  sample="$sample$word"
+            else
+                  sample="$sample@"
+            fi
+        done
+
+        case $sample in
+            "--config")
+                opts="--path --id --all"
+                ;;
+            *" --path")
+                opts=""
+                ;;
+            *" --id")
+                opts=""
+                ;;
+            *" --name")
+                opts=""
+                ;;
+            "--list-path")
+                opts="--path --id --all"
+                ;;
+            "--list-id")
+                opts="--path --id --all"
+                ;;
+            "--edit")
+                opts="--id"
+                ;;
+            "--edit --id @")
+                opts="--name"
+                ;;
+            "--edit --id @ --name @")
+                opts="--path"
+                ;;
+            "--edit --id @ --name @ --path @")
+                opts="--description"
+                ;;
+            "--edit --id @ --name @ --path @ --description @")
+                opts="--visibility"
+                ;;
+            "--edit --id @ --name @ --path @ --description @ --visibility @")
+                opts="--lfs_enabled"
+                ;;
+            "--edit --id @ --name @ --path @ --description @ --visibility @ --lfs_enabled @")
+                opts="--request_access_enabled"
+                ;;
+            "--create")
+                opts="--path"
+                ;;
+            "--create --path")
+                opts=""
+                ;;
+            *" --name")
+                opts=""
+                ;;
+            *" --path")
+                opts=""
+                ;;
+            *" --visibility")
+                opts="private internal public"
+                ;;
+            *" --description")
+                opts=""
+                ;;
+            *" --lfs_enabled")
+                opts="true false"
+                ;;
+            *" --membership_lock")
+                opts="true false"
+                ;;
+            *" --request_access_enabled")
+                opts="true false"
+                ;;
+            *" --share_with_group_lock")
+                opts="true false"
+                ;;
+            "--create --path @"*)
+                opts="--name --description --lfs_enabled --membership_lock --request_access_enabled --share_with_group_lock --visibility"
+                ;;
+           "--delete")
+                opts="--id"
+                ;;
+           "--delete --id")
+                opts=""
+                ;;
+            *)
+                ;;
+         esac
+    fi
+
+    result=""
+
+    for word in $opts
+    do
+        if [ "$result" != "" ]; then
+            result="$result "
+        fi
+
+        if [ "${word:0:2}" == "--" ]; then
+            if doesntContain "${word}" "${COMP_WORDS[@]:1:COMP_CWORD-1}"; then
+                result="$result$word"
+            fi
+        else
+            result="$result$word"
+        fi
+    done
+
+    COMPREPLY=( $(compgen -W "${result}" -- ${cur}) )
+}
+
+if [ -z "${GITLAB_BASH_API_PATH}" ]; then
+  echo "*** GITLAB_BASH_API_PATH is missing" >&2
+  return 1
+fi
+
+alias glGroups="${GITLAB_BASH_API_PATH}/glGroups.sh"
+complete -F _glGroups glGroups
