@@ -110,7 +110,7 @@ function list_groups_paths_handle_params {
 }
 
 function list_groups_ids_handle_params {
-  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $?
+  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@")
   local jq_filter=
 
   if [ -z "${group_path_or_id_or_empty}" ]; then
@@ -119,7 +119,15 @@ function list_groups_ids_handle_params {
     jq_filter='. | .id'
   fi
 
-  list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}"
+  local result=$(list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}")
+  local error_message=$(getErrorMessage "${group_path_or_id_or_empty}")
+  if [ -z "${error_message}" ]; then
+    if [ ! "${result}" = 'null' ]; then
+      echo "${result}"
+    fi
+  else
+    echo "* Warning: '${error_message}'" >&2
+  fi
 }
 
 function show_group_config_handle_params {
