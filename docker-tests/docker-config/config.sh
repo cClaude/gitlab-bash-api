@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#
+# Docker configuration
+# - Don't need customisation for testing
+# - Run setup-configuration.sh to take in account these parameters
+#
+
 # Docker configuration
 DOCKER_HOSTNAME=gitlab.example.com
 DOCKER_NAME=gitlab
