@@ -5,7 +5,7 @@ source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
 
-declare -r TEST_GROUP_PATH=group_for_tests
+declare -r TEST_GROUP_PATH=group_for_test-glProjects
 
 echo '#
 # Create group
@@ -22,7 +22,7 @@ group_id=$("${GLGROUPS}" --list-id --path ${TEST_GROUP_PATH})
 
 echo "Group ID=${group_id}"
 
-if [ "${group_id}" = 'null' ]; then
+if [ -z "${group_id}" ]; then
   echo '*** ERROR: Can not create initial group.'
   exit 1
 fi
@@ -83,7 +83,35 @@ fi
 echo '#
 # Display project configuration
 #'
-"${GLPROJECTS}" --config --id "${project_id}"
+project_config_init=$("${GLPROJECTS}" --config --id "${project_id}")
+echo "${project_config_init}" | jq '.'
+project_id_check=$(echo "${project_config_init}" | jq '.[] | .id')
+if [ ! "${project_id}" = "${project_id_check}" ]; then
+  echo "*** Error project id mismatch: '${project_id}' != '${project_id_check}'" >&2
+  exit 1
+fi
+
+project_name=$(echo "${project_config_init}" | jq '.[] | .name')
+
+echo '#
+# Edit project configuration
+#'
+"${GLPROJECTS}" --edit --id "${project_id}" \
+      --project-name "${project_name}" \
+      --path PROJECT_PATH \
+      --project-description "PROJECT DESCRIPTION" \
+      --container-registry-enabled true \
+      --issues-enabled true \
+      --jobs-enabled true \
+      --lfs-enabled true \
+      --merge-requests-enabled true \
+      --only-allow-merge-if-all-discussions-are-resolved true \
+      --only-allow-merge-if-pipeline-succeed true \
+      --public-jobs true \
+      --request-access-enabled true \
+      --snippets-enabled true \
+      --visibility private \
+      --wiki-enabled true
 
 echo '#
 # Delete project

@@ -38,6 +38,22 @@ function display_usage {
     $0 --edit --id PROJECT_ID --project-name PROJECT_NAME \\
       [--path PROJECT_PATH] \\
       [--project-description PROJECT_DESCRIPTION] \\
+      [--container-registry-enabled true|false] \\
+      [--issues-enabled true|false] \\
+      [--jobs-enabled true|false] \\
+      [--lfs-enabled true|false] \\
+      [--merge-requests-enabled true|false] \\
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \\
+      [--only-allow-merge-if-pipeline-succeed true|false] \\
+      [--public-jobs true|false] \\
+      [--request-access-enabled true|false] \\
+      [--snippets-enabled true|false] \\
+      [--visibility private|internal|public] \\
+      [--wiki-enabled true|false]
+  Edit project
+    $0 --edit --id PROJECT_ID --project-name PROJECT_NAME \\
+      [--path PROJECT_PATH] \\
+      [--project-description PROJECT_DESCRIPTION] \\
       [--issues-enabled true|false] \\
       [--merge-requests-enabled true|false] \\
       [--jobs-enabled true|false] \\
@@ -183,7 +199,7 @@ function edit_project_handle_params {
     echo '* Parameter --name is mandatory' >&2
     display_usage
   fi
-  
+
   local edit_optional_parameters=
 
   if [ "${path_defined}" == true ]; then
