@@ -200,17 +200,40 @@ How to manage groups using **glProjects** command ?
 
 * **Usage**: Create project
 ```bash
-    .glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
+    glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
       [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \
-      [--container-registry-enabled true|false] [--issues-enabled true|false] \
-      [--jobs-enabled true|false] [--lfs-enabled true|false] \
+      [--container-registry-enabled true|false] \
+      [--issues-enabled true|false] \
+      [--jobs-enabled true|false] \
+      [--lfs-enabled true|false] \
       [--merge-requests-enabled true|false] \
       [--only-allow-merge-if-all-discussions-are-resolved true|false] \
       [--only-allow-merge-if-pipeline-succeed true|false] \
       [--printing-merge-request-link-enabled true|false] \
-      [--public-jobs true|false] [--request-access-enabled true|false] \
-      [--snippets-enabled true|false] [--visibility private|internal|public] \
+      [--public-jobs true|false] \
+      [--request-access-enabled true|false] \
+      [--snippets-enabled true|false] \
+      [--visibility private|internal|public] \
       [--wiki-enabled true|false]
+```
+
+* **Usage**: Edit project
+```bash
+    glProjects.sh --edit --id PROJECT_ID --project-name PROJECT_NAME \
+      [--path PROJECT_PATH] \
+      [--project-description PROJECT_DESCRIPTION] \
+      [--issues-enabled true|false] \
+      [--merge-requests-enabled true|false] \
+      [--jobs-enabled true|false] \
+      [--wiki-enabled true|false] \
+      [--snippets-enabled true|false] \
+      [--container-registry-enabled true|false] \
+      [--visibility private|internal|public] \
+      [--public-jobs true|false] \
+      [--only-allow-merge-if-pipeline-succeed true|false] \
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \
+      [--lfs-enabled true|false] \
+      [--request-access-enabled true|false]
 ```
 
 * **Usage**: Delete a project

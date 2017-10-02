@@ -19,16 +19,37 @@ function display_usage {
     $0 --list-id --path PROJECT_PATH
   Create project
     $0 --create --group-id GROUP_ID --path PROJECT_PATH \\
-      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \\
-      [--container-registry-enabled true|false] [--issues-enabled true|false] \\
-      [--jobs-enabled true|false] [--lfs-enabled true|false] \\
+      [--project-name PROJECT_NAME] \\
+      [--project-description PROJECT_DESCRIPTION] \\
+      [--container-registry-enabled true|false] \\
+      [--issues-enabled true|false] \\
+      [--jobs-enabled true|false] \\
+      [--lfs-enabled true|false] \\
       [--merge-requests-enabled true|false] \\
       [--only-allow-merge-if-all-discussions-are-resolved true|false] \\
       [--only-allow-merge-if-pipeline-succeed true|false] \\
       [--printing-merge-request-link-enabled true|false] \\
-      [--public-jobs true|false] [--request-access-enabled true|false] \\
-      [--snippets-enabled true|false] [--visibility private|internal|public] \\
+      [--public-jobs true|false] \\
+      [--request-access-enabled true|false] \\
+      [--snippets-enabled true|false] \\
+      [--visibility private|internal|public] \\
       [--wiki-enabled true|false]
+  Edit project
+    $0 --edit --id PROJECT_ID --project-name PROJECT_NAME \\
+      [--path PROJECT_PATH] \\
+      [--project-description PROJECT_DESCRIPTION] \\
+      [--issues-enabled true|false] \\
+      [--merge-requests-enabled true|false] \\
+      [--jobs-enabled true|false] \\
+      [--wiki-enabled true|false] \\
+      [--snippets-enabled true|false] \\
+      [--container-registry-enabled true|false] \\
+      [--visibility private|internal|public] \\
+      [--public-jobs true|false] \\
+      [--only-allow-merge-if-pipeline-succeed true|false] \\
+      [--only-allow-merge-if-all-discussions-are-resolved true|false] \\
+      [--lfs-enabled true|false] \\
+      [--request-access-enabled true|false]
   Delete a project
     $0 --delete --group-path GROUP_PATH --path PROJECT_PATH
     $0 --delete --id PROJECT_ID
@@ -174,11 +195,44 @@ function edit_project_handle_params {
   if [ "${description_defined}" == true ]; then
     edit_optional_parameters+="description \"${description}\" "
   fi
+  if [ ! -z "${issues_enabled}" ]; then
+    edit_optional_parameters+="issues_enabled '${issues_enabled}' "
+  fi
+  if [ ! -z "${merge_requests_enabled}" ]; then
+    edit_optional_parameters+="merge_requests_enabled '${merge_requests_enabled}' "
+  fi
+  if [ ! -z "${jobs_enabled}" ]; then
+    edit_optional_parameters+="jobs_enabled '${jobs_enabled}' "
+  fi
+  if [ ! -z "${wiki_enabled}" ]; then
+    edit_optional_parameters+="wiki_enabled '${wiki_enabled}' "
+  fi
+  if [ ! -z "${snippets_enabled}" ]; then
+    edit_optional_parameters+="snippets_enabled '${snippets_enabled}' "
+  fi
+  if [ ! -z "${container_registry_enabled}" ]; then
+    edit_optional_parameters+="container_registry_enabled '${container_registry_enabled}' "
+  fi
+  if [ ! -z "${visibility}" ]; then
+    edit_optional_parameters+="visibility '${visibility}' "
+  fi
+  if [ ! -z "${public_jobs}" ]; then
+    edit_optional_parameters+="public_jobs '${public_jobs}' "
+  fi
+  if [ ! -z "${only_allow_merge_if_pipeline_succeeds}" ]; then
+    edit_optional_parameters+="only_allow_merge_if_pipeline_succeeds '${only_allow_merge_if_pipeline_succeeds}' "
+  fi
+  if [ ! -z "${only_allow_merge_if_all_discussions_are_resolved}" ]; then
+    edit_optional_parameters+="only_allow_merge_if_all_discussions_are_resolved '${only_allow_merge_if_all_discussions_are_resolved}' "
+  fi
+  if [ ! -z "${lfs_enabled}" ]; then
+    edit_optional_parameters+="lfs_enabled '${lfs_enabled}' "
+  fi
+  if [ ! -z "${request_access_enabled}" ]; then
+    edit_optional_parameters+="request_access_enabled '${request_access_enabled}' "
+  fi
 
-  #set -ex
   eval edit_project 'id' "${id}" 'name' "${name}" ${edit_optional_parameters}
-  #edit_project 'id' "${id}" 'name' "${name}" description "${description}"
-  #edit_project 'id' "${id}" 'name' "${name}" description "test test"
 }
 
 function show_projects_config_handle_params {
