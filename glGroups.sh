@@ -16,23 +16,26 @@ function display_usage {
     $0 --list-id --all
   Create group
     $0 --create --path GROUP_PATH
-        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \\
-        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false] \\
-        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \\
+        [--name GROUP_NAME] \\
+        [--description GROUP_DESCRIPTION] \\
+        [--lfs_enabled true|false] \\
+        [--membership_lock true|false] \\
+        [--request_access_enabled true|false] \\
+        [--share_with_group_lock true|false]] \\
+        [--visibility  private|internal|public]
   Edit group configuration
-    $0 --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \\
-       --description GROUP_DESCRIPTION --visibility  private|internal|public \\
-       --lfs_enabled true|false --request_access_enabled true|false
+    $0 --edit --id GROUP_ID --name GROUP_NAME \\
+       --path GROUP_PATH \\
+       --description GROUP_DESCRIPTION \\
+       --visibility  private|internal|public \\
+       --lfs_enabled true|false \\
+       --request_access_enabled true|false
   Delete a group
     $0 --delete --id GROUP_ID
 " >&2
   exit 100
 }
 
-#        create_group_handle_params "${param_group_path}" "${param_group_name}"  "${param_group_description}" \
-#          "${param_group_lfs_enabled}" "${param_group_membership_lock}" "${param_group_request_access_enabled}" \
-#          "${param_group_share_with_group_lock}" "${param_group_visibility}" \
-#          | jq .
 function create_group_handle_params {
   local param_group_path=$1
   local param_group_name=$2
