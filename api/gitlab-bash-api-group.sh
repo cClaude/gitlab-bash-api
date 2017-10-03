@@ -161,15 +161,13 @@ function edit_group {
   # - internal: ??
   # - public  : 20
 
-  #echo "edit group '${group_id}' '${group_name}' '${group_path}' '${group_description}' '${group_visibility}' '${group_lfs_enabled}' '${group_request_access_enabled}'" >&2
-
   local params="name=$(urlencode "${group_name}")&path=${group_path}"
   params+="&description=$(urlencode "${group_description}")"
   params+="&visibility=${group_visibility}"
   params+="&lfs_enabled=${group_lfs_enabled}"
   params+="&request_access_enabled=${group_request_access_enabled}"
 
-  # echo "POST params: ${params}" >&2
+  # DEBUG echo "POST params edit_group: ${params}" >&2
   gitlab_put "groups/$(urlencode "${group_id}")" "${params}"
 }
 
@@ -180,6 +178,6 @@ function delete_group {
 
   echo "# delete group: group_id=[${group_id}]" >&2
 
-  gitlab_delete "groups/$(urlencode "${group_id}")"
+  gitlab_delete "groups/${group_id}"
 }
 
