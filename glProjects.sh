@@ -248,7 +248,7 @@ function edit_project_handle_params {
     edit_optional_parameters+="request_access_enabled '${request_access_enabled}' "
   fi
 
-  eval edit_project 'id' "${id}" 'name' "${name}" ${edit_optional_parameters}
+  eval edit_project 'id' "${id}" 'name' "'${name}'" ${edit_optional_parameters}
 }
 
 function show_projects_config_handle_params {
@@ -321,7 +321,6 @@ function list_projects_paths_handle_params {
   local param_raw_display=$1
 
   local answer=$(show_projects_config_handle_params "$@")
-
   local jq_filter=
 
   if [ "${param_raw_display}" = "true" ] ; then
@@ -337,7 +336,6 @@ function list_projects_ids_handle_params {
   local param_raw_display=$1
 
   local answer=$(show_projects_config_handle_params "$@")
-
   local jq_filter=
 
   if [ "${param_raw_display}" = "true" ] ; then
