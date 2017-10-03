@@ -5,15 +5,16 @@ source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
 
-declare -r TEST_GROUP_PATH=group_for_test-glProjects
+declare -r TEST_GROUP_PATH=group_for_glProjects_tests
 
 ERROR_COUNT=0
+
 function test_value {
   local result=$1
   local json_field=$2
   local expected_value=$3
 
-  local value=$(echo "${result}" | jq ". | ${json_field}")
+  local value=$(echo "${result}" | jq -r ". | ${json_field}")
   if [ ! "${expected_value}" = "${value}" ]; then
     echo "*** Error bad value for ${json_field}: found '${value}' expected '${expected_value}'." >&2
     ERROR_COUNT=$(echo $((${ERROR_COUNT}+1)))
@@ -41,8 +42,8 @@ function glProjects_edit_all {
   local result=$("${GLPROJECTS}" --edit \
     --id ${project_id} \
     --project-name "${project_name}" \
-    --path test-"${project_path}" \
-    --project-description "{project_description}" \
+    --path "${project_path}" \
+    --project-description "${project_description}" \
     --container-registry-enabled ${container_registry_enabled} \
     --issues-enabled ${issues_enabled} \
     --jobs-enabled ${jobs_enabled} \
@@ -55,7 +56,7 @@ function glProjects_edit_all {
     --snippets-enabled ${snippets_enabled} \
     --visibility ${visibility} \
     --wiki-enabled ${wiki_enabled})
- 
+
   echo "${result}"
 
   test_value "${result}" '.id'                  "${project_id}"
@@ -79,7 +80,7 @@ function glProjects_edit_all {
 echo '#
 # Create group
 #'
-"${GLGROUPS}" --create --path ${TEST_GROUP_PATH} --name "test group for test projects"
+"${GLGROUPS}" --create --path ${TEST_GROUP_PATH} --name "test group for projects"  --visibility public
 
 echo '#
 # Display all groups names
@@ -92,7 +93,7 @@ group_id=$("${GLGROUPS}" --list-id --path ${TEST_GROUP_PATH})
 echo "Group ID=${group_id}"
 
 if [ -z "${group_id}" ]; then
-  echo '*** ERROR: Can not create initial group.'
+  echo '*** ERROR: Can not create initial/find group.'
   exit 1
 fi
 
@@ -166,7 +167,7 @@ echo '#
 # Edit project configuration
 #'
 glProjects_edit_all "${project_id}" "${project_name}" PROJECT_PATH "PROJECT DESCRIPTION" \
-  true true true true true true true true true true true \
+  true true true true true true true true true true \
   public \
   true
 
@@ -179,3 +180,4 @@ echo '#
 # Delete group
 #'
 "${GLGROUPS}" --delete --id "${group_id}"
+

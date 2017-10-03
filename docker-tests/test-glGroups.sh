@@ -4,23 +4,41 @@ source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 
-function delete_group_by_path {
+function delete_group_by_id {
+  local group_id=$1
+
+  echo "Try to delete group: '${group_id}':$("${GLGROUPS}" --list-path --id "${group_id}")"
+
+  "${GLGROUPS}" --delete --id "${group_id}"
+}
+
+function get_group_id_by_path {
   local group_path=$1
 
   local group_id=$("${GLGROUPS}" --list-id --path "${group_path}")
 
-  if [ "${group_id}" = 'null' ]; then
-    echo "*** Can not find '${group_path}' => '${group_id}'" >&2
+  if [ -z "${group_id}" ]; then
+    echo "* Warning: Can not find '${group_path}' => '${group_id}'" >&2
+  elif [ "${group_id}" = 'null' ]; then
+    echo "*** Error: --list-id --path '${group_path}' return null - should not occur." >&2
   else
-    echo "Delete group '${group_path}':'${group_id}'"
-
-    "${GLGROUPS}" --delete --id "${group_id}"
+    echo "${group_id}"
   fi
 }
 
-#
+function delete_group_by_path {
+  local group_path=$1
+
+  local group_id=$(get_group_id_by_path "${group_path}")
+
+  if [ ! -z "${group_id}" ]; then
+    delete_group_by_id "${group_id}"
+  fi
+}
+
+echo '#
 # Group creation
-#
+#'
 "${GLGROUPS}" --create --path test_group_path1
 "${GLGROUPS}" --create --path test_group_path2 --name "test GROUP NAME 2" \
     --description "Test GROUP 4 DESCRIPTION" \
@@ -35,33 +53,41 @@ function delete_group_by_path {
     --lfs_enabled false --membership_lock true --request_access_enabled false \
     --share_with_group_lock true --visibility  public
 
-#
+echo '#
 # Display all groups names
-#
+#'
 "${GLGROUPS}" --list-path --all
 
-#
+echo '#
 # Edit group
-#
-TEST_GRP_ID=$("${GLGROUPS}" --list-id --path test_group_path4)
+#'
+TEST_GRP_ID=$(get_group_id_by_path test_group_path4)
 
-echo "EDIT"
-#bash -ex
+if [ -z "${TEST_GRP_ID}" ]; then
+  echo "*** Error: Can not find group."
+  exit 1
+fi
+
 "${GLGROUPS}" --edit --id "${TEST_GRP_ID}" --name 'my_test_4_name' --path 'my_test_4_path' --visibility private
 
-#
+echo '#
 # Display group id
-#
+#'
 "${GLGROUPS}" --list-id --path 'my_test_4_path'
 
-
+echo '#
+# Delete groups
+#'
 delete_group_by_path test_group_path1
 delete_group_by_path test_group_path2
 delete_group_by_path test_group_path3
-delete_group_by_path my_test_4_path
 
-#
+delete_group_by_path my_test_4_path
+delete_group_by_path test_group_path4
+delete_group_by_id ${TEST_GRP_ID}
+
+echo '#
 # Display remaining groups ids
-#
+#'
 TST_GRP_LIST=$("${GLGROUPS}" --list-id --all)
 echo "List='${TST_GRP_LIST}'"

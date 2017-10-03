@@ -25,11 +25,11 @@ function display_usage {
         [--visibility  private|internal|public]
   Edit group configuration
     $0 --edit --id GROUP_ID --name GROUP_NAME \\
-       --path GROUP_PATH \\
-       --description GROUP_DESCRIPTION \\
-       --visibility  private|internal|public \\
-       --lfs_enabled true|false \\
-       --request_access_enabled true|false
+        --path GROUP_PATH \\
+        [--description GROUP_DESCRIPTION] \\
+        [--visibility  private|internal|public] \\
+        [--lfs_enabled true|false] \\
+        [--request_access_enabled true|false]
   Delete a group
     $0 --delete --id GROUP_ID
 " >&2
@@ -50,7 +50,7 @@ function create_group_handle_params {
     param_group_name="${param_group_path}"
   fi
   if [ -z "${param_group_description}" ]; then
-  param_group_description="${GITLAB_DEFAULT_GROUP_DESCRIPTION}"
+    param_group_description="${GITLAB_DEFAULT_GROUP_DESCRIPTION}"
   fi
   if [ -z "${param_group_lfs_enabled}" ]; then
     param_group_lfs_enabled="${GITLAB_DEFAULT_GROUP_LFS_ENABLED}"
@@ -109,7 +109,15 @@ function list_groups_paths_handle_params {
     jq_filter='. | .path'
   fi
 
-  list_groups "${group_path_or_id_or_empty}" '' | jq -r "${jq_filter}"
+  local result=$(list_groups "${group_path_or_id_or_empty}" '')
+  local error_message=$(getErrorMessage "${result}")
+  if [ -z "${error_message}" ]; then
+    if [ ! "${result}" = 'null' ]; then
+      echo "${result}" | jq -r "${jq_filter}"
+    fi
+  else
+    echo "* Warning: '${error_message}' while list_groups '${group_path_or_id_or_empty}'" >&2
+  fi
 }
 
 function list_groups_ids_handle_params {
@@ -122,14 +130,14 @@ function list_groups_ids_handle_params {
     jq_filter='. | .id'
   fi
 
-  local result=$(list_groups "${group_path_or_id_or_empty}" '' | jq "${jq_filter}")
-  local error_message=$(getErrorMessage "${group_path_or_id_or_empty}")
+  local result=$(list_groups "${group_path_or_id_or_empty}" '')
+  local error_message=$(getErrorMessage "${result}")
   if [ -z "${error_message}" ]; then
     if [ ! "${result}" = 'null' ]; then
-      echo "${result}"
+      echo "${result}" | jq -r "${jq_filter}"
     fi
   else
-    echo "* Warning: '${error_message}'" >&2
+    echo "* Warning: '${error_message}' while list_groups '${group_path_or_id_or_empty}'" >&2
   fi
 }
 
@@ -143,15 +151,15 @@ function main {
   local param=
   local param_all_groups=false
   local param_group_description=
+  local param_group_description_define=false
   local param_group_id=
   local param_group_lfs_enabled=
+  local param_group_membership_lock=
   local param_group_name=
   local param_group_path=
   local param_group_request_access_enabled=
-  local param_group_visibility=
-  local param_group_visibility=
   local param_group_share_with_group_lock=
-  local param_group_membership_lock=
+  local param_group_visibility=
   local action=
 
   while [[ $# > 0 ]]; do
@@ -176,6 +184,7 @@ function main {
         ;;
       --description)
         param_group_description="$1"
+        param_group_description_define=true
         shift
         ;;
       --edit)
@@ -250,7 +259,8 @@ function main {
   case "${action}" in
     createAction)
         ensure_not_empty param_group_path
-        create_group_handle_params "${param_group_path}" "${param_group_name}"  "${param_group_description}" \
+
+        create_group_handle_params "${param_group_path}" "${param_group_name}" "${param_group_description}" \
           "${param_group_lfs_enabled}" "${param_group_membership_lock}" "${param_group_request_access_enabled}" \
           "${param_group_share_with_group_lock}" "${param_group_visibility}" \
           | jq .
@@ -266,7 +276,8 @@ function main {
         ensure_not_empty param_group_path
         ensure_not_empty param_group_visibility
 
-        edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" "${param_group_description}" \
+        edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" \
+          "${param_group_description_define}" "${param_group_description}" \
           "${param_group_visibility}" "${param_group_lfs_enabled}" "${param_group_request_access_enabled}" \
           | jq .
         ;;

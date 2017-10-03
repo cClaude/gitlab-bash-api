@@ -125,7 +125,7 @@ function create_project {
 
   done
 
-  # DEBUG echo "POST params: ${params}" >&2
+  # DEBUG echo "POST params create_project: ${params}" >&2
   gitlab_post 'projects' "${params}"
 }
 
@@ -191,8 +191,7 @@ function edit_project {
     exit 1
   fi
 
-  # DEBUG 
-echo "POST params: ${params}" >&2
+  # DEBUG echo "POST params edit_project: ${params}" >&2
   gitlab_put "projects/${project_id}" "${params}"
 }
 
