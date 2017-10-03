@@ -57,7 +57,7 @@ function glProjects_edit_all {
     --visibility ${visibility} \
     --wiki-enabled ${wiki_enabled})
 
-  echo "${result}"
+  echo "${result}" | jq .
 
   test_value "${result}" '.id'                  "${project_id}"
   test_value "${result}" '.name'                "${project_name}"
@@ -65,15 +65,15 @@ function glProjects_edit_all {
   test_value "${result}" '.description'         "${project_description}"
   test_value "${result}" '.container_registry_enabled'  "${container_registry_enabled}"
   test_value "${result}" '.issues_enabled'              "${issues_enabled}"
-  test_value "${result}" '.builds_enabled'              "${jobs_enabled}" # ????????
+  test_value "${result}" '.jobs_enabled'                "${jobs_enabled}"
   test_value "${result}" '.lfs_enabled'                 "${lfs_enabled}"
   test_value "${result}" '.merge_requests_enabled'      "${merge_requests_enabled}"
   test_value "${result}" '.only_allow_merge_if_all_discussions_are_resolved' "${only_allow_merge_if_all_discussions_are_resolved}"
-  test_value "${result}" '.only_allow_merge_if_build_succeeds'               "${only_allow_merge_if_pipeline_succeed}"
-  test_value "${result}" '.public_builds'           "${public_jobs}" # ????????
+  test_value "${result}" '.only_allow_merge_if_pipeline_succeeds'            "${only_allow_merge_if_pipeline_succeed}"
+  test_value "${result}" '.public_jobs'             "${public_jobs}"
   test_value "${result}" '.request_access_enabled'  "${request_access_enabled}"
   test_value "${result}" '.snippets_enabled'        "${snippets_enabled}"
-  test_value "${result}" '.visibility_level'        "${visibility}"
+  test_value "${result}" '.visibility      '        "${visibility}"
   test_value "${result}" '.wiki_enabled'            "${wiki_enabled}"
 }
 
@@ -161,7 +161,7 @@ if [ ! "${project_id}" = "${project_id_check}" ]; then
   exit 1
 fi
 
-project_name=$(echo "${project_config_init}" | jq '.[] | .name')
+project_name=$(echo "${project_config_init}" | jq -r '.[] | .name')
 
 echo '#
 # Edit project configuration
