@@ -8,7 +8,7 @@ Table of Contents
     * [Global usage](#global-usage)
       * [About users](#about-users)
       * [About groups](#about-groups)
-      * [About projects / repositories](#about-projects--repositories)
+      * [About projects (repositories)](#about-projects-repositories)
       * [About branches](#about-branches)
       * [Related documentations](#related-documentations)
 
@@ -137,19 +137,23 @@ How to manage groups using **glGroups** command ?
     glGroups.sh --list-id --all
 ```
 
-* **Usage**: Edit group configuration
-```bash
-    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
-       --description GROUP_DESCRIPTION --visibility  private|internal|public \
-       --lfs_enabled true|false --request_access_enabled true|false
-```
-
 * **Usage**: Create group
 ```bash
     glGroups.sh --create --path GROUP_PATH
         [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \
-        [--lfs_enabled true|false] [--membership_lock true|false] [--request_access_enabled true|false] \
-        [--share_with_group_lock true|false]] [--visibility  private|internal|public] \
+        [--lfs_enabled true|false] [--membership_lock true|false]
+        [--request_access_enabled true|false] \
+        [--share_with_group_lock true|false]]
+        [--visibility  private|internal|public] \
+```
+
+* **Usage**: Edit group configuration
+```bash
+    glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
+        [--description GROUP_DESCRIPTION] \
+        [--visibility  private|internal|public] \
+        [--lfs_enabled true|false] \
+        [--request_access_enabled true|false]
 ```
 
 * **Usage**: Delete a group
@@ -170,7 +174,7 @@ glGroups.sh --create --path my_test_group
 ```
 
 
-### About projects / repositories
+### About projects (repositories)
 
 How to manage groups using **glProjects** command ?
 
