@@ -16,7 +16,7 @@ function list_projects_raw {
   local project_id=$1
   local params=$2
 
-  local answer=$(gitlab_get "projects/${project_id}" "${params}") || exit 102
+  local answer=$(gitlab_get "projects/${project_id}" "${params}")
   local error_message=$(getErrorMessage "${answer}")
 
   if [ ! -z "${error_message}" ]; then
