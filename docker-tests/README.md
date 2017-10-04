@@ -2,7 +2,7 @@
 
 ## Configuration
 
-Customize file **docker-config/config.sh** if needed
+Customize file **docker-config/config.sh** if needed (at least have a look to setup initial password for root)
 
 Then run **setup-configuration.sh**
 
