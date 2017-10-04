@@ -22,7 +22,7 @@ sudo docker run --detach \
     --volume /srv/gitlab/config:/etc/gitlab \
     --volume /srv/gitlab/logs:/var/log/gitlab \
     --volume /srv/gitlab/data:/var/opt/gitlab \
-    gitlab/gitlab-ce:latest
+    "${DOCKER_GITLAB_VERSION}"
 docker_run_rc=$?
 
 if [ ${docker_run_rc} -eq 125 ]; then
@@ -31,3 +31,18 @@ if [ ${docker_run_rc} -eq 125 ]; then
   sudo docker restart gitlab
 fi
 
+
+echo "
+To upgrade gitlab (use line for current version '${DOCKER_GITLAB_VERSION}'
+or all to have cache all versions locally.
+  sudo docker pull gitlab/gitlab-ce:latest
+  sudo docker pull gitlab/gitlab-ce:rc
+  sudo docker pull gitlab/gitlab-ee:latest
+  sudo docker pull gitlab/gitlab-ee:rc
+
+then stop and remove the existing container:
+  sudo docker stop "${DOCKER_NAME}"; sudo docker rm "${DOCKER_NAME}"
+
+finally start the container as you did originally.
+  $0
+"
