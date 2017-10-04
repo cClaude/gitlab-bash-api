@@ -355,8 +355,8 @@ function delete_project_handle_params {
   local project_id=
 
   if [ -z "${param_project_id}" ]; then
-    ensure_not_empty 'param_group_name'
-    ensure_not_empty 'param_project_name'
+    ensure_not_empty_deprecated 'param_group_name'
+    ensure_not_empty_deprecated 'param_project_name'
 
     project_id=$(get_project_id "${param_group_name}" "${param_project_name}") || exit 1
   else
@@ -409,19 +409,19 @@ function main {
         shift
         ;;
       --create)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=createAction
         ;;
       --config)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=showConfigAction
         ;;
       --delete)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=deleteAction
         ;;
       --edit)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=editAction
         ;;
       --group-id)
@@ -452,11 +452,11 @@ function main {
         shift
         ;;
       --list-path)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=listPathsAction
         ;;
       --list-id)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=listIdsAction
         ;;
       -p|--path|--project-path)

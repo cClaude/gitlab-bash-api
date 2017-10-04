@@ -163,7 +163,7 @@ function main {
   local action=
 
   while [[ $# > 0 ]]; do
-    param="$1"
+    local param="$1"
     shift
 
     case "${param}" in
@@ -171,15 +171,15 @@ function main {
         param_all_groups=true
         ;;
       --config)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=showConfigAction
         ;;
       --create)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=createAction
         ;;
       --delete)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=deleteAction
         ;;
       --description)
@@ -188,7 +188,7 @@ function main {
         shift
         ;;
       --edit)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=editAction
         ;;
       -i|--id)
@@ -202,11 +202,11 @@ function main {
         ensure_boolean "${param_group_lfs_enabled}" '--lfs_enabled'
         ;;
       --list-path)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=listPathsAction
         ;;
       --list-id)
-        ensure_empty action
+        ensure_empty_deprecated action
         action=listIdsAction
         ;;
       --membership_lock)
@@ -258,7 +258,7 @@ function main {
 
   case "${action}" in
     createAction)
-        ensure_not_empty param_group_path
+        ensure_not_empty_deprecated param_group_path
 
         create_group_handle_params "${param_group_path}" "${param_group_name}" "${param_group_description}" \
           "${param_group_lfs_enabled}" "${param_group_membership_lock}" "${param_group_request_access_enabled}" \
@@ -266,15 +266,15 @@ function main {
           | jq .
         ;;
     deleteAction)
-        ensure_not_empty param_group_id
+        ensure_not_empty_deprecated param_group_id
         delete_group "${param_group_id}" \
           | jq .
         ;;
     editAction)
-        ensure_not_empty param_group_id
-        ensure_not_empty param_group_name
-        ensure_not_empty param_group_path
-        ensure_not_empty param_group_visibility
+        ensure_not_empty_deprecated param_group_id
+        ensure_not_empty_deprecated param_group_name
+        ensure_not_empty_deprecated param_group_path
+        ensure_not_empty_deprecated param_group_visibility
 
         edit_group "${param_group_id}" "${param_group_name}" "${param_group_path}" \
           "${param_group_description_define}" "${param_group_description}" \

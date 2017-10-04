@@ -68,18 +68,18 @@ done
 
 case $ACTION in
     DELETE)
-        ensure_not_empty "PROJECT_ID"
-        ensure_not_empty "DEPLOY_KEY_ID"
+        ensure_not_empty_deprecated "PROJECT_ID"
+        ensure_not_empty_deprecated "DEPLOY_KEY_ID"
         answer=$(delete_deploy_keys "${PROJECT_ID}" "${DEPLOY_KEY_ID}" )
         ;;
     ENABLE)
-        ensure_not_empty "PROJECT_ID"
-        ensure_not_empty "DEPLOY_KEY_ID"
+        ensure_not_empty_deprecated "PROJECT_ID"
+        ensure_not_empty_deprecated "DEPLOY_KEY_ID"
         answer=$(enable_deploy_keys "${PROJECT_ID}" "${DEPLOY_KEY_ID}" )
         ;;
     *)
         # List
-        ensure_empty "DEPLOY_KEY_ID"
+        ensure_empty_deprecated "DEPLOY_KEY_ID"
         answer=$(list_deploy_keys_raw "${PROJECT_ID}" '')
         ;;
 esac
