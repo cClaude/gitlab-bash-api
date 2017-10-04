@@ -189,7 +189,7 @@ function main {
   local audit_folder_home=
 
   while [[ $# > 0 ]]; do
-    param="$1"
+    local param="$1"
     shift
 
     case "${param}" in

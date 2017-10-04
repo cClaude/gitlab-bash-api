@@ -163,7 +163,7 @@ function main {
   local action=
 
   while [[ $# > 0 ]]; do
-    param="$1"
+    local param="$1"
     shift
 
     case "${param}" in
