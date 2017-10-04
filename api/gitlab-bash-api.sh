@@ -265,18 +265,42 @@ function getErrorMessage {
 # API : ensure_not_empty (tooling)
 
 function ensure_not_empty {
-  local var_name=$1
-  local var_value=${!var_name}
+  local value=$1
+  local message_if_empty=$2
 
   if [ -z "${var_value}" ] ; then
-    echo "Missing ${var_name} value" >&2
+    echo "*** Missing value for: '${message_if_empty}'" >&2
     display_usage
   fi
 }
 
-# API : ensure_not_empty (tooling)
+# DEPRECATED : ensure_not_empty_deprecated
+
+function ensure_not_empty_deprecated {
+  local var_name=$1
+  local var_value=${!var_name}
+
+  if [ -z "${var_value}" ] ; then
+    echo "*** Missing ${var_name} value" >&2
+    display_usage
+  fi
+}
+
+# API : ensure_empty (tooling)
 
 function ensure_empty {
+  local value=$1
+  local message_if_not_empty=$2
+
+  if [ ! -z "${var_value}" ] ; then
+     echo "Unexpected value '${value}': ${message_if_not_empty}" >&2
+   display_usage
+  fi
+}
+
+# DEPRECATED : ensure_empty_deprecated
+
+function ensure_empty_deprecated {
   local var_name=$1
   local var_value=${!var_name}
 

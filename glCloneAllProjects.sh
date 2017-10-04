@@ -128,11 +128,11 @@ function main {
       shift
       ;;
     --http)
-      ensure_empty url_type
+      ensure_empty_deprecated url_type
       url_type="http"
       ;;
     --ssh)
-      ensure_empty url_type
+      ensure_empty_deprecated url_type
       url_type="ssh"
       ;;
     *)
