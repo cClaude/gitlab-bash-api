@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GITLAB_BASH_API_CONFIG=$(realpath $(dirname $(realpath "$0"))/gitlab-bash-api-config-for-docker)
+GITLAB_BASH_API_CONFIG=$(realpath $(dirname $(dirname $(realpath "$0")))/gitlab-bash-api-config-for-docker)
 GITLAB_BASH_API_CONFIG_FILE="${GITLAB_BASH_API_CONFIG}/"
 
 for file in $(find "${GITLAB_BASH_API_CONFIG_FILE}" -type f); do
