@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function isArray {
+function isJsonArray {
   local begin=$(echo "$1" | cut -b1 )
 
   if [ "${begin}" = '[' ] ; then
@@ -25,10 +25,10 @@ function list_projects_raw {
   fi
 
   if [ ! -z "${project_id}" ]; then
-    #DEBUG echo "isArray:$(isArray "${answer}") should be false ${project_id}" >&2
+    #DEBUG echo "isJsonArray:$(isJsonArray "${answer}") should be false ${project_id}" >&2
     echo "[${answer}]" # Always return an array (even when not found)
   else
-    #DEBUG echo "isArray:$(isArray "${answer}") should be true" >&2
+    #DEBUG echo "isJsonArray:$(isJsonArray "${answer}") should be true" >&2
     echo "${answer}"
   fi
 }
