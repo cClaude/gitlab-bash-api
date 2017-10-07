@@ -3,6 +3,7 @@
 .project
 .settings
 /*.json
+/docker-tests/docker-config/my-config.sh
 /docker-tests/generated-config-bootstrap/init.sh
 /docker-tests/gitlab-bash-api-config-for-docker/generate-private-token
 /docker-tests/gitlab-bash-api-config-for-docker/generated-configuration

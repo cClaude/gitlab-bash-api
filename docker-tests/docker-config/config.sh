@@ -4,7 +4,8 @@
 # Docker configuration
 # - Don't need customisation for testing
 # - Run setup-configuration.sh to take in account these parameters
-#
+# - If you need special settings you can create a file "my-config.sh"
+#   to overwrite values.
 
 # Container version
 declare -r DOCKER_GITLAB_CE_VERSION_LATEST=gitlab/gitlab-ce:latest
