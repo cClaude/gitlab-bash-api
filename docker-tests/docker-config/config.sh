@@ -14,6 +14,7 @@ declare -r DOCKER_GITLAB_EE_VERSION_LATEST=gitlab/gitlab-ee:latest
 declare -r DOCKER_GITLAB_EE_VERSION_RC=gitlab/gitlab-ee:rc
 
 DOCKER_GITLAB_VERSION=${DOCKER_GITLAB_CE_VERSION_RC}
+DOCKER_GITLAB_API_VERSION=v4
 
 # Docker configuration
 DOCKER_HOSTNAME=gitlab.example.com

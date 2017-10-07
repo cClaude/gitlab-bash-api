@@ -27,20 +27,22 @@ fi
 GITLAB_BASH_API_CONFIG="${DOCKER_GITLAB_HOME_PATH}/gitlab-bash-api-config-for-docker"
 GITLAB_BASH_API_CONFIG_FILE="${GITLAB_BASH_API_CONFIG}/generated-configuration"
 
+echo 'Prepare customization' >&2
+echo "Create/Update '${GITLAB_BASH_API_CONFIG_FILE}'" >&2
 echo "#!/bin/bash
 
 # Generated configuration file - do not edit
 
-GITLAB_HOST=${DOCKER_GITLAB_HTTP_HOST}
-GITLAB_PORT=${DOCKER_HTTP_PORT}
+GITLAB_HOST="${DOCKER_GITLAB_HTTP_HOST}"
+GITLAB_PORT="${DOCKER_HTTP_PORT}"
 
-GITLAB_USER=${DOCKER_GITLAB_USER}
-GITLAB_PASSWORD=${DOCKER_GITLAB_PASSWORD}
+GITLAB_USER="${DOCKER_GITLAB_USER}"
+GITLAB_PASSWORD="${DOCKER_GITLAB_PASSWORD}"
 
 GITLAB_URL_PREFIX="http://${DOCKER_GITLAB_HTTP_HOST}:${DOCKER_HTTP_PORT}"
 GITLAB_CLONE_SSH_PREFIX=git@${DOCKER_GITLAB_SSH_HOST}:${DOCKER_SSH_PORT}
 
-GITLAB_API_VERSION=v4
+GITLAB_API_VERSION="${DOCKER_GITLAB_API_VERSION}"
 " > "${GITLAB_BASH_API_CONFIG_FILE}"
 
 #
@@ -49,8 +51,10 @@ GITLAB_API_VERSION=v4
 BOOTSTRAP_CONFIG_PATH="${DOCKER_GITLAB_HOME_PATH}/generated-config-bootstrap"
 BOOTSTRAP_CONFIG_FILE="${BOOTSTRAP_CONFIG_PATH}/init.sh"
 
+echo "Create '${BOOTSTRAP_CONFIG_PATH}' if needed" >&2
 mkdir -p "${BOOTSTRAP_CONFIG_PATH}"
 
+echo "Create/Update '${BOOTSTRAP_CONFIG_FILE}'" >&2
 echo "#!/bin/bash
 
 export GITLAB_BASH_API_PATH=$(dirname $(dirname $(realpath "$0")))
@@ -83,5 +87,13 @@ GITLAB_BASH_API_PATH=${GITLAB_BASH_API_PATH}
 GITLAB_BASH_API_CONFIG=${GITLAB_BASH_API_CONFIG}
 " >&2
 
+CMD_GENERATE_PRIVATE_TOCKEN="${DOCKER_GITLAB_HOME_PATH}/bin/generate-private-token.sh"
+
+echo "Try to generate private tocken (Will fail if GitLab not yet started)
+If command fail you need to run when GitLab is running
+
+  ${CMD_GENERATE_PRIVATE_TOCKEN}
+
+" >&2
 bash "${DOCKER_GITLAB_HOME_PATH}/bin/generate-private-token.sh"
 
