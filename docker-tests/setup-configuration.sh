@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_GITLAB_HOME_PATH=$(realpath "$(dirname $(realpath "$0"))")
+DOCKER_GITLAB_HOME_PATH=$(realpath "$(dirname "$(realpath "$0")")")
 
 DOCKER_GITLAB_CONFIGURATION_PATH="${DOCKER_GITLAB_HOME_PATH}/docker-config"
 DOCKER_GITLAB_CONFIGURATION_FILE="${DOCKER_GITLAB_CONFIGURATION_PATH}/config.sh"
@@ -25,6 +25,11 @@ fi
 # GitLab configuration
 #
 GITLAB_BASH_API_CONFIG="${DOCKER_GITLAB_HOME_PATH}/gitlab-bash-api-config-for-docker"
+if [ ! -d "${GITLAB_BASH_API_CONFIG}" ]; then
+  echo "Create folder '${GITLAB_BASH_API_CONFIG}'" >&2
+  mkdir "${GITLAB_BASH_API_CONFIG}"
+fi
+
 GITLAB_BASH_API_CONFIG_FILE="${GITLAB_BASH_API_CONFIG}/generated-configuration"
 
 echo 'Prepare customization' >&2

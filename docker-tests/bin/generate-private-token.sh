@@ -27,8 +27,20 @@ function getSessionForUser {
   curl --silent  --data "login=${GITLAB_USER}&password=${GITLAB_PASSWORD}" ${url} || exit 1
 }
 
-GITLAB_BASH_API_CONFIG=$(realpath $(dirname $(dirname $(realpath "$0")))/gitlab-bash-api-config-for-docker)
+DOCKER_GITLAB_HOME_PATH=$(realpath "$(dirname "$(dirname "$(realpath "$0")")")")
+
+GITLAB_BASH_API_CONFIG=${DOCKER_GITLAB_HOME_PATH}/gitlab-bash-api-config-for-docker
 GITLAB_BASH_API_CONFIG_FOLDER="${GITLAB_BASH_API_CONFIG}/"
+
+source "${DOCKER_GITLAB_HOME_PATH}/generated-config-bootstrap/init.sh"
+
+if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
+  echo "gitlab-bash-api.sh not found! - Please set GITLAB_BASH_API_PATH" >&2
+  exit 1
+fi
+
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+
 GENERATE_PRIVATE_TOKEN_FILE=${GITLAB_BASH_API_CONFIG_FOLDER}generate-private-token
 
 echo "Look for configuration into '${GITLAB_BASH_API_CONFIG_FOLDER}'" >&2

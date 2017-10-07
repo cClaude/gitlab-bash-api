@@ -326,6 +326,19 @@ function ensure_boolean {
   esac
 }
 
+function jq_is_required {
+  which jq >/dev/null
+  if [ $? -ne 0 ]; then
+    echo 'jq command is missing. Please install it.
+  sudo apt install jq
+or
+  sudo yum install jq
+' >&2
+    exit 1
+ fi
+}
+
+jq_is_required || exit 1
 #
 # Load configuration
 #
