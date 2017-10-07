@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_GITLAB_HOME_PATH=$(realpath "$(dirname $(realpath "$0"))")
+DOCKER_GITLAB_HOME_PATH=$(realpath "$(dirname "$(realpath "$0")")")
 
 DOCKER_GITLAB_CONFIGURATION_PATH="${DOCKER_GITLAB_HOME_PATH}/docker-config"
 DOCKER_GITLAB_CONFIGURATION_FILE="${DOCKER_GITLAB_CONFIGURATION_PATH}/config.sh"
