@@ -16,6 +16,11 @@ Launch docker with this configuration
 ./start-gitlab.sh
 ```
 
+When docker is running
+
+```bash
+./bin/generate-private-token.sh
+```
 
 ## Run tests
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function getSessionForUser {
-# check configuration
 
+  # Verify configuration
   if [ -z "${GITLAB_URL_PREFIX}" ]; then
     echo "** GITLAB_URL_PREFIX is missing."
     exit 1
@@ -22,7 +22,7 @@ function getSessionForUser {
 
   local url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/session"
 
-  echo "# GitLab Session URL: ${url}" >&2
+  echo "# Try to build GitLab Session from ${url}" >&2
 
   curl --silent  --data "login=${GITLAB_USER}&password=${GITLAB_PASSWORD}" ${url} || exit 1
 }

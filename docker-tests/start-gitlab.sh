@@ -5,7 +5,7 @@
 source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
 
 sudo docker run --detach \
-    --hostname "${DOCKER_HOSTNAME}" \
+    --hostname "${DOCKER_GITLAB_HTTP_HOST}" \
     --publish 443:443 --publish ${DOCKER_HTTP_PORT}:80 --publish ${DOCKER_SSH_PORT}:22 \
     --name "${DOCKER_NAME}" \
     --restart no \
@@ -15,14 +15,17 @@ sudo docker run --detach \
     "${DOCKER_GITLAB_VERSION}"
 docker_run_rc=$?
 
+if [ ${docker_run_rc} -ne 0 ]; then
+  echo "*** docker run error :  ${docker_run_rc}" >&2
+fi
 if [ ${docker_run_rc} -eq 125 ]; then
-  echo 'Already running -> try to restart'
+  echo 'Already running -> try to restart' >&2
 
   sudo docker restart gitlab
 fi
 
 echo "
-To upgrade gitlab (use line for current version '${DOCKER_GITLAB_VERSION}'
+To upgrade gitlab or change version (current version '${DOCKER_GITLAB_VERSION}')
 or all to have cache all versions locally.
   sudo docker pull gitlab/gitlab-ce:latest
   sudo docker pull gitlab/gitlab-ce:rc
