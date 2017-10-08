@@ -52,7 +52,7 @@ In you configuration files:
 * You need **at least** define values for **GITLAB_PRIVATE_TOKEN** and **GITLAB_URL_PREFIX**.
 
 ```bash
-GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOCKEN_HERE__
+GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOKEN_HERE__
 GITLAB_URL_PREFIX=__YOUR_GITLAB_USER_HERE__
 ```
 
