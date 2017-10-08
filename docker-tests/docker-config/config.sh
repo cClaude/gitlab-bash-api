@@ -13,19 +13,26 @@ declare -r DOCKER_GITLAB_CE_VERSION_RC=gitlab/gitlab-ce:rc
 declare -r DOCKER_GITLAB_EE_VERSION_LATEST=gitlab/gitlab-ee:latest
 declare -r DOCKER_GITLAB_EE_VERSION_RC=gitlab/gitlab-ee:rc
 
+# GitLab version
 DOCKER_GITLAB_VERSION=${DOCKER_GITLAB_CE_VERSION_RC}
 DOCKER_GITLAB_API_VERSION=v4
 
 # Docker configuration
-DOCKER_HOSTNAME=gitlab.example.com
 DOCKER_NAME=gitlab
 DOCKER_HTTP_PORT=80
 DOCKER_SSH_PORT=22
 
+# Restart policy to apply when a container exits (default "no")
+DOCKER_RESTART_MODE=no
+
+DOCKER_ETC_VOLUME=/srv/gitlab/config
+DOCKER_LOGS_VOLUME=/srv/gitlab/logs
+DOCKER_DATA_VOLUME=/srv/gitlab/data
+
 # GitLab configuration
 DOCKER_GITLAB_HTTP_HOST=localhost
-DOCKER_GITLAB_SSH_HOST=localhost
+DOCKER_GITLAB_SSH_HOST=${DOCKER_GITLAB_HTTP_HOST}
 
 DOCKER_GITLAB_USER=root
-# You must use this password on first connection
-DOCKER_GITLAB_PASSWORD=secret123
+# You must use this password on first connection on GitLab UI
+DOCKER_GITLAB_PASSWORD=password

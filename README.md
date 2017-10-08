@@ -52,7 +52,7 @@ In you configuration files:
 * You need **at least** define values for **GITLAB_PRIVATE_TOKEN** and **GITLAB_URL_PREFIX**.
 
 ```bash
-GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOCKEN_HERE__
+GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOKEN_HERE__
 GITLAB_URL_PREFIX=__YOUR_GITLAB_USER_HERE__
 ```
 
@@ -140,8 +140,10 @@ How to manage groups using **glGroups** command ?
 * **Usage**: Create group
 ```bash
     glGroups.sh --create --path GROUP_PATH
-        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \
-        [--lfs_enabled true|false] [--membership_lock true|false]
+        [--name GROUP_NAME] \
+        [--description GROUP_DESCRIPTION] \
+        [--lfs_enabled true|false] \
+        [--membership_lock true|false]
         [--request_access_enabled true|false] \
         [--share_with_group_lock true|false]]
         [--visibility  private|internal|public] \
@@ -205,7 +207,8 @@ How to manage groups using **glProjects** command ?
 * **Usage**: Create project
 ```bash
     glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
-      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \
+      [--project-name PROJECT_NAME] \
+      [--project-description PROJECT_DESCRIPTION] \
       [--container-registry-enabled true|false] \
       [--issues-enabled true|false] \
       [--jobs-enabled true|false] \

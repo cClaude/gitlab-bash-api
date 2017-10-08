@@ -3,7 +3,7 @@
 # Configuration related to the user
 #
 
-GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOCKEN_HERE__
+GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOKEN_HERE__
 
 # Optionnal
 
