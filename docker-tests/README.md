@@ -2,24 +2,31 @@
 
 ## Configuration
 
-Customize file **docker-config/config.sh** if needed (at least have a look to setup initial password for root)
+Have a look to the file **docker-config/config.sh** (at least have a look to setup initial password for root) if you need customization create a file named **docker-config/my-config.sh** then just overwrite
+needed values in this file.
 
-Then run **setup-configuration.sh**
+
+Then run **gitlab-setup.sh**
 
 ```bash
-./setup-configuration.sh
+./gitlab-setup.sh
 ```
 
 Launch docker with this configuration
 
 ```bash
-./start-gitlab.sh
+./gitlab.sh --start
 ```
 
-When docker is running
+When docker is running and GitLab available, you need to do the first connection
+(provide password same password used in configuration)
+
+http://localhost/
+
+Then get your token
 
 ```bash
-./bin/generate-private-token.sh
+./gitlab.sh --configure-token
 ```
 
 ## Run tests

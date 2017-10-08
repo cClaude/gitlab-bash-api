@@ -34,5 +34,5 @@ DOCKER_GITLAB_HTTP_HOST=localhost
 DOCKER_GITLAB_SSH_HOST=${DOCKER_GITLAB_HTTP_HOST}
 
 DOCKER_GITLAB_USER=root
-# You must use this password on first connection
-DOCKER_GITLAB_PASSWORD=secret123
+# You must use this password on first connection on GitLab UI
+DOCKER_GITLAB_PASSWORD=password

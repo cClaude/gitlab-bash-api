@@ -23,8 +23,10 @@ function generate_gitlab_docker_custom_configuration {
   echo "Create/Update '${BOOTSTRAP_CONFIG_FILE}'" >&2
   echo "#!/bin/bash
 
+export DOCKER_GITLAB_HOME_PATH="${DOCKER_GITLAB_HOME_PATH}"
+
 export GITLAB_BASH_API_PATH=$(dirname $(dirname $(realpath "$0")))
-export GITLAB_BASH_API_CONFIG=${GITLAB_BASH_API_CONFIG}
+export GITLAB_BASH_API_CONFIG="${GITLAB_BASH_API_CONFIG}"
 
 export DOCKER_GITLAB_VERSION="${DOCKER_GITLAB_VERSION}"
 export DOCKER_NAME="${DOCKER_NAME}"
@@ -107,14 +109,4 @@ echo "
   GITLAB_BASH_API_PATH=${GITLAB_BASH_API_PATH}
   GITLAB_BASH_API_CONFIG=${GITLAB_BASH_API_CONFIG}
 " >&2
-
-CMD_GENERATE_PRIVATE_TOCKEN="${DOCKER_GITLAB_HOME_PATH}/bin/generate-private-token.sh"
-
-echo "Try to generate private tocken (Will fail if GitLab not yet started)
-If command fail you need to run when GitLab is running
-
-  ${CMD_GENERATE_PRIVATE_TOCKEN}
-
-" >&2
-bash "${DOCKER_GITLAB_HOME_PATH}/bin/generate-private-token.sh"
 
