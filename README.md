@@ -140,8 +140,10 @@ How to manage groups using **glGroups** command ?
 * **Usage**: Create group
 ```bash
     glGroups.sh --create --path GROUP_PATH
-        [--name GROUP_NAME] [--description GROUP_DESCRIPTION] \
-        [--lfs_enabled true|false] [--membership_lock true|false]
+        [--name GROUP_NAME] \
+        [--description GROUP_DESCRIPTION] \
+        [--lfs_enabled true|false] \
+        [--membership_lock true|false]
         [--request_access_enabled true|false] \
         [--share_with_group_lock true|false]]
         [--visibility  private|internal|public] \
@@ -205,7 +207,8 @@ How to manage groups using **glProjects** command ?
 * **Usage**: Create project
 ```bash
     glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
-      [--project-name PROJECT_NAME] [--project-description PROJECT_DESCRIPTION] \
+      [--project-name PROJECT_NAME] \
+      [--project-description PROJECT_DESCRIPTION] \
       [--container-registry-enabled true|false] \
       [--issues-enabled true|false] \
       [--jobs-enabled true|false] \
