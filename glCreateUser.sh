@@ -30,7 +30,7 @@
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then

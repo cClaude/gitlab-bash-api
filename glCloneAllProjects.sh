@@ -46,12 +46,12 @@ function git_clone {
   local p_bare=$2
 
   if [ ! $# -eq 2 ]; then
-    echo "* git_clone: Expecting 2 parameters found $# : '$@'" >&2
+    echo "* git_clone: Expecting 2 parameters found $# : '$*'" >&2
     exit 1
   fi
 
   echo "clone ${project_url}"
-  git clone ${p_bare} ${project_url}
+  git clone "${p_bare}" "${project_url}"
   echo "clone $?"
 }
 
@@ -61,24 +61,30 @@ function clone_all_projects {
   local root_output_directory=$3
 
   if [ ! $# -eq 3 ]; then
-    echo "* clone_all_projects: Expecting 3 parameters found $# : '$@'" >&2
+    echo "* clone_all_projects: Expecting 3 parameters found $# : '$*'" >&2
     exit 1
   fi
 
-  local prefix_url=$(get_prefix_url "${url_type}") || exit $?
+  local prefix_url
+
+  prefix_url=$(get_prefix_url "${url_type}") || exit $?
 
   if [ -z "${prefix_url}" ]; then
     echo "*** Error when computing clone URL" >&2
     exit 1
   fi
 
-  local project_paths=$(get_all_projects_path_with_namespace) || exit $?
+  local project_paths
+
+  project_paths=$(get_all_projects_path_with_namespace) || exit $?
 
   mkdir -p "${root_output_directory}"
   pushd "${root_output_directory}"
 
   for project_path in ${project_paths}; do
-    local group_folder=$(echo "${project_path}" | cut -d'/' -f1)
+    local group_folder
+
+    group_folder=$(echo "${project_path}" | cut -d'/' -f1)
 
     echo "# '${group_folder}' <- '${project_path}'"
 
@@ -115,7 +121,7 @@ function main {
   local bare=
   local root_output_directory=.
 
-  while [[ $# > 0 ]]; do
+  while [[ $# -gt 0 ]]; do
     local param="$1"
     shift
 
@@ -157,7 +163,7 @@ function main {
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then

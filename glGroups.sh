@@ -100,8 +100,10 @@ function get_group_path_or_id_or_empty {
 }
 
 function list_groups_paths_handle_params {
-  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $?
-  local jq_filter=
+  local group_path_or_id_or_empty
+  local jq_filter
+
+  group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $?
 
   if [ -z "${group_path_or_id_or_empty}" ]; then
     jq_filter='. [] | .path'
@@ -109,8 +111,12 @@ function list_groups_paths_handle_params {
     jq_filter='. | .path'
   fi
 
-  local result=$(list_groups "${group_path_or_id_or_empty}" '')
-  local error_message=$(getErrorMessage "${result}")
+  local result
+  local error_message
+
+  result=$(list_groups "${group_path_or_id_or_empty}" '')
+  error_message=$(getErrorMessage "${result}")
+
   if [ -z "${error_message}" ]; then
     if [ ! "${result}" = 'null' ]; then
       echo "${result}" | jq -r "${jq_filter}"
@@ -121,8 +127,10 @@ function list_groups_paths_handle_params {
 }
 
 function list_groups_ids_handle_params {
-  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@")
-  local jq_filter=
+  local group_path_or_id_or_empty
+  local jq_filter
+
+  group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@")
 
   if [ -z "${group_path_or_id_or_empty}" ]; then
     jq_filter='. [] | .id'
@@ -130,8 +138,12 @@ function list_groups_ids_handle_params {
     jq_filter='. | .id'
   fi
 
-  local result=$(list_groups "${group_path_or_id_or_empty}" '')
-  local error_message=$(getErrorMessage "${result}")
+  local result
+  local error_message
+
+  result=$(list_groups "${group_path_or_id_or_empty}" '')
+  error_message=$(getErrorMessage "${result}")
+
   if [ -z "${error_message}" ]; then
     if [ ! "${result}" = 'null' ]; then
       echo "${result}" | jq -r "${jq_filter}"
@@ -142,7 +154,9 @@ function list_groups_ids_handle_params {
 }
 
 function show_group_config_handle_params {
-  local group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit $1
+  local group_path_or_id_or_empty
+
+  group_path_or_id_or_empty=$(get_group_path_or_id_or_empty "$@") || exit 1
 
   show_group_config "${group_path_or_id_or_empty}" | jq .
 }
@@ -162,7 +176,7 @@ function main {
   local param_group_visibility=
   local action=
 
-  while [[ $# > 0 ]]; do
+  while [[ $# -gt 0 ]]; do
     local param="$1"
     shift
 
@@ -301,7 +315,7 @@ function main {
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then

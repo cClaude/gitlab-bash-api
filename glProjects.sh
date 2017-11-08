@@ -259,7 +259,7 @@ function show_projects_config_handle_params {
   local param_project_path=$5
 
   if [ ! $# -eq 5 ]; then
-    echo "* show_projects_config_handle_params: Expecting 5 parameters found $# : '$@'" >&2
+    echo "* show_projects_config_handle_params: Expecting 5 parameters found $# : '$*'" >&2
     exit 1
   fi
 
@@ -269,7 +269,9 @@ function show_projects_config_handle_params {
   #DEBUG echo "### show_project_config '$1' - '$2' - '$3' - '$4' - '$5'" >&2
 
   # handle project id !!!!
-  local answer=$(show_project_config "${param_raw_display}" "${param_project_id}") || exit 1
+  local answer
+
+  answer=$(show_project_config "${param_raw_display}" "${param_project_id}") || exit 1
 
   local jq_filter=
 
@@ -301,8 +303,10 @@ function show_projects_config_handle_params {
     fi
   fi
 
-  local result=$(echo "${answer}" |jq "${jq_filter}" ) || exit 1
+  local result
   local size=
+
+  result=$(echo "${answer}" |jq "${jq_filter}" ) || exit 1
 
   if [ -z "${result}" ]; then
     size=0
@@ -310,7 +314,7 @@ function show_projects_config_handle_params {
     size=$(echo "${result}" |jq '. | length' ) || exit 1
   fi
 
-  if [ $size -eq 0 ] ; then
+  if [ "${size}" -eq 0 ] ; then
     echo "* No project available." >&2
   fi
 
@@ -319,9 +323,10 @@ function show_projects_config_handle_params {
 
 function list_projects_paths_handle_params {
   local param_raw_display=$1
-
-  local answer=$(show_projects_config_handle_params "$@")
+  local answer
   local jq_filter=
+
+  answer=$(show_projects_config_handle_params "$@")
 
   if [ "${param_raw_display}" = "true" ] ; then
     jq_filter='.[] | .path'
@@ -334,9 +339,10 @@ function list_projects_paths_handle_params {
 
 function list_projects_ids_handle_params {
   local param_raw_display=$1
-
-  local answer=$(show_projects_config_handle_params "$@")
+  local answer
   local jq_filter=
+
+  answer=$(show_projects_config_handle_params "$@")
 
   if [ "${param_raw_display}" = "true" ] ; then
     jq_filter='.[] | .id'
@@ -392,7 +398,7 @@ function main {
   local p_wiki_enabled=
   local action=
 
-  while [[ $# > 0 ]]; do
+  while [[ $# -gt 0 ]]; do
     local param="$1"
     shift
 
@@ -593,7 +599,7 @@ function main {
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
