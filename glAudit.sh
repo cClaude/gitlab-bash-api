@@ -25,7 +25,9 @@ function mk_relative_link {
     rm "${link_name}" # avoid link resolution
   fi
 
-  local relative_target=$(realpath  --no-symlinks --relative-to="$(dirname "${link_name}")" "${target}")
+  local relative_target
+
+  relative_target=$(realpath  --no-symlinks --relative-to="$(dirname "${link_name}")" "${target}")
 
   # echo "relative_target='${relative_target}' link_name='${link_name}' target=${target}" >&2
 
@@ -72,8 +74,11 @@ function build_audit_file {
     exit 1
   fi
 
-  local file="$(build_audit_folder "${audit_folder}" "${file_type}")/${file_name}.json"
-  local parent=$(dirname "${file}")
+  local file
+  local parent
+
+  file="$(build_audit_folder "${audit_folder}" "${file_type}")/${file_name}.json"
+  parent=$(dirname "${file}")
 
   if [ ! -d "${parent}" ]; then
     mkdir "${parent}"
@@ -120,18 +125,25 @@ function get_project_config_by_id {
 
 function audit_groups_configuration {
   local audit_folder=$1
+  local group_ids
 
-  local group_ids=$(get_group_ids)
+  group_ids=$(get_group_ids)
 
   for group_id in ${group_ids}; do
-    local group_config=$(get_group_config_by_id "${group_id}")
-    local group_path=$(echo "${group_config}" | jq -r '. .path')
+    local group_config
+    local group_path
+
+    group_config=$(get_group_config_by_id "${group_id}")
+    group_path=$(echo "${group_config}" | jq -r '. .path')
 
     if [ -z "${group_path}" ]; then
       echo "*** Error: can not retrieve configuration for group '${group_id}'" >&2
     else
-      local audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}")
-      local path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}")
+      local audit_file
+      local path_link
+
+      audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}")
+      path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}")
 
       echo "* audit group ${group_id} / ${group_path}" >&2
       # echo "* audit group ${group_id} / ${group_path} -> ${audit_file}" >&2
@@ -145,20 +157,29 @@ function audit_groups_configuration {
 
 function audit_projects_configuration {
   local audit_folder=$1
+  local project_ids
 
-  local project_ids=$(get_project_ids)
+  project_ids=$(get_project_ids)
 
   for project_id in ${project_ids}; do
-    local project_config=$(get_project_config_by_id "${project_id}")
-    local project_path=$(echo "${project_config}" | jq -r '.path')
-    local project_fullpath=$(echo "${project_config}" | jq -r '.path_with_namespace')
+    local project_config
+    local project_path
+    local project_fullpath
+
+    project_config=$(get_project_config_by_id "${project_id}")
+    project_path=$(echo "${project_config}" | jq -r '.path')
+    project_fullpath=$(echo "${project_config}" | jq -r '.path_with_namespace')
 
     if [ -z "${project_path}" ]; then
       echo "*** Error: can not retrieve configuration for project '${project_id}'" >&2
     else
-      local audit_file=$(build_audit_file "${audit_folder}" 'projects_by_id' "${project_id}")
-      local path_link=$(build_audit_file "${audit_folder}" 'projects_by_path' "${project_path}")
-      local fullpath_link=$(build_audit_file "${audit_folder}" 'projects_by_path_with_namespace' "${project_fullpath}")
+      local audit_file
+      local path_link
+      local fullpath_link
+
+      audit_file=$(build_audit_file "${audit_folder}" 'projects_by_id' "${project_id}")
+      path_link=$(build_audit_file "${audit_folder}" 'projects_by_path' "${project_path}")
+      fullpath_link=$(build_audit_file "${audit_folder}" 'projects_by_path_with_namespace' "${project_fullpath}")
 
       echo "* audit project ${project_id} / ${project_path}" >&2
       # echo "* audit project ${project_id} / ${project_path} / ${project_fullpath} -> ${audit_file}" >&2
@@ -188,7 +209,7 @@ function do_audit {
 function main {
   local audit_folder_home=
 
-  while [[ $# > 0 ]]; do
+  while [[ $# -gt 0 ]]; do
     local param="$1"
     shift
 
@@ -214,7 +235,7 @@ function main {
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
@@ -229,4 +250,4 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-group.sh"
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
-main $@
+main "$@"

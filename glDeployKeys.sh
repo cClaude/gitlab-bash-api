@@ -20,7 +20,7 @@ function display_usage {
 
 # Configuration - BEGIN
 if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname $(realpath "$0"))
+  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
 fi
 
 if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
@@ -35,7 +35,7 @@ source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 PROJECT_ID=
 DEPLOY_KEY_ID=
 
-while [[ $# > 0 ]]
+while [[ $# -gt 0 ]]
 do
 param="$1"
 shift

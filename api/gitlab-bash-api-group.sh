@@ -11,10 +11,10 @@ function list_groups {
   gitlab_get "groups/$(urlencode "${group_id}")" "${params}"
 }
 
-# API: search_group_
+# API: search_group_ (ALPHA)
 
 function search_group_ {
-  local group_id=$1
+  local search_string=$1
 
   gitlab_get "groups/search=$(urlencode "${search_string}")" ''
 }
@@ -23,11 +23,12 @@ function search_group_ {
 
 function get_group_id_from_group_path {
   local group_path="$1"
-  local answer=
+  local answer
+  local group_id
 
   answer=$(gitlab_get "groups/$(urlencode "${group_path}")") || return 1
 
-  local group_id=$(echo "${answer}" | jq .id)
+  group_id=$(echo "${answer}" | jq .id)
 
   if [ -z "${group_id}" ] ; then
     echo "*** GROUP_PATH '${group_path}' doest not exist - '${answer}'" >&2
@@ -46,8 +47,9 @@ function get_group_id_from_group_path {
 
 function show_group_config {
   local group_path_or_id_or_empty=$1
+  local result
 
-  local result=$(list_groups "${group_path_or_id_or_empty}" '')
+  result=$(list_groups "${group_path_or_id_or_empty}" '')
 
   if [ ! -z "${group_path_or_id_or_empty}" ]; then
     echo "${result}"
@@ -55,7 +57,9 @@ function show_group_config {
   fi
 
   # Handle --all
-  local groups_ids=$(echo "${result}" | jq '. [] | .id')
+  local groups_ids
+
+  groups_ids=$(echo "${result}" | jq '. [] | .id')
 
   local first=true
 
@@ -78,8 +82,8 @@ function create_group {
   local first=true
 
   # optional parameters
-  while [[ $# > 0 ]]; do
-    if [ ! $# \> 1 ]; then
+  while [[ $# -gt 0 ]]; do
+    if [ ! $# -gt 1 ]; then
       echo "*** create_group error: odd number of remind parameters. $#" >&2
       exit 1
     fi
@@ -143,7 +147,10 @@ function edit_group {
   fi
   ensure_boolean "${group_description_define}" 'group_description_define'
 
-  local params="name=$(urlencode "${group_name}")&path=${group_path}"
+  local params
+
+  params="name=$(urlencode "${group_name}")&path=${group_path}"
+
   if [ "${group_description_define}" = true ]; then
     params+="&description=$(urlencode "${group_description}")"
 
