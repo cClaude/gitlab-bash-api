@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
+source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
@@ -14,7 +14,9 @@ function test_value {
   local json_field=$2
   local expected_value=$3
 
-  local value=$(echo "${result}" | jq -r ". | ${json_field}")
+  local value
+
+  value=$(echo "${result}" | jq -r ". | ${json_field}")
   if [ ! "${expected_value}" = "${value}" ]; then
     echo "*** Error bad value for ${json_field}: found '${value}' expected '${expected_value}'." >&2
     ERROR_COUNT=$(echo $((${ERROR_COUNT}+1)))
@@ -39,23 +41,25 @@ function glProjects_edit_all {
   local visibility=${15} # VISIBILITY=private|internal|public
   local wiki_enabled=${16}
 
-  local result=$("${GLPROJECTS}" --edit \
-    --id ${project_id} \
+  local result
+
+  result=$("${GLPROJECTS}" --edit \
+    --id "${project_id}" \
     --project-name "${project_name}" \
     --path "${project_path}" \
     --project-description "${project_description}" \
-    --container-registry-enabled ${container_registry_enabled} \
-    --issues-enabled ${issues_enabled} \
-    --jobs-enabled ${jobs_enabled} \
-    --lfs-enabled ${lfs_enabled} \
-    --merge-requests-enabled ${merge_requests_enabled} \
-    --only-allow-merge-if-all-discussions-are-resolved ${only_allow_merge_if_all_discussions_are_resolved} \
-    --only-allow-merge-if-pipeline-succeed ${only_allow_merge_if_pipeline_succeed} \
-    --public-jobs ${public_jobs} \
-    --request-access-enabled  ${request_access_enabled} \
-    --snippets-enabled ${snippets_enabled} \
-    --visibility ${visibility} \
-    --wiki-enabled ${wiki_enabled})
+    --container-registry-enabled "${container_registry_enabled}" \
+    --issues-enabled "${issues_enabled}" \
+    --jobs-enabled "${jobs_enabled}" \
+    --lfs-enabled "${lfs_enabled}" \
+    --merge-requests-enabled "${merge_requests_enabled}" \
+    --only-allow-merge-if-all-discussions-are-resolved "${only_allow_merge_if_all_discussions_are_resolved}" \
+    --only-allow-merge-if-pipeline-succeed "${only_allow_merge_if_pipeline_succeed}" \
+    --public-jobs "${public_jobs}" \
+    --request-access-enabled "${request_access_enabled}" \
+    --snippets-enabled "${snippets_enabled}" \
+    --visibility "${visibility}" \
+    --wiki-enabled "${wiki_enabled}")
 
   echo "${result}" | jq .
 
