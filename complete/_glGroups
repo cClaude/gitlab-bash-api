@@ -131,7 +131,7 @@ _glGroups()
         fi
     done
 
-    COMPREPLY=( $(compgen -W "${result}" -- ${cur}) )
+    COMPREPLY=( $(compgen -W "${result}" -- "${cur}") )
 }
 
 if [ -z "${GITLAB_BASH_API_PATH}" ]; then
