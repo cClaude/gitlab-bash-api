@@ -24,18 +24,23 @@ function getSessionForUser {
 
   echo "# Try to build GitLab Session from ${url}" >&2
 
-  curl --silent  --data "login=${GITLAB_USER}&password=${GITLAB_PASSWORD}" ${url} || exit 1
+  curl --silent  --data "login=${GITLAB_USER}&password=${GITLAB_PASSWORD}" "${url}" || exit 1
 }
 
 # gain a gitlab token for user
 function getTokenForUser {
-  local session=$(getSessionForUser)
-  local token=$(echo "${session}" | jq --raw-output '. .private_token')
+  local session
+  local token
+
+  session=$(getSessionForUser)
+  token=$(echo "${session}" | jq --raw-output '. .private_token')
 
   if [ ! -z "${token}" ]; then
     echo "${token}"
   else
-    local error_msg=$(getErrorMessage "${session}")
+    local error_msg
+
+    error_msg=$(getErrorMessage "${session}")
     echo "*** Error: Can not get token from GitLab: '${error_msg}'" >&2
 
     if [ -z "${error_msg}" ] ; then

@@ -2,7 +2,7 @@
 
 # https://docs.gitlab.com/omnibus/docker/README.html
 
-source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
+source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
 function display_usage {
   echo "Usage: $0
@@ -28,7 +28,7 @@ function display_usage {
 function docker_run {
   sudo docker run --detach \
     --hostname "${DOCKER_GITLAB_HTTP_HOST}" \
-    --publish 443:443 --publish ${DOCKER_HTTP_PORT}:80 --publish ${DOCKER_SSH_PORT}:22 \
+    --publish 443:443 --publish "${DOCKER_HTTP_PORT}:80" --publish "${DOCKER_SSH_PORT}:22" \
     --name "${DOCKER_NAME}" \
     --restart "${DOCKER_RESTART_MODE}" \
     --volume "${DOCKER_ETC_VOLUME}:/etc/gitlab" \
@@ -79,7 +79,7 @@ finally start the container as you did originally.
 
 To reset/delete everything
   $0 --stop
-  sudo rm -fr "${DOCKER_ETC_VOLUME}" "${DOCKER_LOGS_VOLUME}" "${DOCKER_DATA_VOLUME}"
+  sudo rm -fr '${DOCKER_ETC_VOLUME}' '${DOCKER_LOGS_VOLUME}' '${DOCKER_DATA_VOLUME}'
 "
 }
 
@@ -91,7 +91,7 @@ function main {
     action_rc=$?
   fi
 
-  while [[ $# > 0 ]]; do
+  while [[ $# -gt 0 ]]; do
     param="$1"
     shift
 

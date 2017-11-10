@@ -1,13 +1,15 @@
 #!/bin/bash
 
-source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
+source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
 
 function test_getErrorMessage {
   local json=$1
   local expected_result=$2
+  local error_message
 
-  local error_message=$(getErrorMessage "${json}")
+  error_message=$(getErrorMessage "${json}")
+
   echo "Msg='${error_message}' from '${json}'"
   if [ ! "${error_message}" = "${expected_result}" ]; then
     echo "*** Error expected '${expected_result}' - found '${error_message}'" >&2

@@ -1,11 +1,10 @@
 #!/bin/bash
 
-source "$(dirname $(realpath "$0"))/generated-config-bootstrap/init.sh"
+source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-declare RESULTS_HOME="$(dirname $(dirname $(realpath "$0")))/tests-result"
-declare AUDIT_FOLDER="${RESULTS_HOME}/glAudit"
-
-declare REFERENCES_HOME="$(dirname $(realpath "$0"))/references"
+RESULTS_HOME="$(dirname "$(dirname "$(realpath "$0")")")/tests-result"
+AUDIT_FOLDER="${RESULTS_HOME}/glAudit"
+REFERENCES_HOME="$(dirname "$(realpath "$0")")/references"
 
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
@@ -13,11 +12,13 @@ declare -r GLAUDIT="${GITLAB_BASH_API_PATH}/glAudit.sh"
 
 function getGroupId {
   local group_path=$1
+  local group_id
 
-  local group_id=$("${GLGROUPS}" --list-id --path "${group_path}")
+  group_id=$("${GLGROUPS}" --list-id --path "${group_path}")
+
   echo "Group ${group_path}=${group1_id}" >&2
   if [ "${group1_id}" = 'null' ]; then
-      echo '*** ERROR: Can not create '${group_path}' group.' >&2
+      echo "*** ERROR: Can not create '${group_path}' group." >&2
       exit 1
   fi
   echo "${group_id}"
@@ -25,11 +26,13 @@ function getGroupId {
 
 function getProjectId {
   local project_path=$1
+  local project_id
 
-  local project_id=$("${GLPROJECTS}" --list-id --path "${project_path}")
+  project_id=$("${GLPROJECTS}" --list-id --path "${project_path}")
+
   echo "Project ${project_path}=${project_id}" >&2
   if [ "${project_id}" = 'null' ]; then
-      echo '*** ERROR: Can not create '${project_path}' project.' >&2
+      echo "*** ERROR: Can not create '${project_path}' project." >&2
       exit 1
   fi
   echo "${project_id}"
