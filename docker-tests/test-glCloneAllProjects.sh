@@ -12,7 +12,8 @@ mkdir -p "${TEST_SSH}"
 #bash -ex
 "${PROJECT_FOLDER}/glCloneAllProjects.sh" --ssh --destination "${TEST_SSH}"
 
-declare -r TEST_HTTP=${PROJECT_FOLDER}/tests-result/clone-all-on-http
+TEST_HTTP=${PROJECT_FOLDER}/tests-result/clone-all-on-http
+declare -r TEST_HTTP=${TEST_HTTP}
 
 rm -rf "${TEST_HTTP}"
 mkdir -p "${TEST_HTTP}"

@@ -16,6 +16,7 @@ declare -r PROJECT_PATH=${PROJECT_PATH}
 
 function run_test {
   local group_id
+
   echo '-- CREATE GROUP (if needed) ----------------------'
 
   group_id=$("${GLGROUPS}" --list-id --path "${GROUP_PATH}")
@@ -36,7 +37,6 @@ function run_test {
     "${GLPROJECTS}" --delete --id "${project_id}"
   done
 
-
   echo '-- CREATE PROJECT ----------------------'
   "${GLPROJECTS}" --create --group-id "${group_id}" --path "${PROJECT_PATH}"
 
@@ -54,7 +54,7 @@ function run_test {
       id "${project_id}" \
       path "test-path-id-${project_id}" \
       name "test-name-id-${project_id}" \
-        description "test description $(date)" \
+      description "test description $(date)" \
       shared_runners_enabled 'false' \
       request_access_enabled false \
       public_builds false \
@@ -70,6 +70,3 @@ function run_test {
 }
 
 run_test "$@"
-
-
-

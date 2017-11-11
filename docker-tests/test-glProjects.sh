@@ -2,10 +2,14 @@
 
 source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
-declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
+GLGROUPS=${GITLAB_BASH_API_PATH}/glGroups.sh
+declare -r GLGROUPS=${GLGROUPS}
 
-declare -r TEST_GROUP_PATH=group_for_glProjects_tests
+GLPROJECTS=${GITLAB_BASH_API_PATH}/glProjects.sh
+declare -r GLPROJECTS=${GLPROJECTS}
+
+TEST_GROUP_PATH=group_for_glProjects_tests
+declare -r TEST_GROUP_PATH=${TEST_GROUP_PATH}
 
 ERROR_COUNT=0
 
@@ -19,7 +23,7 @@ function test_value {
   value=$(echo "${result}" | jq -r ". | ${json_field}")
   if [ ! "${expected_value}" = "${value}" ]; then
     echo "*** Error bad value for ${json_field}: found '${value}' expected '${expected_value}'." >&2
-    ERROR_COUNT=$(echo $((${ERROR_COUNT}+1)))
+    ERROR_COUNT=$( ERROR_COUNT + 1 )
   fi
 }
 
@@ -40,7 +44,6 @@ function glProjects_edit_all {
   local snippets_enabled=${14}
   local visibility=${15} # VISIBILITY=private|internal|public
   local wiki_enabled=${16}
-
   local result
 
   result=$("${GLPROJECTS}" --edit \
@@ -185,3 +188,10 @@ echo '#
 #'
 "${GLGROUPS}" --delete --id "${group_id}"
 
+echo "ERROR_COUNT=${ERROR_COUNT}"
+
+if [ "${ERROR_COUNT}" -eq 0 ]; then
+  exit 0
+else
+  exit 1
+fi
