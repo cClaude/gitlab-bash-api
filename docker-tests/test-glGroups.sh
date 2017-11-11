@@ -2,7 +2,8 @@
 
 source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
+GLGROUPS=${GITLAB_BASH_API_PATH}/glGroups.sh
+declare -r GLGROUPS=${GLGROUPS}
 
 function delete_group_by_id {
   local group_id=$1

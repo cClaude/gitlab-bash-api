@@ -13,6 +13,7 @@ if [ -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
   echo "
 Now run
   export GITLAB_BASH_API_PATH=${GITLAB_BASH_API_PATH}
+
   source '${GITLAB_BASH_API_PATH}/complete/_gl_common'
   source '${GITLAB_BASH_API_PATH}/complete/_glGroups'
   source '${GITLAB_BASH_API_PATH}/complete/_glProjects'

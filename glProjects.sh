@@ -163,6 +163,7 @@ function create_projects_handle_params {
       wiki_enabled "${p_wiki_enabled}"
 }
 
+# shellcheck disable=SC2086
 function edit_project_handle_params {
   local id=${1}
   local name=${2}

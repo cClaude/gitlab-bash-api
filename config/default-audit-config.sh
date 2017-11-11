@@ -3,6 +3,7 @@
 #
 # Audit filter for groups
 #
+# shellcheck disable=SC2034
 GITLAB_DEFAULT_AUDIT_FOR_GROUP='
 id: .id,
 path: .path,
@@ -20,6 +21,7 @@ web_url: .web_url,
 #
 # Audit filter for projects
 #
+# shellcheck disable=SC2034
 GITLAB_DEFAULT_AUDIT_FOR_PROJECT='
 id: .id,
 path: .path,

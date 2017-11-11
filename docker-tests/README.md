@@ -2,11 +2,12 @@
 
 ## Configuration
 
-Have a look to the file **docker-config/config.sh** (at least have a look to setup initial password for root) if you need customization create a file named **docker-config/my-config.sh** then just overwrite
+Have a look to the file **docker-config/config.sh** (at least have a look to setup initial password for root)
+if you need customization create a file named **docker-config/my-config.sh** then just overwrite
 needed values in this file.
 
 
-Then run **gitlab-setup.sh**
+Then run **gitlab-setup.sh** from **docker-tests** folder
 
 ```bash
 ./gitlab-setup.sh

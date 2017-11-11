@@ -2,9 +2,14 @@
 
 source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-RESULTS_HOME="$(dirname "$(dirname "$(realpath "$0")")")/tests-result"
-AUDIT_FOLDER="${RESULTS_HOME}/glAudit"
-REFERENCES_HOME="$(dirname "$(realpath "$0")")/references"
+RESULTS_HOME=$(dirname "$(dirname "$(realpath "$0")")")/tests-result
+declare -r RESULTS_HOME=${RESULTS_HOME}
+
+AUDIT_FOLDER=${RESULTS_HOME}/glAudit
+declare -r AUDIT_FOLDER=${AUDIT_FOLDER}
+
+REFERENCES_HOME=$(dirname "$(realpath "$0")")/references
+declare -r REFERENCES_HOME=${AUDIT_FOLDER}
 
 declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
 declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
