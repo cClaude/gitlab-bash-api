@@ -2,7 +2,8 @@
 
 source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-RESULTS_HOME=$(dirname "$(dirname "$(realpath "$0")")")/tests-result
+# RESULTS_HOME=$(dirname "$(dirname "$(realpath "$0")")")/tests-result
+RESULTS_HOME=$(dirname "$(realpath "$0")")/tests-result
 declare -r RESULTS_HOME=${RESULTS_HOME}
 
 AUDIT_FOLDER=${RESULTS_HOME}/glAudit
@@ -11,9 +12,9 @@ declare -r AUDIT_FOLDER=${AUDIT_FOLDER}
 REFERENCES_HOME=$(dirname "$(realpath "$0")")/references
 declare -r REFERENCES_HOME=${AUDIT_FOLDER}
 
-declare -r GLGROUPS="${GITLAB_BASH_API_PATH}/glGroups.sh"
-declare -r GLPROJECTS="${GITLAB_BASH_API_PATH}/glProjects.sh"
-declare -r GLAUDIT="${GITLAB_BASH_API_PATH}/glAudit.sh"
+declare -r GLGROUPS=${GITLAB_BASH_API_PATH}/glGroups.sh
+declare -r GLPROJECTS=${GITLAB_BASH_API_PATH}/glProjects.sh
+declare -r GLAUDIT=${GITLAB_BASH_API_PATH}/glAudit.sh
 
 function getGroupId {
   local group_path=$1
@@ -43,33 +44,50 @@ function getProjectId {
   echo "${project_id}"
 }
 
-echo '#
-# Create groups
+function run_tests {
+  echo '#
+# Create some groups
 #'
-"${GLGROUPS}" --create --path audit_group_path1
-group1_id=$(getGroupId audit_group_path1)
+  "${GLGROUPS}" --create --path audit_group_path1
 
-"${GLGROUPS}" --create --path audit_group_path2
-group2_id=$(getGroupId audit_group_path2)
+  local group1_id
+  group1_id=$(getGroupId audit_group_path1)
 
-echo '#
-# Create projects
+  "${GLGROUPS}" --create --path audit_group_path2
+
+  local group2_id
+  group2_id=$(getGroupId audit_group_path2)
+
+  echo "group1_id=${group1_id}"
+  echo "group2_id=${group2_id}"
+
+  echo '#
+# Create some projects
 #'
-"${GLPROJECTS}" --create --group-id "${group1_id}" --path 'project_1_1'
-project_1_1_id=$(getProjectId project_1_1)
+  "${GLPROJECTS}" --create --group-id "${group1_id}" --path 'project_1_1'
 
-"${GLPROJECTS}" --create --group-id "${group2_id}" --path 'project_2_1'
-project_1_1_id=$(getProjectId project_2_1)
+  local project_1_1_id
+  project_1_1_id=$(getProjectId project_1_1)
 
-echo "${project_1_1_id}"
-echo '#
+  "${GLPROJECTS}" --create --group-id "${group2_id}" --path 'project_2_1'
+
+  local project_2_1_id
+  project_2_1_id=$(getProjectId project_2_1)
+
+  echo "project_1_1_id=${project_1_1_id}"
+  echo "project_2_1_id=${project_2_1_id}"
+
+  echo '#
 # Audit - BEGIN
 #'
+  "${GLAUDIT}" --directory "${AUDIT_FOLDER}"
 
-"${GLAUDIT}" --directory "${AUDIT_FOLDER}"
-
-echo '#
+  echo '#
 # Audit - END
+#'
+
+  echo '#
+# Check Audit results
 #'
 
 TMP_REF="${AUDIT_FOLDER}/tmp-${group1_id}-REF.json"
@@ -130,3 +148,7 @@ echo '#
 #'
 PRG_LIST=$("${GLPROJECTS}" --config --all)
 echo "Projects List='${PRG_LIST}'"
+}
+
+run_tests
+

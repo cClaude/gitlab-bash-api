@@ -23,7 +23,7 @@ function test_value {
   value=$(echo "${result}" | jq -r ". | ${json_field}")
   if [ ! "${expected_value}" = "${value}" ]; then
     echo "*** Error bad value for ${json_field}: found '${value}' expected '${expected_value}'." >&2
-    ERROR_COUNT=$( ERROR_COUNT + 1 )
+    ERROR_COUNT=$((ERROR_COUNT + 1))
   fi
 }
 

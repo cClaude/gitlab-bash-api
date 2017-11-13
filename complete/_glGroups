@@ -9,15 +9,15 @@ _glGroups()
 {
     local cur prev opts
     COMPREPLY=()
-    opts=""
+    opts=''
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    if [ $COMP_CWORD == 1 ]; then
+    if [ "${COMP_CWORD}" -eq 1 ]; then
         opts="--config --list-path --list-id --edit --create --delete"
     else
         context=${COMP_WORDS[@]:1:COMP_CWORD-1}
-        sample=""
+        sample=''
         for word in "${COMP_WORDS[@]:1:COMP_CWORD-1}"
         do
             if [ "$sample" != "" ]; then
@@ -31,20 +31,20 @@ _glGroups()
         done
 
         case $sample in
-            "--config")
-                opts="--path --id --all"
+            '--config')
+                opts='--path --id --all'
                 ;;
             *" --path")
-                opts=""
+                opts=''
                 ;;
             *" --id")
-                opts=""
+                opts=''
                 ;;
             *" --name")
-                opts=""
+                opts=''
                 ;;
             "--list-path")
-                opts="--path --id --all"
+                opts='--path --id --all'
                 ;;
             "--list-id")
                 opts="--path --id --all"
@@ -114,7 +114,7 @@ _glGroups()
          esac
     fi
 
-    result=""
+    result=''
 
     for word in $opts
     do
