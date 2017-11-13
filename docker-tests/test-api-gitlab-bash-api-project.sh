@@ -15,11 +15,11 @@ PROJECT_PATH=project_for_$(echo "$0" | rev | cut -d'.' -f2- | cut -d'/' -f1 | re
 declare -r PROJECT_PATH=${PROJECT_PATH}
 
 function run_test {
-  local group_id
-
   echo '-- CREATE GROUP (if needed) ----------------------'
 
+  local group_id
   group_id=$("${GLGROUPS}" --list-id --path "${GROUP_PATH}")
+
   if [ -z "${group_id}" ]; then
     echo '-- CREATE GROUP ----------------------'
     "${GLGROUPS}" --create --path "${GROUP_PATH}"
@@ -56,8 +56,8 @@ function run_test {
       name "test-name-id-${project_id}" \
       description "test description $(date)" \
       shared_runners_enabled 'false' \
-      request_access_enabled false \
-      public_builds false \
+      request_access_enabled 'false' \
+      public_builds 'false' \
       | jq .
 
   echo '-- CLEANUP PROJECT ----------------------'
@@ -70,3 +70,4 @@ function run_test {
 }
 
 run_test "$@"
+

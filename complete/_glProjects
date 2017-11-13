@@ -15,7 +15,7 @@ _glProjects()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    if [ $COMP_CWORD == 1 ]; then
+    if [ "${COMP_CWORD}" -eq 1 ]; then
         opts="--config --list-path --list-id --create --delete"
     else
         context=${COMP_WORDS[@]:1:COMP_CWORD-1}
