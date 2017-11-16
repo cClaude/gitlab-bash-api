@@ -8,7 +8,7 @@ declare -r GLGROUPS=${GLGROUPS}
 function delete_group_by_id {
   local group_id=$1
 
-  echo "Try to delete group: '${group_id}':$("${GLGROUPS}" --list-path --id "${group_id}")"
+  echo "Try to delete group: '${group_id}' - path for this id is : '$("${GLGROUPS}" --list-path --id "${group_id}")'"
 
   "${GLGROUPS}" --delete --id "${group_id}"
 }
@@ -39,58 +39,64 @@ function delete_group_by_path {
   fi
 }
 
-echo '#
+function run_tests {
+  echo '#
 # Group creation
 #'
-"${GLGROUPS}" --create --path test_group_path1
-"${GLGROUPS}" --create --path test_group_path2 --name "test GROUP NAME 2" \
+  "${GLGROUPS}" --create --path test_group_path1
+  "${GLGROUPS}" --create --path test_group_path2 --name "test GROUP NAME 2" \
     --description "Test GROUP 4 DESCRIPTION" \
     --lfs_enabled true --membership_lock true --request_access_enabled true \
     --share_with_group_lock true --visibility  private
-"${GLGROUPS}" --create --path test_group_path3 --name "test GROUP NAME 3" \
+  "${GLGROUPS}" --create --path test_group_path3 --name "test GROUP NAME 3" \
      --description "Test GROUP 3 DESCRIPTION" \
     --lfs_enabled false --membership_lock false --request_access_enabled false \
     --share_with_group_lock false --visibility  internal
-"${GLGROUPS}" --create --path test_group_path4 --name "test GROUP NAME 4" \
+  "${GLGROUPS}" --create --path test_group_path4 --name "test GROUP NAME 4" \
      --description "Test GROUP 4 DESCRIPTION" \
     --lfs_enabled false --membership_lock true --request_access_enabled false \
     --share_with_group_lock true --visibility  public
 
-echo '#
+  echo '#
 # Display all groups names
 #'
-"${GLGROUPS}" --list-path --all
+  "${GLGROUPS}" --list-path --all
 
-echo '#
+  echo '#
 # Edit group
 #'
-TEST_GRP_ID=$(get_group_id_by_path test_group_path4)
+  TEST_GRP_ID=$(get_group_id_by_path test_group_path4)
 
-if [ -z "${TEST_GRP_ID}" ]; then
-  echo "*** Error: Can not find group."
-  exit 1
-fi
+  if [ -z "${TEST_GRP_ID}" ]; then
+    echo "*** Error: Can not find group."
+    exit 1
+  fi
 
-"${GLGROUPS}" --edit --id "${TEST_GRP_ID}" --name 'my_test_4_name' --path 'my_test_4_path' --visibility private
+  "${GLGROUPS}" --edit --id "${TEST_GRP_ID}" --name 'my_test_4_name' --path 'my_test_4_path' --visibility private
 
-echo '#
+  echo '#
 # Display group id
 #'
-"${GLGROUPS}" --list-id --path 'my_test_4_path'
+  "${GLGROUPS}" --list-id --path 'my_test_4_path'
 
-echo '#
+  echo '#
 # Delete groups
 #'
-delete_group_by_path test_group_path1
-delete_group_by_path test_group_path2
-delete_group_by_path test_group_path3
+  delete_group_by_path test_group_path1
+  delete_group_by_path test_group_path2
+  delete_group_by_path test_group_path3
 
-delete_group_by_path my_test_4_path
-delete_group_by_path test_group_path4
-delete_group_by_id "${TEST_GRP_ID}"
+  delete_group_by_path my_test_4_path
+  echo "# Try to delete 'test_group_path4' that have been rename (should fail)"
+  delete_group_by_path test_group_path4
+  echo "# Try to delete 'test_group_path4' that is already deleted (should fail)"
+  delete_group_by_id "${TEST_GRP_ID}"
 
-echo '#
+  echo '#
 # Display remaining groups ids
 #'
-TST_GRP_LIST=$("${GLGROUPS}" --list-id --all)
-echo "List='${TST_GRP_LIST}'"
+  TST_GRP_LIST=$("${GLGROUPS}" --list-id --all)
+  echo "List='${TST_GRP_LIST}'"
+}
+
+run_tests

@@ -10,7 +10,12 @@ AUDIT_FOLDER=${RESULTS_HOME}/glAudit
 declare -r AUDIT_FOLDER=${AUDIT_FOLDER}
 
 REFERENCES_HOME=$(dirname "$(realpath "$0")")/references
-declare -r REFERENCES_HOME=${AUDIT_FOLDER}
+declare -r REFERENCES_HOME=${REFERENCES_HOME}
+
+if [ ! -d "${REFERENCES_HOME}" ]; then
+  echo "*** Error REFERENCES_HOME not found: '${REFERENCES_HOME}'" >&2
+  exit 100
+fi
 
 declare -r GLGROUPS=${GITLAB_BASH_API_PATH}/glGroups.sh
 declare -r GLPROJECTS=${GITLAB_BASH_API_PATH}/glProjects.sh
@@ -90,64 +95,64 @@ function run_tests {
 # Check Audit results
 #'
 
-TMP_REF="${AUDIT_FOLDER}/tmp-${group1_id}-REF.json"
-TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group1_id}-AUDIT.json"
+  TMP_REF="${AUDIT_FOLDER}/tmp-${group1_id}-REF.json"
+  TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group1_id}-AUDIT.json"
 
-jq -S "setpath([\"id\"]; ${group1_id})" "${REFERENCES_HOME}/audit/audit_group_path1.json" > "${TMP_REF}"
-jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group1_id}.json" > "${TMP_AUDIT}"
+  jq -S "setpath([\"id\"]; ${group1_id})" "${REFERENCES_HOME}/audit/audit_group_path1.json" > "${TMP_REF}"
+  jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group1_id}.json" > "${TMP_AUDIT}"
 
-echo "DIFF with ref for: ${group1_id}"
-diff "${TMP_REF}" "${TMP_AUDIT}"
-if [ ! $? -eq 0 ]; then
-  echo "*** ERROR: in result for group ${group1_id}"
-  exit 1
-fi
-rm "${TMP_REF}" "${TMP_AUDIT}"
+  echo "Check DIFF with ref for: ${group1_id}"
+  diff "${TMP_REF}" "${TMP_AUDIT}"
+  if [ ! $? -eq 0 ]; then
+    echo "*** ERROR: in result for group ${group1_id}"
+    exit 1
+  fi
+  rm "${TMP_REF}" "${TMP_AUDIT}"
 
-TMP_REF="${AUDIT_FOLDER}/tmp-${group2_id}-REF.json"
-TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group2_id}-AUDIT.json"
+  TMP_REF="${AUDIT_FOLDER}/tmp-${group2_id}-REF.json"
+  TMP_AUDIT="${AUDIT_FOLDER}/tmp-${group2_id}-AUDIT.json"
 
-jq -S "setpath([\"id\"]; ${group2_id})" "${REFERENCES_HOME}/audit/audit_group_path2.json" > "${TMP_REF}"
-jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group2_id}.json" > "${TMP_AUDIT}"
+  jq -S "setpath([\"id\"]; ${group2_id})" "${REFERENCES_HOME}/audit/audit_group_path2.json" > "${TMP_REF}"
+  jq -S '.' "${AUDIT_FOLDER}/groups_by_id/${group2_id}.json" > "${TMP_AUDIT}"
 
-echo "DIFF with ref for: ${group2_id}"
-diff "${TMP_REF}" "${TMP_AUDIT}"
-if [ ! $? -eq 0 ]; then
-  echo "*** ERROR: in result for group ${group2_id}"
-  exit 1
-fi
-rm "${TMP_REF}" "${TMP_AUDIT}"
+  echo "DIFF with ref for: ${group2_id}"
+  diff "${TMP_REF}" "${TMP_AUDIT}"
+  if [ ! $? -eq 0 ]; then
+    echo "*** ERROR: in result for group ${group2_id}"
+    exit 1
+  fi
+  rm "${TMP_REF}" "${TMP_AUDIT}"
 
-echo '#
+  echo '#
 # Display groups ids
 #'
-GRP_LIST=$("${GLGROUPS}" --config --all | jq '[ .[] | {
+  GRP_LIST=$("${GLGROUPS}" --config --all | jq '[ .[] | {
 id: .id,
 path: .path
 }]')
-echo "Groups List='${GRP_LIST}'"
-echo '#
+  echo "Groups List='${GRP_LIST}'"
+  echo '#
 # Display project ids
 #'
-PRG_LIST=$("${GLPROJECTS}" --config --all | jq '[ .[] | {
+  PRG_LIST=$("${GLPROJECTS}" --config --all | jq '[ .[] | {
 id: .id,
 path_with_namespace: .path_with_namespace
 }]')
-echo "Projects List='${PRG_LIST}'"
+  echo "Projects List='${PRG_LIST}'"
 
-"${GLGROUPS}" --delete --id "${group1_id}"
-"${GLGROUPS}" --delete --id "${group2_id}"
+  "${GLGROUPS}" --delete --id "${group1_id}"
+  "${GLGROUPS}" --delete --id "${group2_id}"
 
-echo '#
+  echo '#
 # Display remaining groups ids
 #'
-GRP_LIST=$("${GLGROUPS}" --list-id --all)
-echo "Groups List='${GRP_LIST}'"
-echo '#
+  GRP_LIST=$("${GLGROUPS}" --list-id --all)
+  echo "Groups List='${GRP_LIST}'"
+  echo '#
 # Display project groups ids
 #'
-PRG_LIST=$("${GLPROJECTS}" --config --all)
-echo "Projects List='${PRG_LIST}'"
+  PRG_LIST=$("${GLPROJECTS}" --config --all)
+  echo "Projects List='${PRG_LIST}'"
 }
 
 run_tests
