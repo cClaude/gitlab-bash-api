@@ -9,5 +9,5 @@
   "name": "audit_group_path2",
   "request_access_enabled": true,
   "visibility_level": null,
-  "web_url": "http://gitlab.example.com/groups/audit_group_path2"
+  "web_url": "http://localhost/groups/audit_group_path2"
 }
