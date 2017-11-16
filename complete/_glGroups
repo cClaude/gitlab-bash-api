@@ -141,3 +141,4 @@ fi
 
 alias glGroups="${GITLAB_BASH_API_PATH}/glGroups.sh"
 complete -F _glGroups glGroups
+c
