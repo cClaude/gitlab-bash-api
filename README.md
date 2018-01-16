@@ -10,7 +10,7 @@ Table of Contents
       * [About groups](#about-groups)
       * [About projects (repositories)](#about-projects-repositories)
       * [About branches](#about-branches)
-      * [Related documentations](#related-documentations)
+    * [Related documentations](#related-documentations)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
@@ -21,7 +21,8 @@ Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https
 
 Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 
-Current version is base on [GitLab V3 API](https://docs.gitlab.com/ce/api/v3_to_v4.html) but tested on both V3 and V4.
+Current version is based on [GitLab V4 API](https://docs.gitlab.com/ce/api/v3_to_v4.html) but some features work on V3.
+V3 is no more supported.
 
 
 ## Installation
@@ -307,8 +308,17 @@ listBranches.sh 82
 listBranches.sh 10 | jq -r ' .[] | .name'
 ```
 
+## About GitLab and gitlab-bash-api
 
-### Related documentations
+If you really need this API you probably need to consider moving to another
+git server.
+
+```
+GitLab is the best SVN server ever...
+but for git needs consider to move to something else.
+```
+
+## Related documentations
 
 * How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
 
