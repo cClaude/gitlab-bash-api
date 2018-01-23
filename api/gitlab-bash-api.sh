@@ -154,8 +154,8 @@ function gitlab_delete {
   echo "${curl_result}"
 }
 
-function urlencode {
-  # urlencode <string>
+function url_encode {
+  # url_encode <string>
   old_lc_collate=$LC_COLLATE
   LC_COLLATE=C
 
