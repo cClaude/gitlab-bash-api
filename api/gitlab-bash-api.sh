@@ -288,7 +288,7 @@ function ensure_not_empty {
   local value=$1
   local message_if_empty=$2
 
-  if [ -z "${var_value}" ] ; then
+  if [ -z "${value}" ] ; then
     echo "*** Missing value for: '${message_if_empty}'" >&2
     display_usage
   fi
@@ -312,7 +312,7 @@ function ensure_empty {
   local value=$1
   local message_if_not_empty=$2
 
-  if [ ! -z "${var_value}" ] ; then
+  if [ ! -z "${value}" ] ; then
      echo "Unexpected value '${value}': ${message_if_not_empty}" >&2
    display_usage
   fi
