@@ -2,7 +2,6 @@
 
 source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
 
-# RESULTS_HOME=$(dirname "$(dirname "$(realpath "$0")")")/tests-result
 RESULTS_HOME=$(dirname "$(realpath "$0")")/tests-result
 declare -r RESULTS_HOME=${RESULTS_HOME}
 
