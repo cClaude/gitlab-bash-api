@@ -22,7 +22,7 @@ function get_prefix_url {
         exit 1
       fi
 
-      prefix_url="${GITLAB_CLONE_HTTP_PREFIX}/"
+      prefix_url="${GITLAB_CLONE_HTTP_PREFIX}"
       ;;
     ssh)
       if [ -z "${GITLAB_CLONE_SSH_PREFIX}" ] ; then
@@ -30,7 +30,7 @@ function get_prefix_url {
         exit 1
       fi
 
-      prefix_url="${GITLAB_CLONE_SSH_PREFIX}:"
+      prefix_url="${GITLAB_CLONE_SSH_PREFIX}"
       ;;
     *)
       echo "Unkown clone_type: '${clone_type}'"
@@ -42,8 +42,8 @@ function get_prefix_url {
 }
 
 function git_clone {
-  local project_url=$1
-  local p_bare=$2
+  local p_bare=$1
+  local project_url=$2
 
   if [ ! $# -eq 2 ]; then
     echo "* git_clone: Expecting 2 parameters found $# : '$*'" >&2
@@ -52,7 +52,12 @@ function git_clone {
 
   echo "clone ${project_url}"
   git clone "${p_bare}" "${project_url}"
-  echo "clone $?"
+  local clone_rc=$?
+
+  if [ "${clone_rc}" -ne 0 ] ; then
+    echo "*** Error while clonning: ${project_url}"
+    exit 1
+  fi
 }
 
 function clone_all_projects {
