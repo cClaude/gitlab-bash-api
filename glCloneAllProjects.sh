@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Limitations and bugs
+# * Does not support wikis
+
 function display_usage {
   echo "Clone all projects by groups
 
@@ -60,6 +63,15 @@ function git_clone {
   fi
 }
 
+function get_all_projects_to_clone {
+  #
+  # Get all projects with a filled repository
+  #
+  # ./glGet.sh --uri /projects | jq '[.[] | select(.default_branch!=null)]' | jq '.[] | .path_with_namespace'
+  #
+  gitlab_get /projects | jq '[.[] | select(.default_branch!=null)]' | jq -r '.[] | .path_with_namespace' || exit 1
+}
+
 function clone_all_projects {
   local url_type=$1
   local bare=$2
@@ -81,10 +93,14 @@ function clone_all_projects {
 
   local project_paths
 
-  project_paths=$(get_all_projects_path_with_namespace) || exit $?
+  #project_paths=$(get_all_projects_path_with_namespace) || exit $?
+  project_paths=$(get_all_projects_to_clone) || exit $?
+echo "
+$project_paths
+"
 
   mkdir -p "${root_output_directory}"
-  pushd "${root_output_directory}"
+  pushd "${root_output_directory}" >/dev/null
 
   for project_path in ${project_paths}; do
     local group_folder
@@ -94,7 +110,7 @@ function clone_all_projects {
     echo "# '${group_folder}' <- '${project_path}'"
 
     mkdir -p "${group_folder}"
-    pushd "${group_folder}"
+    pushd "${group_folder}" >/dev/null
 
     git_clone "${bare}" "${prefix_url}${project_path}.git"
 
