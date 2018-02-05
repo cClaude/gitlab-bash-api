@@ -124,7 +124,7 @@ function create_project {
         params+="${param_name}=${param_value}"
         ;;
     *)
-        params+="${param_name}=$(urlencode "${param_value}")"
+        params+="${param_name}=$(url_encode "${param_value}")"
         ;;
   esac
 
@@ -186,7 +186,7 @@ function edit_project {
         params+='&'
       fi
 
-      params+="${param_name}=$(urlencode "${param_value}")"
+      params+="${param_name}=$(url_encode "${param_value}")"
     fi
 
   done

@@ -59,7 +59,7 @@ echo "create user: USER_NAME=[${USER_NAME}] USER_FULLNAME=[${USER_FULLNAME}] - U
 PARAMS="email=${USER_EMAIL}"
 PARAMS+="&username=${USER_NAME}"
 
-ENCODED=$(urlencode "${USER_FULLNAME}")
+ENCODED=$(url_encode "${USER_FULLNAME}")
 PARAMS+="&name=${ENCODED}"
 
 PARAMS+="&password=${GITLAB_USER_INITIAL_PASSWORD}"

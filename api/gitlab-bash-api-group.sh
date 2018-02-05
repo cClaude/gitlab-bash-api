@@ -8,7 +8,7 @@ function list_groups {
   local group_id=$1
   local params=$2
 
-  gitlab_get "groups/$(urlencode "${group_id}")" "${params}"
+  gitlab_get "groups/$(url_encode "${group_id}")" "${params}"
 }
 
 # API: search_group_ (ALPHA)
@@ -16,7 +16,7 @@ function list_groups {
 function search_group_ {
   local search_string=$1
 
-  gitlab_get "groups/search=$(urlencode "${search_string}")" ''
+  gitlab_get "groups/search=$(url_encode "${search_string}")" ''
 }
 
 # API: get_group_id_from_group_path
@@ -26,7 +26,7 @@ function get_group_id_from_group_path {
   local answer
   local group_id
 
-  answer=$(gitlab_get "groups/$(urlencode "${group_path}")") || return 1
+  answer=$(gitlab_get "groups/$(url_encode "${group_path}")") || return 1
 
   group_id=$(echo "${answer}" | jq .id)
 
@@ -99,7 +99,7 @@ function create_group {
       params+='&'
     fi
 
-    params+="${param_name}=$(urlencode "${param_value}")"
+    params+="${param_name}=$(url_encode "${param_value}")"
   done
 
   # DEBUG echo "# create_group POST params: ${params}" >&2
@@ -149,10 +149,10 @@ function edit_group {
 
   local params
 
-  params="name=$(urlencode "${group_name}")&path=${group_path}"
+  params="name=$(url_encode "${group_name}")&path=${group_path}"
 
   if [ "${group_description_define}" = true ]; then
-    params+="&description=$(urlencode "${group_description}")"
+    params+="&description=$(url_encode "${group_description}")"
 
     if [ -z "${group_description}" ]; then
       echo "*** warning: edit_group group_description is empty" >&2
