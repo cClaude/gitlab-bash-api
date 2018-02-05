@@ -308,6 +308,67 @@ listBranches.sh 82
 listBranches.sh 10 | jq -r ' .[] | .name'
 ```
 
+## Samples
+
+Retrieve id of all projects into a group.
+
+```bash
+./glProjects.sh --config --group-path puppet | jq '[.[] | {
+id: .id,
+path_with_namespace: .path_with_namespace
+}]'
+```
+
+Retrieve id of all projects into a group but format output
+
+```bash
+./glProjects.sh --config --group-path puppet |
+  jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)'
+```
+
+Retrieve id of all projects do something with this id
+
+```bash
+./glProjects.sh --config --group-path puppet |
+  jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)' |
+  while read line; do
+    echo "Handle ${line}"
+    PROJECT_ID=$(echo "${line}" | cut -d ':' -f 1)
+
+    echo "do something with ${PROJECT_ID}"
+
+  done
+```
+
+Full sample
+
+```bash
+function enable_key_for_group {
+  local group_name=$1
+  local deploy_key_id=$2
+
+  "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --group-path "${group_name}" \
+  | jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)' \
+  | while read line; do
+      echo "Handle ${line}"
+      local project_id=$(echo "${line}" | cut -d ':' -f 1)
+
+      "${GITLAB_BASH_API_PATH}/glDeployKeys.sh" --enable --project-id "${project_id}" --key-id "${deploy_key_id}" || exit 1
+  done
+}
+
+# let say you have a deploy code id define in
+# You can use 'glDeployKeys.sh' to have this
+DEPLOY_KEY_ID=56
+GROUP_NAME=puppet
+
+# Then you want to enable this key on all project of a group
+# Basically it will use
+#   glDeployKeys.sh --enable --project-id PROJECT_ID --key-id DEPLOY_KEY_ID
+
+enable_key_for_group "${GROUP_NAME}" "${DEPLOY_KEY_ID}"
+```
+
 ## About GitLab and gitlab-bash-api
 
 If you really need this API you probably need to consider moving to another
