@@ -2,7 +2,8 @@
 
 function display_usage {
   echo "Usage: $0
-    $0 --uri GL_URI --params
+    $0 --uri GL_URI
+    $0 --uri GL_URI --params 'PARAM1=VALUE1&PARAM2=VALUE2
 " >&2
   exit 100
 }

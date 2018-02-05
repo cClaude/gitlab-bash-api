@@ -243,13 +243,3 @@ function delete_project {
   gitlab_delete "projects/${project_id}"
 }
 
-# API: get_all_projects_path_with_namespace
-
-function get_all_projects_path_with_namespace {
-  local project_paths
-
-  project_paths=$(list_projects_compact '' '' | jq -r '.[] | .path_with_namespace' ) || exit 401
-
-  echo "${project_paths}" | sort
-}
-

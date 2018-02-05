@@ -2,7 +2,7 @@
 
 function display_usage {
   echo "Usage: $0
-  Get branches configuration
+  Get branches configuration (ALPHA)
     $0 --config --id PROJECT_ID [ --name BRANCH_NAME]
 " >&2
   exit 100

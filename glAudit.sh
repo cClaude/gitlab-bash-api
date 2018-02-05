@@ -77,8 +77,8 @@ function build_audit_file {
   local file
   local parent
 
-  file="$(build_audit_folder "${audit_folder}" "${file_type}")/${file_name}.json"
-  parent=$(dirname "${file}")
+  file="$(build_audit_folder "${audit_folder}" "${file_type}")/${file_name}.json" || exit 1
+  parent=$(dirname "${file}") || exit 1
 
   if [ ! -d "${parent}" ]; then
     mkdir "${parent}"
@@ -103,8 +103,6 @@ function get_group_config_by_id {
     exit 1
   fi
 
-  # "${GITLAB_BASH_API_PATH}/glGroups.sh" --config --id "${group_id}" \
-  #   | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
   show_group_config "${group_id}" \
     | jq ". | { ${GITLAB_DEFAULT_AUDIT_FOR_GROUP} }"
 }
@@ -117,8 +115,6 @@ function get_project_config_by_id {
     exit 1
   fi
 
-  # "${GITLAB_BASH_API_PATH}/glProjects.sh" --config --id "${project_id}" \
-  #   | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
   show_project_config true "${project_id}" \
     | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
 }
@@ -142,11 +138,10 @@ function audit_groups_configuration {
       local audit_file
       local path_link
 
-      audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}")
-      path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}")
+      audit_file=$(build_audit_file "${audit_folder}" 'groups_by_id' "${group_id}") || exit 1
+      path_link=$(build_audit_file "${audit_folder}" 'groups_by_path' "${group_path}") || exit 1
 
       echo "* audit group ${group_id} / ${group_path}" >&2
-      # echo "* audit group ${group_id} / ${group_path} -> ${audit_file}" >&2
 
       echo "${group_config}" > "${audit_file}"
 
