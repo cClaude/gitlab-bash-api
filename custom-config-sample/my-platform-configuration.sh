@@ -3,12 +3,12 @@
 # Configuration related to the platform
 #
 
-GITLAB_URL_PREFIX=https://gitlab.local
+GITLAB_URL_PREFIX=https://gitlab.local/
 
 # Optionnal
 
 # Require to clone using ssh
-GITLAB_CLONE_SSH_PREFIX=git@192.168.10.200
+GITLAB_CLONE_SSH_PREFIX=ssh://git@192.168.10.200/
 
 # You can also configure in you ~/.bashrc file
 #
