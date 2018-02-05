@@ -22,7 +22,7 @@ Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https
 Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 
 Current version is based on [GitLab V4 API](https://docs.gitlab.com/ce/api/v3_to_v4.html) but some features work on V3.
-V3 is no more supported.
+V3 is no more supported except by glGet and glPut commands.
 
 
 ## Installation
@@ -78,6 +78,7 @@ PATH=$PATH:${GITLAB_BASH_API_PATH}/
 ## Global usage
 
 You can call comment using the full path
+
 ```bash
 ${GITLAB_BASH_API_PATH}/listUsers.sh --all
 ```
@@ -88,6 +89,23 @@ or simply (if **${GITLAB_BASH_API_PATH}** is in your path):
 listUsers.sh --all
 ```
 
+### Generic GET
+
+Syntax:
+> glGet.sh --uri GL_URI [--params 'PARAM1=VALUE1&PARAM2=VALUE2]
+
+```bash
+glGet.sh --uri /projects | jq .
+```
+
+### Generic PUT
+
+Syntax:
+> glPut.sh --uri GL_URI [--params 'PARAM1=VALUE1&PARAM2=VALUE2]
+
+```bash
+TODO NEED SAMPLE
+```
 
 ### About users
 
@@ -118,6 +136,7 @@ listUsers.sh testuser
 How to manage groups using **glGroups** command ?
 
 * **Usage**: Get groups configuration
+
 ```bash
     glGroups.sh --config --path GROUP_PATH
     glGroups.sh --config --id GROUP_ID
@@ -125,6 +144,7 @@ How to manage groups using **glGroups** command ?
 ```
 
 * **Usage**: List groups paths
+
 ```bash
     glGroups.sh --list-path --path GROUP_PATH
     glGroups.sh --list-path --id GROUP_ID
@@ -132,6 +152,7 @@ How to manage groups using **glGroups** command ?
 ```
 
 * **Usage**: List groups ids
+
 ```bash
     glGroups.sh --list-id --path GROUP_PATH
     glGroups.sh --list-id --id GROUP_ID
@@ -139,6 +160,7 @@ How to manage groups using **glGroups** command ?
 ```
 
 * **Usage**: Create group
+
 ```bash
     glGroups.sh --create --path GROUP_PATH
         [--name GROUP_NAME] \
@@ -151,6 +173,7 @@ How to manage groups using **glGroups** command ?
 ```
 
 * **Usage**: Edit group configuration
+
 ```bash
     glGroups.sh --edit --id GROUP_ID --name GROUP_NAME --path GROUP_PATH \
         [--description GROUP_DESCRIPTION] \
@@ -160,6 +183,7 @@ How to manage groups using **glGroups** command ?
 ```
 
 * **Usage**: Delete a group
+
 ```bash
     glGroups.sh --delete --id GROUP_ID
 ```
@@ -182,6 +206,7 @@ glGroups.sh --create --path my_test_group
 How to manage groups using **glProjects** command ?
 
 * **Usage**: Get projects configuration
+
 ```bash
     glProjects.sh --config [--compact] --id PROJECT_ID
     glProjects.sh --config [--compact] --group-path GROUP_PATH
@@ -190,6 +215,7 @@ How to manage groups using **glProjects** command ?
 ```
 
 * **Usage**: List projects paths
+
 ```bash
     glProjects.sh --list-path --id PROJECT_ID
     glProjects.sh --list-path --group-path GROUP_PATH (could return more than one entry)
@@ -198,6 +224,7 @@ How to manage groups using **glProjects** command ?
 ```
 
 * **Usage**: List projects ids
+
 ```bash
     glProjects.sh --list-id --id PROJECT_ID
     glProjects.sh --list-id --group-path GROUP_PATH (could return more than one entry)
@@ -206,6 +233,7 @@ How to manage groups using **glProjects** command ?
 ```
 
 * **Usage**: Create project
+
 ```bash
     glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
       [--project-name PROJECT_NAME] \
@@ -226,6 +254,7 @@ How to manage groups using **glProjects** command ?
 ```
 
 * **Usage**: Edit project
+
 ```bash
     glProjects.sh --edit --id PROJECT_ID --project-name PROJECT_NAME \
       [--path PROJECT_PATH] \
@@ -245,6 +274,7 @@ How to manage groups using **glProjects** command ?
 ```
 
 * **Usage**: Delete a project
+
 ```bash
     glProjects.sh --delete --group-path GROUP_PATH --path PROJECT_PATH
     glProjects.sh --delete --id PROJECT_ID
@@ -308,6 +338,8 @@ listBranches.sh 82
 listBranches.sh 10 | jq -r ' .[] | .name'
 ```
 
+(glBranches.sh command is still in alpha version)
+
 ## Samples
 
 Retrieve id of all projects into a group.
@@ -357,16 +389,16 @@ function enable_key_for_group {
   done
 }
 
-# let say you have a deploy code id define in
-# You can use 'glDeployKeys.sh' to have this
-DEPLOY_KEY_ID=56
-GROUP_NAME=puppet
+ # let say you have a deploy code id define in
+ # You can use 'glDeployKeys.sh' to have this
+ DEPLOY_KEY_ID=56
+ GROUP_NAME=puppet
 
-# Then you want to enable this key on all project of a group
-# Basically it will use
-#   glDeployKeys.sh --enable --project-id PROJECT_ID --key-id DEPLOY_KEY_ID
+ # Then you want to enable this key on all project of a group
+ # Basically it will use
+ #   glDeployKeys.sh --enable --project-id PROJECT_ID --key-id DEPLOY_KEY_ID
 
-enable_key_for_group "${GROUP_NAME}" "${DEPLOY_KEY_ID}"
+ enable_key_for_group "${GROUP_NAME}" "${DEPLOY_KEY_ID}"
 ```
 
 ## About GitLab and gitlab-bash-api
