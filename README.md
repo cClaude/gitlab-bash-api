@@ -6,10 +6,14 @@ Table of Contents
     * [Installation](#installation)
     * [Configuration](#configuration)
     * [Global usage](#global-usage)
+      * [Generic GET](#generic-get)
+      * [Generic PUT](#generic-put)
       * [About users](#about-users)
       * [About groups](#about-groups)
       * [About projects (repositories)](#about-projects-repositories)
       * [About branches](#about-branches)
+    * [Samples](#samples)
+    * [About GitLab and gitlab-bash-api](#about-gitlab-and-gitlab-bash-api)
     * [Related documentations](#related-documentations)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
@@ -40,17 +44,17 @@ git clone https://github.com/cClaude/gitlab-bash-api.git
 
 ## Configuration
 
-You can create a **my-config** folder (ignored by git) to configure/customize this application or just copy content of **custom-config-sample/**.
-The **my-config** folder is taken in account by default by the API
+You can create a `my-config` folder (ignored by git) to configure/customize this application or just copy content of `custom-config-sample/`.
+The `my-config` folder is taken in account by default by the API
 
-> You can also use any custom folder for configuration, by setting **GITLAB_BASH_API_CONFIG**
+> You can also use any custom folder for configuration, by setting `GITLAB_BASH_API_CONFIG`
 > variable with the full path of your custom folder.
 
 In you configuration files:
 
 * You can create any custom file to declare variables (bash format), all theses files will be sourced.
-* You can override default values define in **config/** folder,
-* You need **at least** define values for **GITLAB_PRIVATE_TOKEN** and **GITLAB_URL_PREFIX**.
+* You can override default values define in `config/` folder,
+* You need **at least** define values for `GITLAB_PRIVATE_TOKEN` and `GITLAB_URL_PREFIX`.
 
 ```bash
 GITLAB_PRIVATE_TOKEN=__YOUR_GITLAB_TOKEN_HERE__
@@ -59,9 +63,9 @@ GITLAB_URL_PREFIX=__YOUR_GITLAB_USER_HERE__
 
 Configuration algorithms :
 
-1. source files in "${GITLAB_BASH_API_PATH}/config"
-2. source files in "${GITLAB_BASH_API_PATH}/my-config" (if folder exists)
-3. source files in "${GITLAB_BASH_API_CONFIG}" (if variable is define and if folder exists)
+1. source files in `${GITLAB_BASH_API_PATH}/config`
+2. source files in `${GITLAB_BASH_API_PATH}/my-config` (if folder exists)
+3. source files in `${GITLAB_BASH_API_CONFIG}` (if variable is define and if folder exists)
 
 **Facultative configuration:**
 
@@ -73,6 +77,14 @@ export GITLAB_BASH_API_CONFIG="__YOUR_PATH_TO__/your-custom-config-folder"
 
 PATH=$PATH:${GITLAB_BASH_API_PATH}/
 ```
+
+**Hacking**
+
+If for any reason you need to customize how curl access to GitLab server you can add some
+custom configuration in `${GITLAB_BASH_API_PATH}/my-config` or in `${GITLAB_BASH_API_CONFIG}`
+folders.
+
+A sample is available in `custom-config-sample/customize-curl.sh`.
 
 
 ## Global usage
@@ -406,10 +418,11 @@ function enable_key_for_group {
 If you really need this API you probably need to consider moving to another
 git server.
 
-```
-GitLab is the best SVN server ever...
-but for git needs consider to move to something else.
-```
+> GitLab is the best SVN server ever...
+> but for git needs consider to move to something else.
+
+* [gitea](https://github.com/go-gitea/gitea) is complete, it is free and a true OpenSource solution.
+* [bitbucket](https://www.atlassian.com/software/bitbucket/server) from Atlassian is proprietary software but probably the most mature solution.
 
 ## Related documentations
 
