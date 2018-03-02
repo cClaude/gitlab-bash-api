@@ -37,6 +37,7 @@ function display_usage {
   Edit project
     $0 --edit --id PROJECT_ID --project-name PROJECT_NAME \\
       [--path PROJECT_PATH] \\
+      [--default-branch DEFAULT_BRANCH]
       [--project-description PROJECT_DESCRIPTION] \\
       [--container-registry-enabled true|false] \\
       [--issues-enabled true|false] \\
@@ -53,6 +54,7 @@ function display_usage {
   Edit project
     $0 --edit --id PROJECT_ID --project-name PROJECT_NAME \\
       [--path PROJECT_PATH] \\
+      [--default-branch DEFAULT_BRANCH]
       [--project-description PROJECT_DESCRIPTION] \\
       [--issues-enabled true|false] \\
       [--merge-requests-enabled true|false] \\
@@ -398,6 +400,7 @@ function main {
   local p_visibility=
   local p_wiki_enabled=
   local action=
+  local p_default_branch=
 
   while [[ $# -gt 0 ]]; do
     local param="$1"
@@ -533,6 +536,11 @@ function main {
         ensure_boolean "${p_wiki_enabled}" '--wiki-enabled'
         shift
         ;;
+      --default-branch)
+        p_default_branch="$1"
+        p_default_branch_defined=true
+        shift
+        ;;
       *)
         # unknown option
         echo "Unknown parameter ${param}" >&2
@@ -558,12 +566,9 @@ function main {
         delete_project_handle_params "${param_project_id}" "${param_group_path}" "${param_project_path}" | jq .
         ;;
     editAction)
-        local default_branch_defined=false
-        local default_branch=
-
         edit_project_handle_params "${param_project_id}" "${p_project_name}" \
             "${param_project_path_define}" "${param_project_path}" \
-            "${default_branch_defined}" "${default_branch}" \
+            "${p_default_branch_defined}" "${p_default_branch}" \
             "${p_project_description_define}" "${p_project_description}" \
             "${p_issues_enabled}" \
             "${p_merge_requests_enabled}" \
@@ -619,4 +624,3 @@ if [ $# -eq 0 ]; then
 fi
 
 main "$@"
-
