@@ -10,6 +10,15 @@
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
+declare LF
+LF="
+"
+declare -r LF
+
+declare CR
+CR="$(echo -e "\r")"
+declare -r CR
+
 NEXT_PAGE='*'
 
 #
@@ -37,16 +46,16 @@ function gitlab_get_page {
 
   while read -r line; do
     if $head; then
-      if [[ ${line} = $'\r' ]]; then
+      if [[ "${line}" = "${CR}" ]]; then
         head=false
       else
-        header="${header}"$'\n'"${line}"
+        header="${header}${LF}${line}"
       fi
     else
       if [ -z "${body}" ]; then
         body="${line}"
       else
-        body="${body}"$'\n'"${line}"
+        body="${body}${LF}${line}"
       fi
     fi
   done < <(echo "${curl_result}")
