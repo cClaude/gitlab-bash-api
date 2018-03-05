@@ -249,6 +249,7 @@ How to manage groups using **glProjects** command ?
 ```bash
     glProjects.sh --create --group-id GROUP_ID --path PROJECT_PATH \
       [--project-name PROJECT_NAME] \
+      [--default-branch DEFAULT_BRANCH] \
       [--project-description PROJECT_DESCRIPTION] \
       [--container-registry-enabled true|false] \
       [--issues-enabled true|false] \
@@ -270,6 +271,7 @@ How to manage groups using **glProjects** command ?
 ```bash
     glProjects.sh --edit --id PROJECT_ID --project-name PROJECT_NAME \
       [--path PROJECT_PATH] \
+      [--default-branch DEFAULT_BRANCH] \
       [--project-description PROJECT_DESCRIPTION] \
       [--issues-enabled true|false] \
       [--merge-requests-enabled true|false] \
@@ -427,4 +429,3 @@ git server.
 ## Related documentations
 
 * How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
-

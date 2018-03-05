@@ -209,7 +209,8 @@ function get_project_id {
   local valid_project_id
 
   answer=$(gitlab_get "projects" ) || exit 500
-  project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
+# project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
+  project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")") || exit 1
   project_id=$(echo "${project_info}" | jq -c ".id") || exit 501
   valid_project_id=$(echo "${project_id}" | wc -l)
 
