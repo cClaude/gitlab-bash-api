@@ -67,9 +67,29 @@ function get_all_projects_to_clone {
   #
   # Get all projects with a filled repository
   #
-  # ./glGet.sh --uri /projects | jq '[.[] | select(.default_branch!=null)]' | jq '.[] | .path_with_namespace'
-  #
-  gitlab_get /projects | jq '[.[] | select(.default_branch!=null)]' | jq -r '.[] | .path_with_namespace' || exit 1
+  declare id_project_list
+
+  id_project_list=$(gitlab_get /projects | jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)') || exit 1
+
+  for id_project in $id_project_list ; do
+    declare id
+    declare project
+
+    id=$(echo "${id_project}" | cut -d ':' -f1) || exit 1
+    project=$(echo "${id_project}" | cut -d ':' -f2-) || exit 1
+
+    # Check if there is any branch
+    gitlab_get "/projects/${id}/repository/branches/" | jq '.[] | .name' 1>/dev/null 2>&1
+    if [ $? -eq 0 ] ; then
+      echo "${project}"
+    fi
+  done
+
+  # Before verison 10 of GitLab
+  # gitlab_get "/projects/${id}/wikis" return
+  # {"error":"404 Not Found"}
+
+
 }
 
 function clone_all_projects {
@@ -95,8 +115,10 @@ function clone_all_projects {
 
   #project_paths=$(get_all_projects_path_with_namespace) || exit $?
   project_paths=$(get_all_projects_to_clone) || exit $?
-echo "
+echo "Projects to clone
+-------------------------------------------------
 $project_paths
+-------------------------------------------------
 "
 
   mkdir -p "${root_output_directory}"
