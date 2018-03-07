@@ -8,6 +8,12 @@ function display_usage {
   exit 100
 }
 
+function ensure_action_empty {
+  local action=$1
+
+  ensure_empty "${action}" "action already define: '${action}'"
+}
+
 function main {
   local action=
   local project_id=
@@ -19,19 +25,19 @@ function main {
 
     case "${param}" in
       --config)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=showConfigAction
         ;;
       --create)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=createAction
         ;;
       --delete)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=deleteAction
         ;;
       --edit)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=editAction
         ;;
       -i|--id|--project-id)
@@ -39,11 +45,11 @@ function main {
         shift
         ;;
       --list-path)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=listPathsAction
         ;;
       --list-id)
-        ensure_empty action
+        ensure_action_empty "${action}"
         action=listIdsAction
         ;;
       --membership_lock)

@@ -326,12 +326,35 @@ Syntax:
 * Clone using ssh
 
 ```bash
-mkdir _a_new_empty_folder
-cd _a_new_empty_folder
+mkdir tests-result
+cd tests-result
 
-glCloneAllProjects.sh ssh
+glCloneAllProjects.sh --ssh --bare --destination tests-result/clones
 ```
 
+If you need a custom key to handle this, create the key using
+
+```bash
+ssh-keygen -t rsa -C "clone-process" -b 4096 -f ~/.ssh/gitlab_root_id_rsa
+```
+
+Add this key on GitLab `root` account.
+
+Then you have two options
+
+1. Create a extra configuration file : `define-custom-ssh-key.sh`
+within something like
+
+```bash
+GIT_SSH_COMMAND="ssh -i /home/<<<USERNAME>>>/.ssh/gitlab_root_id_rsa"
+```
+
+2. Or enable this new key using next commands before launching clone process.
+
+```bash
+ssh-add ~/.ssh/gitlab_root_id_rsa
+ssh-add -d ~/.ssh/id_rsa
+```
 
 ### About branches
 
