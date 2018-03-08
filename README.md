@@ -318,18 +318,26 @@ glProjects.sh --list-id --group-path GROUP_PATH
 glProjects.sh --delete --id PROJECT_ID
 ```
 
+#### Backups repositories content with gitlab-bash-api
+
+`glCloneAllProjects` allow you to backup all projects using **gitlab-bash-api**.
+
+It is not a backup for everything, backup of users, groups, merge-requests, snippets,
+jobs, ... are not covered by `glCloneAllProjects`. But it keep full history of
+your projects, this a good practice to keep a such copy before a GitLab migration.
+
 * To clone **all projects** you have access
 
 Syntax:
-> glCloneAllProjects.sh http|ssh
+> glCloneAllProjects.sh --http|--ssh [--bare] --destination OUTPUT_FOLDER
 
-* Clone using ssh
+* Complete example cloning throw ssh
 
 ```bash
 mkdir tests-result
 cd tests-result
 
-glCloneAllProjects.sh --ssh --bare --destination tests-result/clones
+glCloneAllProjects.sh --ssh --bare --destination "tests-result/$(date +'%Y-%m-%d.%H-%M').clones"
 ```
 
 If you need a custom key to handle this, create the key using
@@ -338,22 +346,14 @@ If you need a custom key to handle this, create the key using
 ssh-keygen -t rsa -C "clone-process" -b 4096 -f ~/.ssh/gitlab_root_id_rsa
 ```
 
-Add this key on GitLab `root` account.
+Add this key on GitLab `root` account. `root` should be at least **developper** of
+all repositories but for other action you probably need that this account is **owner**
+of all repositories.
 
-Then you have two options
-
-1. Create a extra configuration file : `define-custom-ssh-key.sh`
-within something like
-
-```bash
-GIT_SSH_COMMAND="ssh -i /home/<<<USERNAME>>>/.ssh/gitlab_root_id_rsa"
-```
-
-2. Or enable this new key using next commands before launching clone process.
+Then you can run `glCloneAllProjects` using
 
 ```bash
-ssh-add ~/.ssh/gitlab_root_id_rsa
-ssh-add -d ~/.ssh/id_rsa
+GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/gitlab_root_id_rsa" ./glCloneAllProjects.sh --ssh --bare --destination tests-result/$(date +'%Y-%m-%d.%H-%M').clones
 ```
 
 ### About branches
