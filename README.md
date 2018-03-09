@@ -11,6 +11,7 @@ Table of Contents
       * [About users](#about-users)
       * [About groups](#about-groups)
       * [About projects (repositories)](#about-projects-repositories)
+        * [Backups repositories content with gitlab-bash-api](#backups-repositories-content-with-gitlab-bash-api)
       * [About branches](#about-branches)
     * [Audit and backups](#audit-and-backups)
       * [Backups repositories](#backups-repositories)
@@ -34,7 +35,7 @@ V3 is no more supported except by glGet and glPut commands.
 
 ## Installation
 
-This tool require *bash*, *curl*, *jq*  and *git*.
+This tool require `bash`, `curl`, `jq` and `git`.
 
 ```bash
 sudo apt update
@@ -218,7 +219,7 @@ glGroups.sh --create --path my_test_group
 
 ### About projects (repositories)
 
-How to manage groups using **glProjects** command ?
+How to manage groups using `glProjects` command ?
 
 * **Usage**: Get projects configuration
 

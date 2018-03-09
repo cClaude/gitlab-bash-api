@@ -2,12 +2,11 @@
 
 ## Configuration
 
-Have a look to the file **docker-config/config.sh** (at least have a look to setup initial password for root)
-if you need customization create a file named **docker-config/my-config.sh** then just overwrite
-needed values in this file.
+Have a look to the file `docker-config/config.sh` (at least have a look to setup initial password for root)
+if you need customization create a file named `docker-config/my-config.sh` then just overwrite
+needed values in this file - typically you might need to change ports values.
 
-
-Then run **gitlab-setup.sh** from **docker-tests** folder
+Then run `gitlab-setup.sh` from **docker-tests** folder
 
 ```bash
 ./gitlab-setup.sh
@@ -32,6 +31,7 @@ Then get your token
 
 ## Run tests
 
-Test are named **test-*.sh**
+Test are named `test-*.sh`
+
 
 
