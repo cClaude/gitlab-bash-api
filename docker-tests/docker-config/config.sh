@@ -19,8 +19,9 @@ DOCKER_GITLAB_API_VERSION=v4
 
 # Docker configuration
 DOCKER_NAME=gitlab
-DOCKER_HTTP_PORT=80
-DOCKER_SSH_PORT=22
+DOCKER_SSH_PORT=10022
+DOCKER_HTTP_PORT=10080
+DOCKER_HTTPS_PORT=10443
 
 # Restart policy to apply when a container exits (default "no")
 DOCKER_RESTART_MODE=no

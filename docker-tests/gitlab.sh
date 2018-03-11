@@ -2,7 +2,9 @@
 
 # https://docs.gitlab.com/omnibus/docker/README.html
 
-source "$(dirname "$(realpath "$0")")/generated-config-bootstrap/init.sh"
+source "$(realpath "$(dirname "$(realpath "$0")")")/api/gitlab-docker-api.sh"
+
+source "${GENERATED_CONFIG_HOME}/docker-config/init.sh"
 
 function display_usage {
   echo "Usage: $0
@@ -12,9 +14,6 @@ function display_usage {
     $0 -s
   Restart docker container
     $0 --restart
-  Configure private token
-    $0 --configure-token
-    $0 -t
   Stop and remove docker container
     $0 --stop
     $0 --remove
@@ -25,10 +24,38 @@ function display_usage {
   exit 100
 }
 
+function post_start {
+  sudo docker ps
+
+  local gitlab_bash_api="${GENERATED_CONFIG_HOME}/gitlab-bash-api/generated-configuration"
+
+  if [ ! -f "${gitlab_bash_api}" ] ; then
+    echo "* Warning : file not found '${gitlab_bash_api}'" >&2
+    exit 1
+  fi
+
+  source "${gitlab_bash_api}"
+
+  if [ -z "${GITLAB_PRIVATE_TOKEN}" ] ; then
+    echo "* Warning : GITLAB_PRIVATE_TOKEN is not define" >&2
+
+    help_tocken_configuration
+  fi
+}
+
 function docker_run {
+  echo "* Starting docker: '${DOCKER_NAME}'
+
+  * GitLab ssh   port : ${DOCKER_SSH_PORT}
+  * GitLab http  port : ${DOCKER_HTTP_PORT} - http://localhost:${DOCKER_HTTP_PORT}/
+  * GitLab https port : ${DOCKER_HTTPS_PORT}
+" >&2
+
   sudo docker run --detach \
     --hostname "${DOCKER_GITLAB_HTTP_HOST}" \
-    --publish 443:443 --publish "${DOCKER_HTTP_PORT}:80" --publish "${DOCKER_SSH_PORT}:22" \
+    --publish "${DOCKER_SSH_PORT}:22" \
+    --publish "${DOCKER_HTTP_PORT}:80" \
+    --publish "${DOCKER_HTTPS_PORT}:443" \
     --name "${DOCKER_NAME}" \
     --restart "${DOCKER_RESTART_MODE}" \
     --volume "${DOCKER_ETC_VOLUME}:/etc/gitlab" \
@@ -37,33 +64,36 @@ function docker_run {
     "${DOCKER_GITLAB_VERSION}"
   docker_run_rc=$?
 
-  if [ ${docker_run_rc} -ne 0 ]; then
-    echo "*** docker run error :  ${docker_run_rc}" >&2
-  fi
   if [ ${docker_run_rc} -eq 125 ]; then
-    echo "Already running ? - try to restart
+    echo "*** Already running ? - try to restart
   $0 --restart
 " >&2
   fi
+  if [ ${docker_run_rc} -ne 0 ]; then
+    echo "*** docker run error :  ${docker_run_rc}" >&2
+    exit 1
+  fi
+
+  post_start
 }
 
 function docker_restart {
-  sudo docker restart "${DOCKER_NAME}"
+  # Usage of 'sudo docker restart "${DOCKER_NAME}"' ban to ensure to take
+  # in account last configuration
+  docker_stop_remove
+  docker_run
 }
 
 function docker_stop_remove {
+  echo "* Stopping docker: '${DOCKER_NAME}'" >&2
+
   sudo docker stop "${DOCKER_NAME}"
   sudo docker rm "${DOCKER_NAME}"
 }
 
-function generate_private_token {
-  echo "Try to generate private token (Will fail if GitLab not yet fully started)" >&2
-
-  "${DOCKER_GITLAB_HOME_PATH}/bin/generate-private-token.sh"
-}
-
 function display_help {
   echo "
+----
 To upgrade gitlab or change version (current version '${DOCKER_GITLAB_VERSION}')
 or all to have cache all versions locally.
   sudo docker pull gitlab/gitlab-ce:latest
@@ -80,6 +110,7 @@ finally start the container as you did originally.
 To reset/delete everything
   $0 --stop
   sudo rm -fr '${DOCKER_ETC_VOLUME}' '${DOCKER_LOGS_VOLUME}' '${DOCKER_DATA_VOLUME}'
+----
 "
 }
 
@@ -112,10 +143,6 @@ function main {
       -h|--help)
         display_help
         display_usage
-        action_rc=$?
-        ;;
-      -t|--configure-token)
-        generate_private_token
         action_rc=$?
         ;;
       *)
