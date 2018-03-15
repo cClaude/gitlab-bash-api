@@ -20,29 +20,6 @@ function list_branches {
   echo "${answer}"
 }
 
-# API: show_project_config
-
-function show_project_config {
-  local param_raw_display=$1
-  local param_project_id=$2
-
-  if [ ! $# -eq 2 ]; then
-    echo "* show_project_config: Expecting 2 parameters found $# : '$*'" >&2
-    exit 1
-  fi
-
-  ensure_boolean "${param_raw_display}" 'param_raw_display' || exit 1
-
-  #DEBUG echo "### show_project_config '$1' - '$2'" >&2
-
-  # Note: if "${param_project_id}" is define request time is smallest.
-  if [ "${param_raw_display}" = "true" ] ; then
-    list_projects_raw "${param_project_id}" 'statistics=true' || exit 1
-  else
-    list_projects_compact "${param_project_id}" '' || exit 1
-  fi
-}
-
 # API: create_project
 
 function create_project {
