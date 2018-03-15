@@ -5,13 +5,16 @@ Table of Contents
   * [GitLab bash API](#gitlab-bash-api)
     * [Installation](#installation)
     * [Configuration](#configuration)
-    * [Global usage](#global-usage)
+    * [Usage](#usage)
       * [Generic GET](#generic-get)
       * [Generic PUT](#generic-put)
       * [About users](#about-users)
       * [About groups](#about-groups)
       * [About projects (repositories)](#about-projects-repositories)
       * [About branches](#about-branches)
+    * [Audit and backups](#audit-and-backups)
+      * [Backups repositories](#backups-repositories)
+      * [Audit groups and repositories](#audit-groups-and-repositories)
     * [Samples](#samples)
     * [About GitLab and gitlab-bash-api](#about-gitlab-and-gitlab-bash-api)
     * [Related documentations](#related-documentations)
@@ -87,7 +90,7 @@ folders.
 A sample is available in `custom-config-sample/customize-curl.sh`.
 
 
-## Global usage
+## Usage
 
 You can call comment using the full path
 
@@ -318,9 +321,35 @@ glProjects.sh --list-id --group-path GROUP_PATH
 glProjects.sh --delete --id PROJECT_ID
 ```
 
-#### Backups repositories content with gitlab-bash-api
+### About branches
 
-`glCloneAllProjects` allow you to backup all projects using **gitlab-bash-api**.
+* List remote branch
+
+Syntax:
+> listBranches.sh PROJECT_ID
+
+* To have all information about existing branches:
+
+```bash
+listBranches.sh 82
+```
+
+* To have just branches name list of project with id=10:
+
+```bash
+listBranches.sh 10 | jq -r ' .[] | .name'
+```
+
+(glBranches.sh command is still in alpha version)
+
+
+## Audit and backups
+
+
+### Backups repositories
+
+`glCloneAllProjects` allow you to backup all repositories (GitLab projects only)
+using **gitlab-bash-api**.
 
 It is not a backup for everything, backup of users, groups, merge-requests, snippets,
 jobs, ... are not covered by `glCloneAllProjects`. But it keep full history of
@@ -356,26 +385,20 @@ Then you can run `glCloneAllProjects` using
 GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/gitlab_root_id_rsa" ./glCloneAllProjects.sh --ssh --bare --destination tests-result/$(date +'%Y-%m-%d.%H-%M').clones
 ```
 
-### About branches
 
-* List remote branch
-
-Syntax:
-> listBranches.sh PROJECT_ID
-
-* To have all information about existing branches:
+### Audit groups and repositories
 
 ```bash
-listBranches.sh 82
+./glAudit.sh --directory tests-result/$(date +'%Y-%m-%d.%H-%M').audit
 ```
 
-* To have just branches name list of project with id=10:
+This will generate a folder `YYYY-MM-DD.HH-MM.audit` with these sub-folders
+* `groups_by_id` : for all groups configuration (file `1.json` contain configuration of group id=1)
+* `groups_by_path` : contain links (links name are based on group path)
+* `projects_by_id` :for all repositories configuration (file `1.json` contain configuration of project id=1)
+* `projects_by_path` : contain links (links name are based on project path name)
+* `projects_by_path_with_namespace` : contain folder (based on group path) then link based on project path.
 
-```bash
-listBranches.sh 10 | jq -r ' .[] | .name'
-```
-
-(glBranches.sh command is still in alpha version)
 
 ## Samples
 
