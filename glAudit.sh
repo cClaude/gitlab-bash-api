@@ -115,7 +115,7 @@ function get_project_config_by_id {
     exit 1
   fi
 
-  show_project_config true "${project_id}" \
+  audit_project "${project_id}" \
     | jq ". | select(.[].id=${project_id}) | .[0] | { ${GITLAB_DEFAULT_AUDIT_FOR_PROJECT} }"
 }
 
