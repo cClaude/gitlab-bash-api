@@ -65,7 +65,7 @@ snippets_enabled: .snippets_enabled,
 shared_runners_enabled: .shared_runners_enabled,
 lfs_enabled: .lfs_enabled,
 request_access_enabled: .request_access_enabled
-}]')
+}]') # '
 
   echo "${short_result}"
 }
@@ -91,6 +91,19 @@ function show_project_config {
   else
     list_projects_compact "${param_project_id}" '' || exit 1
   fi
+}
+
+# API: audit_project
+
+function audit_project {
+  local param_project_id=$1
+
+  if [ ! $# -eq 1 ]; then
+    echo "* project_audit: Expecting 1 parameters found $# : '$*'" >&2
+    exit 1
+  fi
+
+  list_projects_raw "${param_project_id}" 'statistics=true' || exit 1
 }
 
 # API: create_project

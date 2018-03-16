@@ -10,6 +10,15 @@
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
+declare LF
+LF="
+"
+declare -r LF
+
+declare CR
+CR="$(echo -e "\r")"
+declare -r CR
+
 NEXT_PAGE='*'
 
 #
@@ -37,16 +46,16 @@ function gitlab_get_page {
 
   while read -r line; do
     if $head; then
-      if [[ ${line} = $'\r' ]]; then
+      if [[ "${line}" = "${CR}" ]]; then
         head=false
       else
-        header="${header}"$'\n'"${line}"
+        header="${header}${LF}${line}"
       fi
     else
       if [ -z "${body}" ]; then
         body="${line}"
       else
-        body="${body}"$'\n'"${line}"
+        body="${body}${LF}${line}"
       fi
     fi
   done < <(echo "${curl_result}")
@@ -209,7 +218,8 @@ function get_project_id {
   local valid_project_id
 
   answer=$(gitlab_get "projects" ) || exit 500
-  project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
+# project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
+  project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")") || exit 1
   project_id=$(echo "${project_info}" | jq -c ".id") || exit 501
   valid_project_id=$(echo "${project_id}" | wc -l)
 
