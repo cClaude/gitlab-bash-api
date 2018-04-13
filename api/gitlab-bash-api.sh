@@ -165,19 +165,13 @@ function gitlab_delete {
 
 function url_encode {
   # url_encode <string>
-  old_lc_collate=$LC_COLLATE
-  LC_COLLATE=C
-
-  local length="${#1}"
-  for (( i = 0; i < length; i++ )); do
-    local c="${1:i:1}"
-    case $c in
-      [a-zA-Z0-9.~_-]) printf "%s" "$c" ;;
-      *) printf '%%%02X' "'$c" ;;
-    esac
+  local LANG=C i c e=''
+  for ((i=0;i<${#1};i++)); do
+    c=${1:$i:1}
+    [[ "$c" =~ [a-zA-Z0-9\.\~\_\-] ]] || printf -v c '%%%02X' "'$c"
+    e+="$c"
   done
-
-  LC_COLLATE=$old_lc_collate
+  echo "$e"
 }
 
 function source_files {
@@ -404,4 +398,3 @@ if [ -z "${PER_PAGE_MAX}" ]; then
   # Max value for GitLab is 100
   PER_PAGE_MAX=50
 fi
-
