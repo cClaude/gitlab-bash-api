@@ -54,7 +54,7 @@ function git_clone {
   fi
 
   echo "clone ${project_url}"
-  git clone "${p_bare}" "${project_url}"
+  git clone ${p_bare} "${project_url}"
   local clone_rc=$?
 
   if [ "${clone_rc}" -ne 0 ] ; then
