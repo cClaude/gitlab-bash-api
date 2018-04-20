@@ -54,8 +54,20 @@ function git_clone {
   fi
 
   echo "clone ${project_url}"
-  git clone ${p_bare} "${project_url}"
-  local clone_rc=$?
+  if [ -d $(basename "${project_url}") ];then
+      cd $(basename "${project_url}")
+      git pull --rebase
+      local clone_rc=$?
+      cd -
+  elif [ -d $(basename "${project_url}" .git) ];then
+      cd $(basename "${project_url}" .git)
+      git fetch --all
+      local clone_rc=$?
+      cd -
+  else
+      git clone ${p_bare} "${project_url}"
+      local clone_rc=$?
+  fi
 
   if [ "${clone_rc}" -ne 0 ] ; then
     echo "*** Error while clonning: ${project_url}"
