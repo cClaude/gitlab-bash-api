@@ -25,9 +25,8 @@ function gitlab_get_page {
   local page="$3"
 
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?page=${page}&per_page=${PER_PAGE_MAX}&${api_params}"
-  local curl_result
-
-  curl_result="$( curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}" )"
+  local curl_result=
+  curl_result="$( curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}" ${client_certificate} )"
   local curl_rc=$?
 
   if [ ${curl_rc} -ne 0 ]; then
@@ -106,9 +105,8 @@ function gitlab_post {
   local api_params="$2"
 
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
-  local curl_result
-
-  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}" )"
+  local curl_result=
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}" ${client_certificate} )"
   local curl_rc=$?
 
   if [ ${curl_rc} -ne 0 ]; then
@@ -127,9 +125,8 @@ function gitlab_put {
   local api_params="$2"
 
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
-  local curl_result
-
-  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}" )"
+  local curl_result=
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}" ${client_certificate} )"
   local curl_rc=$?
 
   if [ ${curl_rc} -ne 0 ]; then
@@ -148,9 +145,8 @@ function gitlab_delete {
   local api_params="$2"
 
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
-  local curl_result
-
-  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}" )"
+  local curl_result=
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}" ${client_certificate} )"
   local curl_rc=$?
 
   if [ ${curl_rc} -ne 0 ]; then
@@ -174,26 +170,26 @@ function url_encode {
 }
 
 function source_all_files_in_directory {
-  local folder=$1
-  local file
+  local -r folder=$1
 
+  local file=
   for file in "${folder}"/* ; do
     source "${file}"
   done
 }
 
 function list_projects_in_group {
-  local group_name=$1
-  local answer
+  local -r group_name="$1"
 
+  local answer=
   answer="$( list_projects_raw )"
 
   # Rewrite result
-  local result_for_group
-  local size
-
+  local curl_result=
   curl_result="$( echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]" )" || exit $?
-  size="$( echo "${result_for_group}" |jq '. | length' )"
+
+  local size=
+  size="$( echo "${result_for_group}" | jq '. | length' )"
 
   if [ "${size}" -eq 0 ] ; then
     echo "No project available for group [${group_name}] (group does not exist ?)" >&2
@@ -395,4 +391,15 @@ fi
 if [ -z "${PER_PAGE_MAX}" ]; then
   # Max value for GitLab is 100
   PER_PAGE_MAX=50
+fi
+
+#prepare client_certificate part of CURL
+if [ -n ${GITLAB_CLIENT_CERTIFICATE} ]; then
+  client_certificate=" --cert ${GITLAB_CLIENT_CERTIFICATE}"
+  if [ ! -n ${GITLAB_CLIENT_CERTIFICATE_PASSWORD} ]; then
+    client_certificate+=":${GITLAB_CLIENT_CERTIFICATE_PASSWORD}"
+  fi
+  client_certificate+=" --key ${GITLAB_PRIVATE_KEY}"
+else
+  client_certificate=""
 fi
