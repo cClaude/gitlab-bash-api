@@ -10,14 +10,12 @@
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
-declare LF
-LF="
-"
-declare -r LF
+chr() {
+  printf \\$(printf '%03o' $1)
+}
 
-declare CR
-CR="$(echo -e "\r")"
-declare -r CR
+declare -r LF=$(chr "10")
+declare -r CR=$(chr "13")
 
 NEXT_PAGE='*'
 
