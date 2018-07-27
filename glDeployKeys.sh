@@ -3,7 +3,7 @@
 # Documentation:
 #   https://docs.gitlab.com/ce/api/deploy_keys.html
 #
-ACTION=''
+declare ACTION=''
 
 function display_usage {
   echo "Usage: $0" >&2
