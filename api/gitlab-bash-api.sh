@@ -166,16 +166,19 @@ function url_encode {
   local LANG=C i c e=''
   for ((i=0;i<${#1};i++)); do
     c=${1:$i:1}
+    # shellcheck disable=SC1001
     [[ "$c" =~ [a-zA-Z0-9\.\~\_\-] ]] || printf -v c '%%%02X' "'$c"
     e+="$c"
   done
   echo "$e"
 }
 
-function source_files {
-  for f in $1/*
-  do
-    source "$f"
+function source_all_files_in_directory {
+  local folder=$1
+  local file
+
+  for file in ${folder}/* ; do
+    source "${file}"
   done
 }
 
@@ -364,10 +367,10 @@ jq_is_required || exit 1
 #
 # Load configuration
 #
-source_files "${GITLAB_BASH_API_PATH}/config"
+source_all_files_in_directory "${GITLAB_BASH_API_PATH}/config"
 
 if [ -d "${GITLAB_BASH_API_PATH}/my-config" ]; then
-  source_files "${GITLAB_BASH_API_PATH}/my-config"
+  source_all_files_in_directory "${GITLAB_BASH_API_PATH}/my-config"
 fi
 
 if [ ! -z "$GITLAB_BASH_API_CONFIG" ]; then
@@ -376,7 +379,7 @@ if [ ! -z "$GITLAB_BASH_API_CONFIG" ]; then
     exit 1
   fi
 
-  source_files "${GITLAB_BASH_API_CONFIG}"
+  source_all_files_in_directory "${GITLAB_BASH_API_CONFIG}"
 fi
 
 #
