@@ -3,6 +3,22 @@
 # Limitations and bugs
 # * Does not support wikis
 
+# Configuration - BEGIN
+if [ -z "${GITLAB_BASH_API_PATH}" ]; then
+  GITLAB_BASH_API_PATH="$( dirname "$( realpath "$0" )" )"
+fi
+
+if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
+  echo "gitlab-bash-api.sh not found! - Please set GITLAB_BASH_API_PATH" >&2
+  exit 1
+fi
+
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
+# Configuration - END
+
+# Script start here
+source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
+
 function display_usage {
   echo "Clone all projects by groups
 
@@ -54,19 +70,20 @@ function git_clone {
   fi
 
   echo "clone ${project_url}"
-  if [ -d $(basename "${project_url}") ];then
-      cd $(basename "${project_url}")
-      git pull --rebase
-      local clone_rc=$?
-      cd -
-  elif [ -d $(basename "${project_url}" .git) ];then
-      cd $(basename "${project_url}" .git)
-      git fetch --all
-      local clone_rc=$?
-      cd -
+  if [ -d "$( basename "${project_url}" )" ];then
+    pushd "$( basename "${project_url}" )" >/dev/null
+    git pull --rebase
+    local clone_rc=$?
+    popd >/dev/null
+  elif [ -d "$( basename "${project_url}" .git )" ];then
+    pushd "$( basename "${project_url}" .git )" >/dev/null
+    git fetch --all
+    local clone_rc=$?
+    popd >/dev/null
   else
-      git clone ${p_bare} "${project_url}"
-      local clone_rc=$?
+    # shellcheck disable=SC2086
+    git clone ${p_bare} "${project_url}"
+    local clone_rc=$?
   fi
 
   if [ "${clone_rc}" -ne 0 ] ; then
@@ -81,9 +98,9 @@ function get_all_projects_to_clone {
   #
   declare id_project_list
 
-  id_project_list=$(gitlab_get /projects | jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)') || exit 1
+  id_project_list="$( gitlab_get /projects | jq -r '.[] | (.id|tostring) + ":" + (.path_with_namespace)' )" || exit 1
 
-  for id_project in $id_project_list ; do
+  for id_project in ${id_project_list} ; do
     declare id
     declare project
 
@@ -94,13 +111,14 @@ function get_all_projects_to_clone {
     gitlab_get "/projects/${id}/repository/branches/" | jq '.[] | .name' 1>/dev/null 2>&1
     if [ $? -eq 0 ] ; then
       echo "${project}"
+    else
+      echo "Ignore empty project: (${id})${project}" >&2
     fi
   done
 
   # Before verison 10 of GitLab
   # gitlab_get "/projects/${id}/wikis" return
   # {"error":"404 Not Found"}
-
 
 }
 
@@ -215,21 +233,5 @@ function main {
 
   clone_all_projects "${url_type}" "${bare}" "${root_output_directory}"
 }
-
-# Configuration - BEGIN
-if [ -z "$GITLAB_BASH_API_PATH" ]; then
-  GITLAB_BASH_API_PATH=$(dirname "$(realpath "$0")")
-fi
-
-if [ ! -f "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh" ]; then
-  echo "gitlab-bash-api.sh not found! - Please set GITLAB_BASH_API_PATH" >&2
-  exit 1
-fi
-
-source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api.sh"
-# Configuration - END
-
-# Script start here
-source "${GITLAB_BASH_API_PATH}/api/gitlab-bash-api-project.sh"
 
 main "$@"
