@@ -1,29 +1,26 @@
-Table of Contents
-=================
+**Table of Contents**
 
-  * [Table of Contents](#table-of-contents)
-  * [GitLab bash API](#gitlab-bash-api)
-    * [Installation](#installation)
-    * [Configuration](#configuration)
-    * [Usage](#usage)
-      * [Generic GET](#generic-get)
-      * [Generic PUT](#generic-put)
-      * [About users](#about-users)
-      * [About groups](#about-groups)
-      * [About projects (repositories)](#about-projects-repositories)
-        * [Backups repositories content with gitlab-bash-api](#backups-repositories-content-with-gitlab-bash-api)
-      * [About branches](#about-branches)
-    * [Audit and backups](#audit-and-backups)
-      * [Backups repositories](#backups-repositories)
-      * [Audit groups and repositories](#audit-groups-and-repositories)
-    * [Samples](#samples)
-    * [About GitLab and gitlab-bash-api](#about-gitlab-and-gitlab-bash-api)
-    * [Related documentations](#related-documentations)
+* [GitLab bash API](#gitlab-bash-api)
+  * [Installation](#installation)
+  * [Configuration](#configuration)
+  * [Usage](#usage)
+    * [Generic GET](#generic-get)
+    * [Generic PUT](#generic-put)
+    * [About users](#about-users)
+    * [About groups](#about-groups)
+    * [About projects (repositories)](#about-projects-repositories)
+    * [About branches](#about-branches)
+  * [Audit and backups](#audit-and-backups)
+    * [Backups repositories](#backups-repositories)
+    * [Audit groups and repositories](#audit-groups-and-repositories)
+  * [Samples](#samples)
+  * [About GitLab and gitlab\-bash\-api](#about-gitlab-and-gitlab-bash-api)
+  * [Related documentations](#related-documentations)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
-
-# GitLab bash API
+GitLab bash API
+===============
 
 Access [GitLab CE API](https://docs.gitlab.com/ce/api/) or [GitLab EE API](https://docs.gitlab.com/ee/api/) from bash.
 
@@ -33,7 +30,8 @@ Current version is based on [GitLab V4 API](https://docs.gitlab.com/ce/api/v3_to
 V3 is no more supported except by glGet and glPut commands.
 
 
-## Installation
+Installation
+------------
 
 This tool require `bash`, `curl`, `jq` and `git`.
 
@@ -46,7 +44,8 @@ git clone https://github.com/cClaude/gitlab-bash-api.git
 ```
 
 
-## Configuration
+Configuration
+-------------
 
 You can create a `my-config` folder (ignored by git) to configure/customize this application or just copy content of `custom-config-sample/`.
 The `my-config` folder is taken in account by default by the API
@@ -91,7 +90,8 @@ folders.
 A sample is available in `custom-config-sample/customize-curl.sh`.
 
 
-## Usage
+Usage
+-----
 
 You can call comment using the full path
 
@@ -344,8 +344,8 @@ listBranches.sh 10 | jq -r ' .[] | .name'
 (glBranches.sh command is still in alpha version)
 
 
-## Audit and backups
-
+Audit and backups
+-----------------
 
 ### Backups repositories
 
@@ -364,8 +364,7 @@ Syntax:
 * Complete example cloning throw ssh
 
 ```bash
-mkdir tests-result
-cd tests-result
+mkdir -p tests-result
 
 glCloneAllProjects.sh --ssh --bare --destination "tests-result/$(date +'%Y-%m-%d.%H-%M').clones"
 ```
@@ -401,7 +400,8 @@ This will generate a folder `YYYY-MM-DD.HH-MM.audit` with these sub-folders
 * `projects_by_path_with_namespace` : contain folder (based on group path) then link based on project path.
 
 
-## Samples
+Samples
+-------
 
 Retrieve id of all projects into a group.
 
@@ -462,7 +462,9 @@ function enable_key_for_group {
  enable_key_for_group "${GROUP_NAME}" "${DEPLOY_KEY_ID}"
 ```
 
-## About GitLab and gitlab-bash-api
+
+About GitLab and gitlab-bash-api
+--------------------------------
 
 If you really need this API you probably need to consider moving to another
 git server.
@@ -473,6 +475,8 @@ git server.
 * [gitea](https://github.com/go-gitea/gitea) is complete, it is free and a true OpenSource solution.
 * [bitbucket](https://www.atlassian.com/software/bitbucket/server) from Atlassian is proprietary software but probably the most mature solution.
 
-## Related documentations
+
+Related documentations
+----------------------
 
 * How to [get your GitLab API key](how-to-get-your-gitlab-api-key.md)
