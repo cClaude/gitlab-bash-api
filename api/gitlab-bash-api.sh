@@ -10,14 +10,11 @@
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
-chr() {
-  printf \\$(printf '%03o' $1)
-}
 
-declare -r LF=$(chr "10")
-declare -r CR=$(chr "13")
+declare -r LF=$'\n'
+declare -r CR=$'\r'
 
-NEXT_PAGE='*'
+declare NEXT_PAGE
 
 #
 # HTTP GET - Read one page
@@ -30,10 +27,10 @@ function gitlab_get_page {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?page=${page}&per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}")
+  curl_result="$( curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}" )"
   local curl_rc=$?
 
-  if [ $curl_rc -ne 0 ]; then
+  if [ ${curl_rc} -ne 0 ]; then
     echo "*** Error curl status ${curl_rc} : curl_url=${curl_url}" >&2
     return 1
   fi
@@ -41,9 +38,10 @@ function gitlab_get_page {
   local head=true
   local body=
   local header=
+  local line
 
   while read -r line; do
-    if $head; then
+    if ${head} ; then
       if [[ "${line}" = "${CR}" ]]; then
         head=false
       else
@@ -58,7 +56,7 @@ function gitlab_get_page {
     fi
   done < <(echo "${curl_result}")
 
-  NEXT_PAGE=$(echo "${header}" | grep 'X-Next-Page:' | cut -c 14-| tr -d '[:space:]')
+  NEXT_PAGE="$( echo "${header}" | grep 'X-Next-Page:' | cut -c 14-| tr -d '[:space:]' )"
   PAGE_BODY="${body}"
 }
 
@@ -72,6 +70,8 @@ function gitlab_get {
   local json=
   local begin=
 
+  NEXT_PAGE='*'
+
   while [[ ${page} =~ ^-?[0-9]+$ ]]; do
     gitlab_get_page "${api_url}" "${api_params}" "${page}"
 
@@ -83,7 +83,7 @@ function gitlab_get {
     #echo "${begin}- ${page}" >>'body.txt'
     #echo "${PAGE_BODY}" >>'body.txt'
     if [ "${begin}" = '[' ] ; then
-      json+=$(echo "${PAGE_BODY}" | cut -b2- | rev | cut -b2- | rev )
+      json+="$( echo "${PAGE_BODY}" | cut -b2- | rev | cut -b2- | rev )"
     else
       json+="${PAGE_BODY}"
     fi
@@ -108,10 +108,10 @@ function gitlab_post {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}")
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}" )"
   local curl_rc=$?
 
-  if [ $curl_rc -ne 0 ]; then
+  if [ ${curl_rc} -ne 0 ]; then
     echo "*** Error curl status ${curl_rc} : curl_url=${curl_url}" >&2
     return 1
   fi
@@ -129,10 +129,10 @@ function gitlab_put {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}")
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}" )"
   local curl_rc=$?
 
-  if [ $curl_rc -ne 0 ]; then
+  if [ ${curl_rc} -ne 0 ]; then
     echo "*** Error curl status ${curl_rc} : curl_url=${curl_url}" >&2
     return 1
   fi
@@ -150,10 +150,10 @@ function gitlab_delete {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}")
+  curl_result="$( curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}" )"
   local curl_rc=$?
 
-  if [ $curl_rc -ne 0 ]; then
+  if [ ${curl_rc} -ne 0 ]; then
     echo "*** Error curl status ${curl_rc} : curl_url=${curl_url}" >&2
     return 1
   fi
@@ -186,14 +186,14 @@ function list_projects_in_group {
   local group_name=$1
   local answer
 
-  answer=$(list_projects_raw)
+  answer="$( list_projects_raw )"
 
   # Rewrite result
   local result_for_group
   local size
 
-  curl_result=$(echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]") || exit 301
-  size=$( echo "${result_for_group}" |jq '. | length' )
+  curl_result="$( echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]" )" || exit 301
+  size="$( echo "${result_for_group}" |jq '. | length' )"
 
   if [ "${size}" -eq 0 ] ; then
     echo "No project available for group [${group_name}] (group does not exist ?)" >&2
@@ -212,11 +212,10 @@ function get_project_id {
   local project_id
   local valid_project_id
 
-  answer=$(gitlab_get "projects" ) || exit 500
-# project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace | contains(\"${group_name}/${project_name}\"))") || exit 1
-  project_info=$(echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")") || exit 1
-  project_id=$(echo "${project_info}" | jq -c ".id") || exit 501
-  valid_project_id=$(echo "${project_id}" | wc -l)
+  answer="$( gitlab_get "projects" )" || exit 500
+  project_info="$( echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")" )" || exit 1
+  project_id="$( echo "${project_info}" | jq -c ".id" )" || exit 501
+  valid_project_id="$( echo "${project_id}" | wc -l )"
 
   if [ "${valid_project_id}" -ne 1 ] ; then
     echo "*** More than one maching project: ${valid_project_id}" >&2
@@ -237,9 +236,9 @@ function list_deploy_keys_raw {
   local answer=
 
   if [ -z "$project_id" ] ; then
-    answer=$(gitlab_get "deploy_keys" "${params}") || exit 700
+    answer="$( gitlab_get "deploy_keys" "${params}" )" || exit 700
   else
-    answer=$(gitlab_get "projects/${project_id}/deploy_keys" "${params}") || exit 701
+    answer="$( gitlab_get "projects/${project_id}/deploy_keys" "${params}" )" || exit 701
   fi
 
   echo "${answer}"
@@ -250,7 +249,7 @@ function enable_deploy_keys {
   local deploy_key_id=$2
   local answer
 
-  answer=$(gitlab_post "/projects/${project_id}/deploy_keys/${deploy_key_id}/enable") || exit 702
+  answer="$( gitlab_post "/projects/${project_id}/deploy_keys/${deploy_key_id}/enable" )" || exit 702
 
   echo "${answer}"
 }
@@ -260,7 +259,7 @@ function delete_deploy_keys {
   local deploy_key_id=$2
   local answer
 
-  answer=$(gitlab_delete "/projects/${project_id}/deploy_keys/${deploy_key_id}") || exit 703
+  answer="$( gitlab_delete "/projects/${project_id}/deploy_keys/${deploy_key_id}" )" || exit 703
 
   echo "${answer}"
 }
@@ -278,7 +277,7 @@ function set_action {
 function getErrorMessage {
   local message
 
-  message=$(echo "$1" | jq -r '. .message' 2>/dev/null)
+  message="$( echo "$1" | jq -r '. .message' 2>/dev/null )"
 
   if [ "${message}" = 'null' ]; then
     echo ''
@@ -318,8 +317,8 @@ function ensure_empty {
   local message_if_not_empty=$2
 
   if [ ! -z "${value}" ] ; then
-     echo "Unexpected value '${value}': ${message_if_not_empty}" >&2
-   display_usage
+    echo "Unexpected value '${value}': ${message_if_not_empty}" >&2
+    display_usage
   fi
 }
 
@@ -330,8 +329,8 @@ function ensure_empty_deprecated {
   local var_value=${!var_name}
 
   if [ ! -z "${var_value}" ] ; then
-     echo "Unexpected value ${var_name}=${var_value}" >&2
-   display_usage
+    echo "Unexpected value ${var_name}=${var_value}" >&2
+    display_usage
   fi
 }
 
