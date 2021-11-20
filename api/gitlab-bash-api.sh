@@ -350,7 +350,7 @@ function ensure_boolean {
 }
 
 function jq_is_required {
-  if which jq >/dev/null; then
+  if ! which jq >/dev/null; then
     echo 'jq command is missing. Please install it.
   sudo apt install jq
 or
