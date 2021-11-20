@@ -393,13 +393,15 @@ if [ -z "${PER_PAGE_MAX}" ]; then
   PER_PAGE_MAX=50
 fi
 
-#prepare client_certificate part of CURL
-if [ -n ${GITLAB_CLIENT_CERTIFICATE} ]; then
+#
+# Prepare client_certificate part of CURL
+#
+if [ -n "${GITLAB_CLIENT_CERTIFICATE:-}" ]; then
   client_certificate=" --cert ${GITLAB_CLIENT_CERTIFICATE}"
-  if [ ! -n ${GITLAB_CLIENT_CERTIFICATE_PASSWORD} ]; then
+  if [ -n "${GITLAB_CLIENT_CERTIFICATE_PASSWORD}" ]; then
     client_certificate+=":${GITLAB_CLIENT_CERTIFICATE_PASSWORD}"
   fi
   client_certificate+=" --key ${GITLAB_PRIVATE_KEY}"
 else
-  client_certificate=""
+  client_certificate=
 fi
