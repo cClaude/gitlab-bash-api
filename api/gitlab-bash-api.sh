@@ -10,14 +10,12 @@
 #
 # Last version is available on GitHub: https://github.com/cClaude/gitlab-bash-api
 #
-declare LF
-LF="
-"
-declare -r LF
+chr() {
+  printf \\$(printf '%03o' $1)
+}
 
-declare CR
-CR="$(echo -e "\r")"
-declare -r CR
+declare -r LF=$(chr "10")
+declare -r CR=$(chr "13")
 
 NEXT_PAGE='*'
 
@@ -32,7 +30,7 @@ function gitlab_get_page {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?page=${page}&per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}")
+  curl_result=$(curl --include --silent --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" "${curl_url}" ${client_certificate})
   local curl_rc=$?
 
   if [ $curl_rc -ne 0 ]; then
@@ -110,7 +108,7 @@ function gitlab_post {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}")
+  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X POST --silent "${curl_url}" ${client_certificate})
   local curl_rc=$?
 
   if [ $curl_rc -ne 0 ]; then
@@ -131,7 +129,7 @@ function gitlab_put {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}")
+  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X PUT --silent "${curl_url}" ${client_certificate})
   local curl_rc=$?
 
   if [ $curl_rc -ne 0 ]; then
@@ -152,7 +150,7 @@ function gitlab_delete {
   local curl_url="${GITLAB_URL_PREFIX}/api/${GITLAB_API_VERSION}/${api_url}?per_page=${PER_PAGE_MAX}&${api_params}"
   local curl_result
 
-  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}")
+  curl_result=$(curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -X DELETE --silent "${curl_url}" ${client_certificate})
   local curl_rc=$?
 
   if [ $curl_rc -ne 0 ]; then
@@ -397,4 +395,15 @@ fi
 if [ -z "${PER_PAGE_MAX}" ]; then
   # Max value for GitLab is 100
   PER_PAGE_MAX=50
+fi
+
+#prepare client_certificate part of CURL
+if [ -n ${GITLAB_CLIENT_CERTIFICATE} ]; then
+  client_certificate=" --cert ${GITLAB_CLIENT_CERTIFICATE}"
+  if [ ! -n ${GITLAB_CLIENT_CERTIFICATE_PASSWORD} ]; then
+    client_certificate+=":${GITLAB_CLIENT_CERTIFICATE_PASSWORD}"
+  fi
+  client_certificate+=" --key ${GITLAB_PRIVATE_KEY}"
+else
+  client_certificate=""
 fi
