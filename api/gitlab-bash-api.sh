@@ -14,7 +14,7 @@
 declare -r LF=$'\n'
 declare -r CR=$'\r'
 
-declare NEXT_PAGE
+declare NEXT_PAGE=
 
 #
 # HTTP GET - Read one page
@@ -75,7 +75,7 @@ function gitlab_get {
   while [[ ${page} =~ ^-?[0-9]+$ ]]; do
     gitlab_get_page "${api_url}" "${api_params}" "${page}"
 
-    if [ ! -z "${json}" ] ; then
+    if [ -n "${json}" ] ; then
       json+=','
     fi
 
@@ -177,7 +177,7 @@ function source_all_files_in_directory {
   local folder=$1
   local file
 
-  for file in ${folder}/* ; do
+  for file in "${folder}"/* ; do
     source "${file}"
   done
 }
@@ -192,15 +192,15 @@ function list_projects_in_group {
   local result_for_group
   local size
 
-  curl_result="$( echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]" )" || exit 301
+  curl_result="$( echo "${answer}" | jq "[.[] | select(.namespace.name==\"${group_name}\")]" )" || exit $?
   size="$( echo "${result_for_group}" |jq '. | length' )"
 
   if [ "${size}" -eq 0 ] ; then
     echo "No project available for group [${group_name}] (group does not exist ?)" >&2
-    exit 303
+    exit 123
   fi
 
-  echo "${result_for_group}" | jq -r ".[] | .path" || exit 302
+  echo "${result_for_group}" | jq -r ".[] | .path" || exit $?
 }
 
 function get_project_id {
@@ -212,19 +212,19 @@ function get_project_id {
   local project_id
   local valid_project_id
 
-  answer="$( gitlab_get "projects" )" || exit 500
-  project_info="$( echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")" )" || exit 1
-  project_id="$( echo "${project_info}" | jq -c ".id" )" || exit 501
+  answer="$( gitlab_get "projects" )" || exit $?
+  project_info="$( echo "${answer}" | jq -c ".[] | select( .path_with_namespace=\"${group_name}/${project_name}\")" )" || exit $?
+  project_id="$( echo "${project_info}" | jq -c ".id" )" || exit $?
   valid_project_id="$( echo "${project_id}" | wc -l )"
 
   if [ "${valid_project_id}" -ne 1 ] ; then
     echo "*** More than one maching project: ${valid_project_id}" >&2
-    exit 502
+    exit 123
   fi
 
   if [ -z "${project_id}" ] ; then
     echo -e "** Project \"${group_name}/${project_name}\" does not exist" >&2
-    exit 503
+    exit 123
   fi
 
   echo "${project_id}"
@@ -236,9 +236,9 @@ function list_deploy_keys_raw {
   local answer=
 
   if [ -z "$project_id" ] ; then
-    answer="$( gitlab_get "deploy_keys" "${params}" )" || exit 700
+    answer="$( gitlab_get "deploy_keys" "${params}" )" || exit $?
   else
-    answer="$( gitlab_get "projects/${project_id}/deploy_keys" "${params}" )" || exit 701
+    answer="$( gitlab_get "projects/${project_id}/deploy_keys" "${params}" )" || exit $?
   fi
 
   echo "${answer}"
@@ -249,7 +249,7 @@ function enable_deploy_keys {
   local deploy_key_id=$2
   local answer
 
-  answer="$( gitlab_post "/projects/${project_id}/deploy_keys/${deploy_key_id}/enable" )" || exit 702
+  answer="$( gitlab_post "/projects/${project_id}/deploy_keys/${deploy_key_id}/enable" )" || exit $?
 
   echo "${answer}"
 }
@@ -259,7 +259,7 @@ function delete_deploy_keys {
   local deploy_key_id=$2
   local answer
 
-  answer="$( gitlab_delete "/projects/${project_id}/deploy_keys/${deploy_key_id}" )" || exit 703
+  answer="$( gitlab_delete "/projects/${project_id}/deploy_keys/${deploy_key_id}" )" || exit $?
 
   echo "${answer}"
 }
@@ -275,8 +275,7 @@ function set_action {
 # API : getErrorMessage
 
 function getErrorMessage {
-  local message
-
+  local message=
   message="$( echo "$1" | jq -r '. .message' 2>/dev/null )"
 
   if [ "${message}" = 'null' ]; then
@@ -316,7 +315,7 @@ function ensure_empty {
   local value=$1
   local message_if_not_empty=$2
 
-  if [ ! -z "${value}" ] ; then
+  if [ -n "${value}" ] ; then
     echo "Unexpected value '${value}': ${message_if_not_empty}" >&2
     display_usage
   fi
@@ -328,7 +327,7 @@ function ensure_empty_deprecated {
   local var_name=$1
   local var_value=${!var_name}
 
-  if [ ! -z "${var_value}" ] ; then
+  if [ -n "${var_value}" ] ; then
     echo "Unexpected value ${var_name}=${var_value}" >&2
     display_usage
   fi
@@ -351,8 +350,7 @@ function ensure_boolean {
 }
 
 function jq_is_required {
-  which jq >/dev/null
-  if [ $? -ne 0 ]; then
+  if which jq >/dev/null; then
     echo 'jq command is missing. Please install it.
   sudo apt install jq
 or
@@ -372,7 +370,7 @@ if [ -d "${GITLAB_BASH_API_PATH}/my-config" ]; then
   source_all_files_in_directory "${GITLAB_BASH_API_PATH}/my-config"
 fi
 
-if [ ! -z "$GITLAB_BASH_API_CONFIG" ]; then
+if [ -n "$GITLAB_BASH_API_CONFIG" ]; then
   if [ ! -d "${GITLAB_BASH_API_CONFIG}" ]; then
     echo "GITLAB_BASH_API_CONFIG=${GITLAB_BASH_API_CONFIG} - Folder not found." >&2
     exit 1
