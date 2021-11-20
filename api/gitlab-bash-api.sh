@@ -56,7 +56,7 @@ function gitlab_get_page {
     fi
   done < <(echo "${curl_result}")
 
-  NEXT_PAGE="$( echo "${header}" | grep 'X-Next-Page:' | cut -c 14-| tr -d '[:space:]' )"
+  NEXT_PAGE="$( echo "${header}" | grep -i '^x-next-page:' | cut -c 14-| tr -d '[:space:]' )"
   PAGE_BODY="${body}"
 }
 
